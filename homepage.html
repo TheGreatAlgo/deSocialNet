@@ -1,26 +1,46 @@
+<!--
+__________         ___.      __   .__             __________        .__ .__       .___
+\______   \  ____  \_ |__  _/  |_ |  |__    ____  \______   \ __ __ |__||  |    __| _/  ____  _______
+ |    |  _/ /  _ \  | __ \ \   __\|  |  \ _/ __ \  |    |  _/|  |  \|  ||  |   / __ | _/ __ \ \_  __ \
+ |    |   \(  <_> ) | \_\ \ |  |  |   Y  \\  ___/  |    |   \|  |  /|  ||  |__/ /_/ | \  ___/  |  | \/
+ |______  / \____/  |___  / |__|  |___|  / \___  > |______  /|____/ |__||____/\____ |  \___  > |__|
+        \/              \/             \/      \/         \/                       \/      \/
+-->
 <!doctype html>
 <html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+<!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap CSS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <script src="https://kit.fontawesome.com/0af91b369f.js" crossorigin="anonymous"></script>
-    <title>Hello, world!</title>
-  </head>
+<!-- Bootstrap CSS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<script src="https://kit.fontawesome.com/0af91b369f.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous">
+</script>
+<title>Hello, world!</title>
+</head>
+<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+<script src="https://npmcdn.com/moralis@latest/dist/moralis.js"></script>
+<script>
+function showEmojiBox(){
+  let visible = document.getElementById("smileyBox").style.display;
+  if (visible == "none"){
+      document.getElementById("smileyBox").style.display = "block";
+  }
+  else{
+      document.getElementById("smileyBox").style.display = "none";
+  }
+}
 
-  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
-  <script src="https://npmcdn.com/moralis@latest/dist/moralis.js"></script>
-  <script>
-
-  var file;
-  var gif;
-  var link;
-  const kovanContract = "0xe55cBB27Fe4638eC377fD81c359459103533D20f";
-  const ABI = [
+var file;
+var gif;
+var link;
+const kovanContract = "0xe55cBB27Fe4638eC377fD81c359459103533D20f";
+const ABI = [
 	{
 		"anonymous": false,
 		"inputs": [
@@ -375,357 +395,1118 @@ const options = {
     text: "hello world"
   },
 };
-  const serverUrl = "https://h1fpcthpxdrt.usemoralis.com:2053/server";
-  const appId = "xNLGUQH5eITa3ybsmQ7Zp2ZbekxAtVRa6umAJ1LZ";
-  Moralis.start({ serverUrl, appId });
-  async function newProfile(profileBio) {
-    const options = {
-      contractAddress: kovanContract,
-      functionName: "newProfile",
-      abi: ABI,
-      params: {
-        text: profileBio
-      },
-    };
-    const receipt = await Moralis.executeFunction(options);
-    console.log(receipt)
-  }
-  async function addPost(message,messageURL) {
-    const options = {
-      contractAddress: kovanContract,
-      functionName: "getRandomNumberAndPost",
-      abi: ABI,
-      params: {
-        messageText: message,
-        url: messageURL
-      },
-    };
-    const receipt = await Moralis.executeFunction(options);
-    console.log(receipt)
-  }
-  async function login() {
-    console.log("login attempted");
-    let user = Moralis.User.current();
-    if (!user) {
-      user = await Moralis.authenticate();
-       document.getElementById("loginForm").style.display = "none";
-       document.getElementById("mainPage").style.display = "block";
-     }
-    else{
-      document.getElementById("loginForm").style.display = "none";
-      document.getElementById("mainPage").style.display = "block";
-    }
-    console.log("logged in user:", user);
-  }
-  async function onFirstLoad() {
-    const web3 = await Moralis.enableWeb3();
-    console.log("login attempted");
-    let user = Moralis.User.current();
-    if (!user) {
-      document.getElementById("loginForm").style.display = "block";
-      document.getElementById("mainPage").style.display = "none";
-      user = await Moralis.authenticate();
-       document.getElementById("loginForm").style.display = "none";
-       document.getElementById("mainPage").style.display = "block";
-     }
-    else{
-      document.getElementById("loginForm").style.display = "none";
-      document.getElementById("mainPage").style.display = "block";
-    }
-    console.log("logged in user:", user);
-  }
-  async function logOut() {
-      await Moralis.User.logOut();
-      document.getElementById("loginForm").style.display = "block";
-      document.getElementById("mainPage").style.display = "none";
-      console.log("logged out");
-
-  }
-  async function getUserProfile() {
-    const options = {
-      contractAddress: kovanContract,
-      functionName: "getUserProfile",
-      abi: ABI,
-      params: {
-        userAddress: "0x252d2f2293098AF088623a641546c98687DeB884"
-      },
-    };
-    const receipt = await Moralis.executeFunction(options);
-    console.log(receipt)
-  }
-  async function getUserPost(_userAddress, _postKey) {
-    const options = {
-      contractAddress: kovanContract,
-      functionName: "getUserPost",
-      abi: ABI,
-      params: {
-        userAddress: _userAddress,
-        postKey: _postKey
-      },
-    };
-    const receipt = await Moralis.executeFunction(options);
-    console.log(receipt)
-    return receipt;
-  }
-  function updateUserPreferences(data, action){
-    const userPreferences = Moralis.User.current();
-    switch(action){
-      case "unfollow":
-          userPreferences.remove("following",data); //Array of Addresses
-          break;
-      case "follow":
-          userPreferences.add("following",data);
-          break;
-      case "modeChange":
-          userPreferences.set("mode",data); //Either "Light" or "dark"
-          break;
-      case "savePost":
-          userPreferences.add("savedPosts",data); //Array of Addresses with Post ID
-          break;
-      case "unSavePost":
-          userPreferences.remove("savedPosts",data);
-          break;
-      default:
-        //do nothing
-    }
-    userPreferences.save()
-    .then((userPreferences) => {
-  // Execute any logic that should take place after the object is saved.
-    alert('New object created with objectId: ' + userPreferences.id);
-     }, (error) => {
-    // Execute any logic that should take place if the save fails.
-    // error is a Moralis.Error with an error code and message.
-    alert('Failed to create new object, with error code: ' + error.message);
-  });
-  }
-  function getUserPreferences() {
-    const userPreferences = Moralis.User.current();
-    const following = userPreferences.get("following");
-    const savedPosts = userPreferences.get("savedPosts");
-    const mode = userPreferences.get("mode");
+var following
+var savedPosts
+var mode
+var recipientAddress // global recipientAddress
+var recipientNickname // global
+const serverUrl = "https://h1fpcthpxdrt.usemoralis.com:2053/server";
+const appId = "xNLGUQH5eITa3ybsmQ7Zp2ZbekxAtVRa6umAJ1LZ";
+Moralis.start({ serverUrl, appId });
+onFirstLoad();
+async function newProfile(profileBio) {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "newProfile",
+    abi: ABI,
+    params: {
+      text: profileBio
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
 }
+async function addPost(message,messageURL) {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "getRandomNumberAndPost",
+    abi: ABI,
+    params: {
+      messageText: message,
+      url: messageURL
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+}
+async function login() {
+  console.log("login attempted");
+  let user = Moralis.User.current();
+  if (!user) {
+    user = await Moralis.authenticate();
+    document.getElementById("loginForm").style.display = "none";
+    document.getElementById("mainPage").style.display = "block";
+   }
+  else{
+    document.getElementById("loginForm").style.display = "none";
+    document.getElementById("mainPage").style.display = "block";
+  }
+  console.log("logged in user:", user);
+}
+
+async function onFirstLoad() {
+  const web3 = await Moralis.enableWeb3();
+  let user = Moralis.User.current();
+  if (!user) {
+    document.getElementById("loginForm").style.display = "block";
+    document.getElementById("mainPage").style.display = "none";
+    user = await Moralis.authenticate();
+    document.getElementById("loginForm").style.display = "none";
+    document.getElementById("mainPage").style.display = "block";
+   }
+  else{
+    document.getElementById("loginForm").style.display = "none";
+    document.getElementById("mainPage").style.display = "block";
+    getUserPreferences()//get the userPreferences
+  }
+  console.log("logged in user:", user);
+}
+
+async function logOut() {
+  try{
+      await Moralis.User.logOut();
+  }
+  catch{
+
+  }
+  document.getElementById("loginForm").style.display = "block";
+  document.getElementById("mainPage").style.display = "none";
+  console.log("logged out");
+}
+async function getUserProfile() {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "getUserProfile",
+    abi: ABI,
+    params: {
+      userAddress: "0x252d2f2293098AF088623a641546c98687DeB884"
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+}
+async function likePost(_address, _postID) {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "likePost",
+    abi: ABI,
+    params: {
+      userAddress: _address,
+      postKey:  _postID
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+}
+async function getUserPost(_userAddress, _postKey) {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "getUserPost",
+    abi: ABI,
+    params: {
+      userAddress: _userAddress,
+      postKey: _postKey
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+  return receipt;
+}
+function donationAddress(_recieverAddress,_recieverNickname){
+  recipientAddress = _recieverAddress;
+  recipientNickname = _recieverNickname;
+  var addressShort = recipientAddress.slice(0, 20);
+  addressShort = addressShort.concat("...");
+  document.getElementById('donationRecipient').textContent = recipientNickname + " @  " + addressShort
+  $('#savedPostModal').modal('hide'); //hide other modal
+  $('#userAccountModal').modal('hide'); //hide other modal
+}
+async function donateEthereum() { //_recieverAddress, _amount
+  let options = {
+  address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+  chain: "eth",
+  exchange:"sushiswap"
+  };
+  const usdPrice = await Moralis.Web3API.token.getTokenPrice(options);
+  let amount = document.getElementById("donationAmount").value;
+  let _recieverAddress = recipientAddress;
+  let donationAmount = amount/usdPrice.usdPrice;
+  console.log(usdPrice.usdPrice);
+  console.log(_recieverAddress);
+  console.log(donationAmount);
+  donationAmount = Moralis.Units.ETH(donationAmount);
+  console.log(donationAmount);
+  options = {type: "native", amount: donationAmount , receiver: _recieverAddress};
+  console.log(options);
+  const receipt = await Moralis.transfer(options)
+  console.log(receipt);
+  return receipt;
+}
+function followNewUser(){
+  let newFollowing = document.getElementById("followAddress").value;
+  console.log(newFollowing);
+  //let userProfile = getUserProfile(newFollowing);
+  //newUserPreference = [newFollowing,userProfile.nickName]
+  //updateUserPreferences(newUserPreference, "follow")
+}
+function updateUserPreferences(data, action){
+  //const userPreferences = Moralis.User.current();
+  switch(action){
+    case "unfollow":
+        userPreferences.remove("following",data); //Array of Addresses
+        break;
+    case "follow":
+        userPreferences.add("following",data);
+        break;
+    case "modeChange":
+        userPreferences.set("mode",data); //Either "Light" or "dark"
+        break;
+    case "savePost":
+        userPreferences.add("savedPosts",data); //Array of Addresses with Post ID
+        break;
+    case "unSavePost":
+        userPreferences.remove("savedPosts",data);
+        break;
+    default:
+      //do nothing
+  }
+  userPreferences.save()
+  .then((userPreferences) => {
+  getUserPreferences()
+  //alert('New object created with objectId: ' + userPreferences.id);
+   }, (error) => {
+  // Execute any logic that should take place if the save fails.
+  // error is a Moralis.Error with an error code and message.
+  alert('Failed to create new object, with error code: ' + error.message);
+});
+}
+function getUserPreferences() { // only time this should be called is on a page refresh or on change of userPreferences
+  userPreferences = Moralis.User.current();
+  following = userPreferences.get("following");
+  savedPosts = userPreferences.get("savedPosts");
+  mode = userPreferences.get("mode");
+  savedPosts= [["john","0x252d2f2293098AF088623a641546c98687DeB884","1"],["phil","0x252d2f2293098AF088623a641546c98687DeB884","2"]];
+  followingArray= [["john","0x264d2f2293098AF088623a641546c98687DeB884"],["phil","0x252d2f2293098AF088623a641546c98687DeB884"]];
+  renderSaved(savedPosts); // replace with "savedPosts" on launch;
+  renderFollowing(followingArray);
+}
+function toggleDarkMode() {
+  const style = document.createElement('style');
+  style.innerHTML = `
+    .textChange {
+        color: black;
+    }
+    .boxesColor {
+      background-color:#FCFCFC;
+    }
+    .boxesShadow {
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+    .boxesLine {
+      border-top: 1px solid #535353
+    }
+    .boxesLineTop {
+      border-bottom: 1px solid #535353
+    }
+    .textAreaTheme {
+      border: solid 1px #FCFCFC;
+      background-color:#FCFCFC; color:white;
+    }
+    .backgroundColor{
+      background-color:#F1F4F5;
+    }
+    .backgroundColorSideBar{
+      background-color:#D7D7D7;
+      box-shadow: 0 0px 0px 0px rgba(0, 0, 0, 0);
+    }
+    .backgroundColorNavBar{
+      background-color:#fff;
+    }
+    .iconColor{
+      color:#3E3E3E;
+    }
+    .iconColor{
+      color:#3E3E3E;
+    }
+    .changeButtonColor{
+      background-color: #318ce7;
+      border-color: #318ce7;
+    }
+    .changeButtonTextColor{
+      color: #fff;
+    }
+    .changeButtonTextColor:hover{
+      color: #fff;
+    }
+    .changeButtonColor:hover{
+      background-color: #318ce7;
+      border-color: #318ce7;
+    }
+    .textBox{
+      border: solid 1px #535353;
+      background-color: #fff;
+      color: black;
+      font-size: 18px;
+    }
+    .boxesBioColor{
+      background-color:#D7D7D7 ;
+    }
+`;
+  document.head.appendChild(style);
+}
+function insertEmoji(emoji){
+  document.getElementById("messageToPost").value += emoji;
+  document.getElementById("smileyBox").style.display = "none";
+}
+
 // HANDLING FILES/LINKS ------------------------------------------------------------------------------------------------------------HANDLING FILES/LINKS-------------------------------
-  function handleFile(input) {
-    file = input.files[0]; //input.files[0];
-    console.log("new file");
-    const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
-    document.getElementById("textArea").innerHTML +=
-      `
-      <div class="row align-items-start">
-        <div class="col-4">
-            <p style = "margin: 10px 0px 0px"><em>${file.name}</em></p>
-        </div>
-        <div class="col-1" style="margin: 10px 0px 0px">
-            <button type="button" class="btn-close" onclick="deleteFile()" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-      </div>`; // Profile Overview in the Modal
+function handleFile(input) {
+  file = input.files[0]; //input.files[0];
+  console.log("new file");
+  const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
+  document.getElementById("textArea").innerHTML +=
+    `
+    <div class="row align-items-start">
+      <div class="col-4">
+          <p style = "margin: 10px 0px 0px"><em>${file.name}</em></p>
+      </div>
+      <div class="col-1" style="margin: 10px 0px 0px">
+          <button type="button" class="btn-close" onclick="deleteFile()" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+    </div>`; // Profile Overview in the Modal
 
   document.getElementById("messageToPost").value = message;
-  //  alert(`File name: ${file.name}`); // e.g my.png
-  //  alert(`Last modified: ${file.lastModified}`); // e.g 1552830408824
+//  alert(`File name: ${file.name}`); // e.g my.png
+//  alert(`Last modified: ${file.lastModified}`); // e.g 1552830408824
+}
+function handleGif(gifLink) {
+  const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
+  document.getElementById("messageContent").innerHTML +=
+    `<img src="https://media.giphy.com/media/${gifLink}/giphy.gif" style="display: block; margin:auto; padding:0px 0px 20px 0px" width="100%">`; // Profile Overview in the Modal
+  document.getElementById("messageToPost").value = message;
+}
+function handleUserGif() {
+  console.log("New Gif");
+  gif = true;
+  const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
+  const gifLink = document.getElementById("gifLink").value
+  document.getElementById("textArea").innerHTML +=
+    `<img id="gif" src="${gifLink}" style="display: block; margin:auto; padding:20px 0px 20px 0px" width="100%">`; // Profile Overview in the Modal
+  document.getElementById("messageToPost").value = message;
+}
+function returnLinksGifsHTML(url) {
+  if (url == ""){ //nothing attached to the message
+    return url
   }
-  function handleGif(gifLink) {
-    const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
-    document.getElementById("messageContent").innerHTML +=
-      `<img src="https://media.giphy.com/media/${gifLink}/giphy.gif" style="display: block; margin:auto; padding:0px 0px 20px 0px" width="50%">`; // Profile Overview in the Modal
-      document.getElementById("messageToPost").value = message;
+  if (url.length < 30){ // its giphy
+    url = "https://media.giphy.com/media/"+url+"/giphy.gif";
+    console.log(url);
+    let htmlCode =   `<img id="gif" src="${url}" style="display: block; margin:auto; padding:20px 0px 20px 0px;" width="100%">`;
+    console.log(htmlCode);
+    return htmlCode
   }
-  function handleUserGif() {
-    console.log("New Gif");
-    gif = true;
-    const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
-    const gifLink = document.getElementById("gifLink").value
-    document.getElementById("textArea").innerHTML +=
-      `<img id="gif" src="${gifLink}" style="display: block; margin:auto; padding:20px 0px 20px 0px" width="50%">`; // Profile Overview in the Modal
-      document.getElementById("messageToPost").value = message;
+  if (url.length > 30){ // its IPFS
+
+    url = "https://ipfs.moralis.io:2053/ipfs/"+url;
+    let htmlCode =
+    `
+    <div class="row align-items-start">
+      <div class="col-12">
+          <p style="margin:0px" class="textChange">Click to load attachment:</p>
+          <p style = "margin: 3px 0px 10px;"><a href="${url}" target="_blank" style="color: #1D81EB"><u>From IPFS</u></a></p>
+      </div>
+    </div>`;
+    return htmlCode
   }
-  function handleUserLink() {
-    link = true;
-    console.log("new link");
-    const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
-    const linkValue = document.getElementById("link").value
-    document.getElementById("textArea").innerHTML +=
-      `
-      <div class="row align-items-start">
-        <div class="col-6">
-            <p id="link" style = "margin: 10px 0px 0px"><em>${linkValue}</em></p>
-        </div>
-        <div class="col-1" style="margin: 10px 0px 0px">
-            <button  type="button" class="btn-close" onclick="deleteFile()" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-      </div>`; // Profile Overview in the Modal
+  return url
+}
+function handleUserLink() {
+  link = true;
+  console.log("new link");
+  const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
+  const linkValue = document.getElementById("link").value
+  document.getElementById("textArea").innerHTML +=
+    `
+    <div class="row align-items-start">
+      <div class="col-6">
+          <p id="link" style = "margin: 10px 0px 0px"><em>${linkValue}</em></p>
+      </div>
+      <div class="col-1" style="margin: 10px 0px 0px">
+          <button  type="button" class="btn-close" onclick="deleteFile()" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+    </div>`; // Profile Overview in the Modal
 
   document.getElementById("messageToPost").value = message;
-  //  alert(`File name: ${file.name}`); // e.g my.png
-  //  alert(`Last modified: ${file.lastModified}`); // e.g 1552830408824
+//  alert(`File name: ${file.name}`); // e.g my.png
+//  alert(`Last modified: ${file.lastModified}`); // e.g 1552830408824
+}
+async function uploadFileandPostToBlockChain() {
+  const data = file;
+  const message = document.getElementById("messageToPost").value;
+  // *IMPORTANT* Check to see if file exists or not*
+  if (data) {
+    //  const moralisFile = new Moralis.File(data.name, data)
+    //  const receipt = await moralisFile.saveIPFS();
+    //  addPost(message,moralisFile.hash()) //Save to BlockChain
+    var textArea = document.getElementById("textArea");
+    textArea.removeChild(textArea.lastElementChild);
   }
-  async function uploadFileandPostToBlockChain() {
-    const data = file;
-    const message = document.getElementById("messageToPost").value;
-    // *IMPORTANT* Check to see if file exists or not*
-    if (data) {
-      //  const moralisFile = new Moralis.File(data.name, data)
-      //  const receipt = await moralisFile.saveIPFS();
-      //  addPost(message,moralisFile.hash()) //Save to BlockChain
-      var textArea = document.getElementById("textArea");
-      textArea.removeChild(textArea.lastElementChild);
-    }
-    if (gif){
-      let gifSource = document.getElementById("gif").src;
-      gifSource = gifSource.replace('https://media.giphy.com/media/', '');
-      gifSource = gifSource.replace('/giphy.gif', '');
-      // addPost(message,gifSource) //Save to BlockChain
-      var textArea = document.getElementById("textArea");
-      textArea.removeChild(textArea.lastElementChild);
-    }
-    if (link){
-      let linkSource = document.getElementById("link").value;
-      // addPost(message,linkSource) //Save to BlockChain
-      var textArea = document.getElementById("textArea");
-      textArea.removeChild(textArea.lastElementChild);
-      console.log(linkSource);
-    }
-    else{
-      //  addPost(message,"") //Save to BlockChain
-    }
-    console.log(message);
-    //addPost(message,"QmUXTtySmd7LD4p6RG6rZW6RuUuPZXTtNMmRQ6DSQo3aMw") //Only for Testing
-  //  console.log(moralisFile.ipfs(), moralisFile.hash())
-  //  console.log("Receipt ",receipt)
-
-    document.getElementById("messageToPost").value = ""; // reset text Box
-
-    file = false;
-    gif = false;
-    link = false;
-    return receipt;
+  if (gif){
+    let gifSource = document.getElementById("gif").src;
+    gifSource = gifSource.replace('https://media.giphy.com/media/', '');
+    gifSource = gifSource.replace('/giphy.gif', '');
+    // addPost(message,gifSource) //Save to BlockChain
+    var textArea = document.getElementById("textArea");
+    textArea.removeChild(textArea.lastElementChild);
   }
+  if (link){
+    let linkSource = document.getElementById("link").value;
+    // addPost(message,linkSource) //Save to BlockChain
+    var textArea = document.getElementById("textArea");
+    textArea.removeChild(textArea.lastElementChild);
+    console.log(linkSource);
+  }
+  else{
+    //  addPost(message,"") //Save to BlockChain
+  }
+  console.log(message);
+  //addPost(message,"QmUXTtySmd7LD4p6RG6rZW6RuUuPZXTtNMmRQ6DSQo3aMw") //Only for Testing
+//  console.log(moralisFile.ipfs(), moralisFile.hash())
+//  console.log("Receipt ",receipt)
+
+  document.getElementById("messageToPost").value = ""; // reset text Box
+
+  file = false;
+  gif = false;
+  link = false;
+  return receipt;
+}
   // function getUserPreferences(){
   //   const userPreferences = Moralis.User.current();
   //   console.log(userPreferences.fetch())
   // }
-  var myModal = document.getElementById('myModal')
-  var myInput = document.getElementById('myInput')
+var myModal = document.getElementById('myModal')
+var myInput = document.getElementById('myInput')
 
-  myModal.addEventListener('shown.bs.modal', function () {
-    myInput.focus()
-  })
-  function getLocalTime(unixTimeStamp){
-    var date = new Date(unixTimeStamp).toLocaleDateString("en-US");
-    var time = new Date(unixTimeStamp).toLocaleTimeString("en-US");
-    return (date + " " + time)
-  }
-  // DYNAMIC RENDERING Code -----------------------------------------------------------------------------------------------------------Dynamic Rendering ------------------------------
-  function deleteFile(){
-    var textArea = document.getElementById("textArea");
-    textArea.removeChild(textArea.lastElementChild);
-    file = false;
-  }
-  function renderFollowing(followingArray) { //followingArray
-      var followerHTML = document.getElementById("followerList");
-      while (followerHTML.hasChildNodes()) { // This removes all of them and re-renders it
-        followerHTML.removeChild(followerHTML.firstChild);
-        }
-    //  const followingArray = [["john","0x4532f2293098AF088623a641546c98687DeB884"],["phil","0x5354f2293098AF088623a641546c98687DeB884"],["Sarah","0x4532f2293098AF088623a641546c98687DeB884"]]
-      for (let i = 0; i < followingArray.length; i++) {
-        const nickName = followingArray[i][0];
-        const address = followingArray[i][1];
-        var addressShort = address.slice(0, 10);
-        addressShort = addressShort.concat("...");
-        document.getElementById("followerList").innerHTML +=
-          `<h6 class = "text-center" data-bs-toggle="modal" data-bs-target="#userAccountModal" >${nickName}  ${addressShort}</h6>`; // Profile Overview in the Modal
-        }
+function getLocalTime(unixTimeStamp){
+  unixTimeStamp = unixTimeStamp*1000;
+  var date = new Date(unixTimeStamp).toLocaleDateString("en-US");
+  var time = new Date(unixTimeStamp).toLocaleTimeString("en-US");
+  return (date + " " + time)
+}
+function getLocalDate(unixTimeStamp){
+  unixTimeStamp = unixTimeStamp*1000;
+  var date = new Date(unixTimeStamp).toLocaleDateString("en-US");
+  return (date)
+}
+// DYNAMIC RENDERING Code -----------------------------------------------------------------------------------------------------------Dynamic Rendering ------------------------------
+function loadExplorePage(){
+  document.getElementById("socialFeedPage").style.display="none";
+  document.getElementById("shopPage").style.display="none";
+  document.getElementById("walletPage").style.display="none";
+  document.getElementById("playPage").style.display="none";
+  renderExplorePage();
+  document.getElementById("explorePostsPage").style.display="";
+}
+function loadSocialFeedPage(){
+  document.getElementById("explorePostsPage").style.display="none";
+  document.getElementById("shopPage").style.display="none";
+  document.getElementById("walletPage").style.display="none";
+  document.getElementById("playPage").style.display="none";
+  //renderSocialFeedPageExplorePosts();
+  document.getElementById("socialFeedPage").style.display=""; //wierd glitch where if i put inline it shows lower
+}
+function loadShopPage(){
+  document.getElementById("explorePostsPage").style.display="none";
+  document.getElementById("socialFeedPage").style.display="none";
+  document.getElementById("walletPage").style.display="none";
+  document.getElementById("playPage").style.display="none";
+  //renderSocialFeedPageExplorePosts();
+  document.getElementById("shopPage").style.display="";
+}
+function loadWalletPage(){
+  document.getElementById("explorePostsPage").style.display="none";
+  document.getElementById("socialFeedPage").style.display="none";
+  document.getElementById("shopPage").style.display="none";
+  document.getElementById("playPage").style.display="none";
+  //renderSocialFeedPageExplorePosts();
+  document.getElementById("walletPage").style.display="";
+}
+function loadPlayPage(){
+  document.getElementById("explorePostsPage").style.display="none";
+  document.getElementById("socialFeedPage").style.display="none";
+  document.getElementById("walletPage").style.display="none";
+  document.getElementById("shopPage").style.display="";
+  //renderSocialFeedPageExplorePosts();
+  document.getElementById("playPage").style.display="";
+}
+function deleteFile(){
+  var textArea = document.getElementById("textArea");
+  textArea.removeChild(textArea.lastElementChild);
+  file = false;
+}
+function renderFollowing(followingArray) { //followingArray
+  var followerHTML = document.getElementById("followerList");
+  while (followerHTML.hasChildNodes()) { // This removes all of them and re-renders it
+    followerHTML.removeChild(followerHTML.firstChild);
     }
-  function renderSaved(savedArray) { //savedArray
-      var savedHTML = document.getElementById("savedList");
-      while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
-        savedHTML.removeChild(savedHTML.firstChild);
-        }
-    //  const savedArray = [["john","0x4532f2293098AF088623a641546c98687DeB884","48022637"],["phil","0x5354f2293098AF088623a641546c98687DeB884","48022637"],["Sarah","0x4532f2293098AF088623a641546c98687DeB884","48022637"]]
-      for (let i = 0; i < savedArray.length; i++) {
-        const nickName = savedArray[i][0];
-        const address = savedArray[i][1];
-        const postID = savedArray[i][2];
-        var postIDShort = postID.slice(0, 10);
-        postIDShort = postID.concat("...");
-        document.getElementById("savedList").innerHTML +=
-          `<h6 class = "text-center" type="button" data-bs-toggle="modal" data-bs-target="#savedPostModal" >${nickName}  ${postID}</h6>`; //Solve this later to load up a modal
-        }
+//  const followingArray = [["john","0x4532f2293098AF088623a641546c98687DeB884"],["phil","0x5354f2293098AF088623a641546c98687DeB884"],["Sarah","0x4532f2293098AF088623a641546c98687DeB884"]]
+  for (let i = 0; i < followingArray.length; i++) {
+    const nickName = followingArray[i][0];
+    const address = followingArray[i][1];
+    var addressShort = address.slice(0, 10);
+    addressShort = addressShort.concat("...");
+    document.getElementById("followerList").innerHTML +=
+      `<h6 class = "text-center textChange" data-bs-toggle="modal" onclick="renderUserProfile('${address}')" data-bs-target="#userAccountModal" >${nickName}  ${addressShort}</h6>`; // Profile Overview in the Modal
     }
-    function renderSavedModal(nickName,address,postID) { //nickName,address,postID
-        var savedHTML = document.getElementById("savedList");
-        while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
-          savedHTML.removeChild(savedHTML.firstChild);
-          }
-        const savedArray = [["john","0x4532f2293098AF088623a641546c98687DeB884","48022637"],["phil","0x5354f2293098AF088623a641546c98687DeB884","48022637"],["Sarah","0x4532f2293098AF088623a641546c98687DeB884","48022637"]]
-        for (let i = 0; i < savedArray.length; i++) {
-          const nickName = savedArray[i][0];
-          const address = savedArray[i][1];
-          const postID = savedArray[i][2];
-          var postIDShort = postID.slice(0, 10);
-          postIDShort = postID.concat("...");
-          document.getElementById("savedList").innerHTML +=
-            `<h6 class = "text-center" type="button" data-bs-toggle="modal" data-bs-target="#savedPostModal" >${nickName}  ${postID}</h6>`; //Solve this later to load up a modal
-          }
+  }
+function renderSaved(savedArray) { //savedArray
+    var savedHTML = document.getElementById("savedList");
+    while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
+      savedHTML.removeChild(savedHTML.firstChild);
       }
+  //  const savedArray = [["john","0x4532f2293098AF088623a641546c98687DeB884","1"],["phil","0x5354f2293098AF088623a641546c98687DeB884","2"],["Sarah","0x4532f2293098AF088623a641546c98687DeB884","48022637"]]
+    for (let i = 0; i < savedArray.length; i++) {
+      const nickName = savedArray[i][0];
+      const address = savedArray[i][1];
+      const postID = savedArray[i][2];
+      document.getElementById("savedList").innerHTML +=
+        `<h6 class = "text-center textChange" onclick="renderSavedModal('${address}','${postID}')" type="button" data-bs-toggle="modal" data-bs-target="#savedPostModal" >${nickName}  ${postID}</h6>`; //Solve this later to load up a modal
+      }
+  }
+function renderExplorePage() { //savedArray
+    // function that returns the 20 latest posts
+    postsArray = 10;
+    var savedHTML = document.getElementById("explorePostsContainer");
+    while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
+      savedHTML.removeChild(savedHTML.firstChild);
+      }
+  //  const savedArray = [["john","0x4532f2293098AF088623a641546c98687DeB884","1"],["phil","0x5354f2293098AF088623a641546c98687DeB884","2"],["Sarah","0x4532f2293098AF088623a641546c98687DeB884","48022637"]]
+    for (let i = 0; i < postsArray; i++) {
+      let message = "Hello World";
+      let timeStamp = getLocalTime(1635461938);
+      let url = "7cDhT0CDqFIvCWiNXKjjjjjjjjjjjjjjjjjjxxxxxxxxxxxxxjjjjjj";
+      let numberOfLikes = "5";
+      let nickName = "BobtheBuilder";
+      let address = "0x564683rfgf634g3";
+      var addressShort = address.slice(0, 10);
+      addressShort = addressShort.concat("...");
+      let gifLinkHTML = returnLinksGifsHTML(url)
+      console.log(savedHTML);
+      // populate the render Saved Model
+      document.getElementById("explorePostsContainer").innerHTML +=
+          `
+          <div class="card mb-3 boxesColor boxesShadow" style="border-radius: 20px;">
+          <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
+            <div class="row align-items-start">
+              <div class="col-1">
+                <span class="iconColor" style="font-size: 2em;">
+                    <i class="fas fa-user-secret"></i>
+                </span>
+              </div>
+              <div class="col-10">
+                <div class="row align-items-start">
+                  <h6 class="textChange" style="margin-bottom:0px;">${nickName} @ ${addressShort} posted</h6>
+                </div>
+                <div class="row align-items-start text-left">
+                  <p class="textChange" >${timeStamp}</p>
+                </div>
+              </div>
+              <div class="col-1 text-left">
+                <span class="iconColor" style="font-size: 1.5em;">
+                    <i class="far fa-star"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="card-body" style ="border-top: 1px solid #535353" >
+            <div class="row align-items-start">
+              <div id="messageContent" class="col-12">
+              <p class="textChange">${message}</p>${gifLinkHTML}
+              </div>
+            </div>
+            <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
+              <div class="col-3 text-center">
+                <div class="row align-items-start">
+                  <div class="col-4 text-center">
+                  </div>
+                  <div class="col-2 text-center" style="padding:0px">
+                    <a class="iconColor" style="font-size: 1.5em;">
+                      <i class="far fa-heart"></i>
+                    </a>
+                  </div>
+                  <div class="col-3 text-center">
+                    <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">${numberOfLikes}</h6>
+                  </div>
+                  <div class="col-5 text-center">
+                  </div>
+                  </div>
+              </div>
+              <div class="col-3 text-center">
+                <div class="row align-items-start">
+                  <div class="col-4 text-center">
+                  </div>
+                  <div class="col-2 text-center" style="padding:0px">
+                    <a class="iconColor" style="font-size: 1.5em;">
+                      <i class="far fa-comments"></i>
+                    </a>
+                  </div>
+                  <div class="col-3 text-center">
+                    <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">0</h6>
+                  </div>
+                  <div class="col-5 text-center">
+                  </div>
+                  </div>
+              </div>
+              <div class="col-3 text-center">
+                <div class="row align-items-start">
+                  <div class="col-4 text-center">
+                  </div>
+                  <div class="col-2 text-center" style="padding:0px">
+                    <a class="iconColor" style="font-size: 1.5em;">
+                      <i class="far fa-share-square"></i>
+                    </a>
+                  </div>
+                  <div class="col-3 text-center">
+                    <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">0</h6>
+                  </div>
+                  <div class="col-5 text-center">
+                  </div>
+                  </div>
+              </div>
+              <div class="col-3 text-center">
+                <a class="iconColor" style="font-size: 1.5em;">
+                  <i data-bs-toggle="modal" data-bs-target="#donationModal" onclick="donationAddress('${address}','${nickName}')" class="fab fa-ethereum"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+          `; //Solve this later to load up a modal
+      }
+  }
+function renderSavedModal(address,postID) { //nickName,address,postID
+    //const postInformation = getUserPost(address,postID);
+    console.log("rendering Modal");
+    let message = "Hello World";
+    let timeStamp = getLocalTime(1635461938);
+    let savedHTML = document.getElementById("savedPostModalContent");
+    let url = "7cDhT0CDqFIvCWiNXKhhukugkgukugkugkufufkufkuf";
+    let numberOfLikes = "5";
+    let nickName = "BobtheBuilder";
+    let gifLinkHTML = returnLinksGifsHTML(url)
+    console.log(savedHTML);
+    while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
+      savedHTML.removeChild(savedHTML.firstChild);
+      }
+    // populate the render Saved Model
+    document.getElementById("savedPostModalContent").innerHTML +=
+        `
+        <div class="modal-content boxesColor boxesLine" style="border-radius: 20px;">
+            <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
+              <div class="row align-items-start">
+                <div class="col-1">
+                  <span class="iconColor" style="font-size: 2em;">
+                      <i class="fas fa-user-secret"></i>
+                  </span>
+                </div>
+                <div class="col-10">
+                  <div class="row align-items-start">
+                    <h6 class="textChange" style="margin-bottom:0px;">${nickName} posted</h6>
+                  </div>
+                  <div class="row align-items-start text-left">
+                    <p class="textChange">${timeStamp}</p>
+                  </div>
+                </div>
+                <div class="col-1 text-left">
+                  <span class="iconColor" style="font-size: 1.5em;">
+                      <i onclick="updateUserPreferences('[${address},${postID}]', 'unSavePost')" class="fas fa-star starFilledIn"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          <div class="modal-body" style="padding:0px">
+            <div class="card-body" style ="border-top: 1px solid #535353" >
+              <div class="row align-items-start">
+                <div class="col-12">
+                <p class="textChange">${message}</p>${gifLinkHTML}
+                </div>
+              </div>
+              <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
+                <div class="col-3 text-center">
+                  <div class="row align-items-start">
+                    <div class="col-4 text-center">
+                    </div>
+                    <div class="col-2 text-center" style="padding:0px">
+                      <a class="iconColor" style="font-size: 1.5em;">
+                        <i onclick="likePost('${address}','${postID}')" class="far fa-heart"></i>
+                      </a>
+                    </div>
+                    <div class="col-2 text-center">
+                      <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">${numberOfLikes}</h6>
+                    </div>
+                    <div class="col-4 text-center">
+                    </div>
+                    </div>
+                </div>
+                <div class="col-3 text-center">
+                  <div class="row align-items-start">
+                    <div class="col-4 text-center">
+                    </div>
+                    <div class="col-2 text-center" style="padding:0px">
+                      <a class="iconColor" style="font-size: 1.5em;">
+                        <i class="far fa-comments"></i>
+                      </a>
+                    </div>
+                    <div class="col-2 text-center">
+                      <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
+                    </div>
+                    <div class="col-4 text-center">
+                    </div>
+                    </div>
+                </div>
+                <div class="col-3 text-center">
+                  <div class="row align-items-start">
+                    <div class="col-4 text-center">
+                    </div>
+                    <div class="col-2 text-center" style="padding:0px">
+                      <a class="iconColor" style="font-size: 1.5em;">
+                        <i class="far fa-share-square"></i>
+                      </a>
+                    </div>
+                    <div class="col-2 text-center">
+                      <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
+                    </div>
+                    <div class="col-4 text-center">
+                    </div>
+                    </div>
+                </div>
+                <div class="col-3 text-center">
+                  <a class="iconColor" style="font-size: 1.5em;">
+                    <i data-bs-toggle="modal" data-bs-target="#donationModal" onclick="donationAddress('${address}','${nickName}')" class="fab fa-ethereum"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        `; //Solve this later to load up a modal
+
+  }
+function renderUserAccountPosts(address,totalPosts) { //nickName,address,postID
+    //const postInformation = getUserPost(address,postID);
+    let savedHTML = document.getElementById("userAccountPosts");
+    var addressShort = address.slice(0, 10);
+    addressShort = addressShort.concat("...");
+    while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
+      savedHTML.removeChild(savedHTML.firstChild);
+      }
+    for (let i=0; i<totalPosts; i++){
+      //const postInformation = getUserPost(address,postID);
+      let message = "Hello World";
+      let timeStamp = getLocalTime(1635461938);
+      let url = "7cDhT0CDqFIvCWiNXK";
+      let numberOfLikes = "5";
+      let nickName = "BobtheBuilder";
+      let gifLinkHTML = returnLinksGifsHTML(url)
+      console.log(savedHTML);
+      // populate the render Saved Model
+      document.getElementById("userAccountPosts").innerHTML +=
+          `
+          <div class="col-12">
+            <div class="card mb-3 boxesColor" style="border-radius: 20px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"  >
+            <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
+              <div class="row align-items-start">
+                <div class="col-1">
+                  <span class="iconColor" style="font-size: 2em;">
+                      <i class="fas fa-user-secret"></i>
+                  </span>
+                </div>
+                <div class="col-10">
+                  <div class="row align-items-start">
+                    <h6 class="textChange" style="margin-bottom:0px;">${nickName} @ ${addressShort} posted</h6>
+                  </div>
+                  <div class="row align-items-start text-left">
+                    <p class="textChange" >${timeStamp}</p>
+                  </div>
+                </div>
+                <div class="col-1 text-left">
+                  <span class="iconColor" style="font-size: 1.5em;">
+                      <i class="far fa-star"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="card-body" style ="border-top: 1px solid #535353" >
+              <div class="row align-items-start">
+                <div id="messageContent" class="col-12">
+                <p class="textChange">${message}</p>${gifLinkHTML}
+                </div>
+              </div>
+              <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
+                <div class="col-3 text-center">
+                  <div class="row align-items-start">
+                    <div class="col-4 text-center">
+                    </div>
+                    <div class="col-2 text-center" style="padding:0px">
+                      <a class="iconColor" style="font-size: 1.5em;">
+                        <i onclick="likePost('${address}','${i}')" class="far fa-heart"></i>
+                      </a>
+                    </div>
+                    <div class="col-4 text-center">
+                      <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">${numberOfLikes}</h6>
+                    </div>
+                    <div class="col-2 text-center">
+                    </div>
+                    </div>
+                </div>
+                <div class="col-3 text-center">
+                  <div class="row align-items-start">
+                    <div class="col-4 text-center">
+                    </div>
+                    <div class="col-2 text-center" style="padding:0px">
+                      <a class="iconColor" style="font-size: 1.5em;">
+                        <i class="far fa-comments"></i>
+                      </a>
+                    </div>
+                    <div class="col-4 text-center">
+                      <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
+                    </div>
+                    <div class="col-2 text-center">
+                    </div>
+                    </div>
+                </div>
+                <div class="col-3 text-center">
+                  <div class="row align-items-start">
+                    <div class="col-4 text-center">
+                    </div>
+                    <div class="col-2 text-center" style="padding:0px">
+                      <a class="iconColor" style="font-size: 1.5em;">
+                        <i class="far fa-share-square"></i>
+                      </a>
+                    </div>
+                    <div class="col-4 text-center">
+                      <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
+                    </div>
+                    <div class="col-2 text-center">
+                    </div>
+                    </div>
+                </div>
+                <div class="col-3 text-center">
+                  <a class="iconColor" style="font-size: 1.5em;">
+                    <i data-bs-toggle="modal" data-bs-target="#donationModal" onclick="donationAddress('${address}','${nickName}')" class="fab fa-ethereum"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+          `; //Solve this later to load up a modal
+    }
+
+  }
+function renderUserAccount(address) { //nickName,address,postID
+    let savedHTML = document.getElementById("userAccountModalContent"); //prepare to wipe prior profile
+    //const userProfile = getUserProfile(address);
+    address = "0x252d2f2293098AF088623a641546c98687DeB884";
+    var addressShort = address.slice(0, 10);
+    addressShort = addressShort.concat("...");
+    console.log("rendering Modal");
+    let userProfileBio = "Hello World";
+    let joinDate = getLocalDate(1635461938);
+    let followerCount = 45;
+    let totalPosts = 3;
+    let featuredPost = 1;
+    let nickName = "BobtheBuilder";
+    // Get featuredPost
+
+    //const featuredPost = getUserPost(address,postID);
+    let featuredMessage = "Hello World";
+    let featuredTimeStamp = getLocalTime(1635461938);
+    let featuredUrl = "7cDhT0CDqFIvCWiNXKhhukugkgukugkugkufufkufkuf";
+    let featuredNumberOfLikes = "5";
+    let featuredGifLinkHTML = returnLinksGifsHTML(featuredUrl)
+    console.log(savedHTML);
+    while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
+      savedHTML.removeChild(savedHTML.firstChild);
+      }
+    // populate the render Saved Model
+    document.getElementById("userAccountModalContent").innerHTML +=
+        `
+        <div class="modal-content boxesColor">
+          <div class="modal-header boxesLineTop">
+            <h5 class="modal-title textChange" id="userAccountLabel">Your Social Profile</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row align-items-start" >
+              <div class="col-3">
+                <span class="iconColor" style="font-size: 4.5em; margin-left:30px">
+                    <i class="fas fa-user-secret"></i>
+                </span>
+              </div>
+              <div class="col-5">
+              <div class="row align-items-start">
+                  <h6 class="modal-title textChange" style="margin-bottom: 5px">${nickName}</h6>
+              </div>
+              <div class="row align-items-start">
+                <h6 class="modal-title textChange" style="margin-bottom: 5px">@ ${addressShort}</h6>
+              </div>
+              <div class="row align-items-start">
+                <div class="col-2">
+                <span class="iconColor" style="font-size: 1.5em;">
+                    <i class="far fa-calendar-alt"></i>
+                </span>
+                </div>
+                <div class="col-10" style="padding:4px;">
+                <h6 class="modal-title textChange" style="margin-top: 5px;">Since ${joinDate}</h6>
+                </div>
+              </div>
+              </div>
+              <div class="col-4">
+                <div class="row align-items-start">
+                  <div class="col-2">
+                  <span class="iconColor" style="font-size: 1.5em;">
+                      <i class="far fa-user"></i>
+                  </span>
+                  </div>
+                  <div class="col-10">
+                  <h6 class="modal-title textChange" style="margin-top: 5px">${followerCount} Followers</h6>
+                  </div>
+                </div>
+                <div class="row align-items-start">
+                  <div class="col-2">
+                  <span class="iconColor" style="font-size: 1.5em;">
+                      <i class="far fa-comment-alt"></i>
+                  </span>
+                  </div>
+                  <div class="col-10">
+                  <h6 class="modal-title textChange" style="margin-top: 5px">${totalPosts} Posts</h6>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row align-items-start" style="margin:20px 0px 20px">
+            <div class="col-12">
+              <div class="row align-items-start">
+                <p class="textChange boxesShadow boxesBioColor" style="border-radius: 20px; padding:10px 20px 10px 20px;" >${userProfileBio}</p>
+              </div>
+            </div>
+            </div>
+            <div class="row align-items-start">
+              <div class="col-12">
+                <div class="card mb-3 boxesColor neon" >
+                <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
+                  <div class="row align-items-start">
+                    <div class="col-1">
+                      <span class="iconColor" style="font-size: 2em;">
+                          <i class="fas fa-user-secret"></i>
+                      </span>
+                    </div>
+                    <div class="col-10">
+                      <div class="row align-items-start">
+                        <h6 class="textChange" style="margin-bottom:0px;">${nickName} @ ${addressShort} posted</h6>
+                      </div>
+                      <div class="row align-items-start text-left">
+                        <p class="textChange" >${featuredTimeStamp}</p>
+                      </div>
+                    </div>
+                    <div class="col-1 text-left">
+                      <span class="iconColor" style="font-size: 1.5em;">
+                          <i class="far fa-star"></i>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body" style ="border-top: 1px solid #535353" >
+                  <div class="row align-items-start">
+                    <div id="messageContent" class="col-12">
+                    <p class="textChange">${featuredMessage}</p>${featuredGifLinkHTML}
+                    </div>
+                  </div>
+                  <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
+                    <div class="col-3 text-center">
+                      <div class="row align-items-start">
+                        <div class="col-4 text-center">
+                        </div>
+                        <div class="col-2 text-center" style="padding:0px">
+                          <a class="iconColor" style="font-size: 1.5em;">
+                            <i onclick="likePost('${address}','${featuredPost}')"  class="far fa-heart"></i>
+                          </a>
+                        </div>
+                        <div class="col-4 text-center">
+                          <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">${featuredNumberOfLikes}</h6>
+                        </div>
+                        <div class="col-2 text-center">
+                        </div>
+                        </div>
+                    </div>
+                    <div class="col-3 text-center">
+                      <div class="row align-items-start">
+                        <div class="col-4 text-center">
+                        </div>
+                        <div class="col-2 text-center" style="padding:0px">
+                          <a class="iconColor" style="font-size: 1.5em;">
+                            <i class="far fa-comments"></i>
+                          </a>
+                        </div>
+                        <div class="col-5 text-center">
+                          <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
+                        </div>
+                        <div class="col-1 text-center">
+                        </div>
+                        </div>
+                    </div>
+                    <div class="col-3 text-center">
+                      <div class="row align-items-start">
+                        <div class="col-4 text-center">
+                        </div>
+                        <div class="col-2 text-center" style="padding:0px">
+                          <a class="iconColor" style="font-size: 1.5em;">
+                            <i class="far fa-share-square"></i>
+                          </a>
+                        </div>
+                        <div class="col-5 text-center">
+                          <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
+                        </div>
+                        <div class="col-1 text-center">
+                        </div>
+                        </div>
+                    </div>
+                    <div class="col-3 text-center">
+                      <a class="iconColor" style="font-size: 1.5em;">
+                        <i data-bs-toggle="modal" data-bs-target="#donationModal" onclick="donationAddress('${address}','${nickName}')" class="fab fa-ethereum"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
+            </div>
 
 
-  </script>
-  <style>
-  .fa-star:hover {
-  color: yellow;
+            <div id="userAccountPosts" class="row align-items-start">
+            </div>
+
+          </div>
+        </div>
+        `; //Solve this later to load up a modal
+        renderUserAccountPosts(address,totalPosts)
+  }
+</script>
+<!-- =========================================== STYLE-================================================================================= STYLE---------------------------------------------->
+<style>
+@import url(https://fonts.googleapis.com/css?family=Exo+2:200i);
+.fa-star:hover {
+  color: #E0D836;
   cursor: pointer;
-  }
-  .fa-heart:hover {
-    color: red;
-    cursor: pointer;
-  }
-  .fa-comments:hover {
-    color: grey;
-    cursor: pointer;
-  }
-  .fa-share-square:hover {
-    color: blue;
-    cursor: pointer;
-  }
-  .fa-ethereum:hover {
-    color: green;
-    cursor: pointer;
-  }
-  .fa-trash-alt:hover {
-    color: red;
-    cursor: pointer;
-  }
-  .fa-plus:hover {
-    color: #4599A8;
-    cursor: pointer;
-  }
+}
+.starFilledIn {
+  color: #E0D836;
+  cursor: pointer;
+}
+.heartFilledIn {
+  color: #ED2828;
+  cursor: pointer;
+}
+.fa-heart:hover {
+  color: #ED2828;
+  cursor: pointer;
+}
 
-  .fa-link:hover {
-    color: #4599A8;
-    cursor: pointer;
-  }
-  .fa-images:hover {
-    color: #4599A8;
-    cursor: pointer;
-  }
-  .fa-film:hover {
-    color: #4599A8;
-    cursor: pointer;
-  }
-  .form-control:focus {
-    outline: none !important;
-    border:1px solid red;
-    box-shadow: 0 0 10px #719ECE;
-  }
-  .neonAnimated {
-    outline: none !important;
-    box-shadow: 0 0 10px #719ECE;
-    animation-name: neonGlow;
-    animation-duration: 4s;
-    animation-iteration-count: infinite;
-  }
-  @keyframes neonGlow {
+.fa-comments:hover {
+  color: grey;
+  cursor: pointer;
+}
+.fa-share-square:hover {
+  color: #3652E0;
+  cursor: pointer;
+}
+.fa-ethereum:hover {
+  color: green;
+  cursor: pointer;
+}
+.fa-trash-alt:hover {
+  color: #ED2828;
+  cursor: pointer;
+}
+.fa-plus:hover {
+  color: #4599A8;
+  cursor: pointer;
+}
+
+.fa-link:hover {
+  color: #4599A8;
+  cursor: pointer;
+}
+.fa-images:hover {
+  color: #4599A8;
+  cursor: pointer;
+}
+.fa-film:hover {
+  color: #4599A8;
+  cursor: pointer;
+}
+.fa-smile:hover {
+  color: #4599A8;
+  cursor: pointer;
+}
+#socialFeedHover:hover .fa-home{
+  color: #4599A8 !important;
+  cursor: pointer;
+}
+#socialFeedHover:hover .textChange{
+  color: #4599A8 !important;
+  cursor: pointer;
+}
+#explorePageHover:hover .fa-eye{
+  color: #3652E0 !important;
+  cursor: pointer;
+}
+#explorePageHover:hover .textChange{
+  color: #3652E0 !important;
+  cursor: pointer;
+}
+
+#shopPageHover:hover .fa-gem{
+  color:#ED2828 !important;
+  cursor: pointer;
+}
+#shopPageHover:hover .textChange{
+  color:#ED2828 !important;
+  cursor: pointer;
+}
+#playPageHover:hover .fa-gamepad{
+  color:green !important;
+  cursor: pointer;
+}
+#playPageHover:hover .textChange{
+  color:green !important;
+  cursor: pointer;
+}
+#walletPageHover:hover .fa-wallet{
+  color:#C02EAE !important;
+  cursor: pointer;
+}
+#walletPageHover:hover .textChange{
+  color:#C02EAE !important;
+  cursor: pointer;
+}
+
+.form-control:focus {
+  outline: none !important;
+  border:1px solid red;
+  box-shadow: 0 0 10px #719ECE;
+}
+.neonAnimated {
+  outline: none !important;
+  box-shadow: 0 0 10px #719ECE;
+  animation-name: neonGlow;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
+}
+@keyframes neonGlow {
   0% {box-shadow: 0 0 10px #719ECE;}
   12% {box-shadow: 0 0 20px  #719ECE;}
   25% {box-shadow: 0 0 10px #719ECE;}
@@ -734,52 +1515,165 @@ const options = {
   outline: none !important;
   box-shadow: 0 0 10px #719ECE;
 }
-  .neon-white {
-    outline: none !important;
-    box-shadow: 0 0 10px #fff;
-  }
-  .textChange {
-    color: #D6D6D6;
-  }
-  .btn:hover {
-    outline: none !important;
-    box-shadow: 0 0 10px rgb(129,143,225);
-  }
+.neonStrong {
+  outline: none !important;
+  box-shadow: 0 0 20px #FAF41E;
+}
+.neon-white {
+  outline: none !important;
+  box-shadow: 0 0 10px #fff;
+}
+.textChange {
+  color: #D6D6D6;
+}
+.iconColor {
+  color: #D6D6D6;
+}
+.btn:hover {
+  outline: none !important;
+  box-shadow: 0 0 10px rgb(129,143,225);
+}
+.boxesColor {
+  background-color:#313334;
+}
+.boxesBioColor{
+  background-color:#535353
+}
+.boxesLine {
+  border-top: 1px solid #535353
+}
+.boxesLineTop {
+  border-bottom: 1px solid #535353
+}
+.textAreaTheme {
+  border: solid 1px #535353;
+  background-color:#535353; color:white;
+}
+.changeSushiButtonTextColor{
+  color: #D6D6D6;
+}
+.changeButtonColor{
+  background-color: #535353;
+  border-color: #535353;
+}
+.changeButtonColor:hover{
+  background-color: #535353;
+  border-color: #535353;
+}
+.changeButtonTextColor{
+  color: rgb(129,143,225)
+}
+.changeButtonTextColor:hover{
+  color: rgb(129,143,225)
+}
+.boxesShadow {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.backgroundColor{
+  background-color: #1D1D1F
+}
+
+.backgroundColorSideBar{
+  background-color: #313334;
+  box-shadow: 0 0px 0px -5px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.backgroundColorNavBar{
+  background-color: #112F46;
+}
+.textBox{
+  border: solid 1px #535353;
+  background-color:#535353;
+  color:white;
+  font-size: 18px;
+}
+div.sticky {
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
+}
 
 .btn-close{
 filter: invert(24%) sepia(89%) saturate(6838%) hue-rotate(356deg) brightness(103%) contrast(96%);
 }
-  a {
-    text-decoration: none;
-    color: black;
-    }
-  p {
-      color: white;
-      }
-  h6 {
-      color: white;
-      }
-  </style>
+a {
+  text-decoration: none;
+  color: black;
+}
+a:hover {
+  color: #D6D6D6;
+}
+p {
+  color: white;
+}
+h6 {
+  color: white;
+}
 
-  <body style = "background-color: #1D1D1F"> <!-- 313334 -->
-    <section id="loginForm" class="vh-100" style="background-color: #1D1D1F; display: none"> <!--  #3C719D-->
+:root {
+  /* Set neon color */
+  --neon-text-color: #f40;
+  --neon-border-color: #08f;
+}
+.neonSign{
+  font-family: 'Exo 2', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 2vh;
+  font-size: 4rem;
+  font-weight: 200;
+  font-style: italic;
+  color: #fff;
+  padding: 2rem 6rem 2rem;
+  border: 0.4rem solid #fff;
+  border-radius: 2rem;
+  text-transform: uppercase;
+  animation: flicker 1.5s infinite alternate;
+}
+
+/* Animate neon flicker */
+@keyframes flicker {
+
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+
+        text-shadow:
+            -0.2rem -0.2rem 1rem #fff,
+            0.2rem 0.2rem 1rem #fff,
+            0 0 2rem var(--neon-text-color),
+            0 0 4rem var(--neon-text-color),
+            0 0 6rem var(--neon-text-color),
+            0 0 8rem var(--neon-text-color),
+            0 0 10rem var(--neon-text-color);
+
+        box-shadow:
+            0 0 .5rem #fff,
+            inset 0 0 .5rem #fff,
+            0 0 2rem var(--neon-border-color),
+            inset 0 0 2rem var(--neon-border-color),
+            0 0 4rem var(--neon-border-color),
+            inset 0 0 4rem var(--neon-border-color);
+    }
+    20%, 24%, 55% {
+        text-shadow: none;
+        box-shadow: none;
+    }
+}
+</style>
+
+  <body class="backgroundColor" > <!-- 313334 -->
+    <section id="loginForm" class="vh-100 backgroundColor" style="display: none"> <!--  #3C719D-->
       <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
           <div class="col-12 col-md-8 col-lg-6 col-xl-5">
             <div class="card shadow-2-strong neonAnimated" style="border-radius: 1rem;" style="background-color: #313334"> <!--  #F5F0F2-->
               <div class="card-body p-5 text-center" style="background-color: #313334" >
                 <div class="row align-items-start">
-                <img src="https://i.ibb.co/VtgVRkx/Logo-Small.png" alt="Logo-01" border="0" style="display: block; margin:auto; padding:0px 0px 0px 0px; max-width: 60%" >
+                <img src="https://i.ibb.co/VtgVRkx/Logo-Small.png" alt="Logo-01" border="0" style="display: block; margin:auto; padding:0px 0px 60px 0px; max-width: 60%" >
                 </div>
 
+
                 <div class="row align-items-start">
-                  <hr class="my-4">
-                  <h5 class="mb-5 textChange" style="margin-bottom: 10px!important">DISCLAIMER!</h5>
-                  <h5 class="mb-5 textChange" style="margin-bottom: 10px!important">Everything you do will be permanently on the public blockchain and visible to all. You cannot remove it once the action is complete.</h5>
-                  <hr class="my-4">
-                </div>
-                <div class="row align-items-start">
-                <button class="btn btn-primary btn-lg btn-block neon-white textChange" style="background-color: #535353; border-color: #535353;" type="submit" onClick="login();">Login with Metamask</button>
+                <button class="btn btn-primary btn-lg btn-block neon-white changeButtonColor changeButtonTextColor" type="submit" onClick="login();"><b>Login with Metamask</b></button>
                 </div>
               </div>
             </div>
@@ -791,15 +1685,15 @@ filter: invert(24%) sepia(89%) saturate(6838%) hue-rotate(356deg) brightness(103
   <!-- confirmationModal start -->
   <div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
+      <div class="modal-content boxesColor">
+        <div class="modal-header boxesLineTop">
           <h5 class="modal-title" id="exampleModalLabel" style = "color: red;">DISCLAIMER!</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <h5 class="mb-5" style="margin-bottom: 10px!important">This will be permanently on the blockchain and associated to your public account. You cannot remove it once the action is complete. Are you sure you want to continue?</h5>
+          <h5 class="mb-5 textChange" style="margin-bottom: 10px!important">This will be permanently on the blockchain and associated to your public account. You cannot remove it once the action is complete. Are you sure you want to continue?</h5>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer boxesLine">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button id="confirmToBlockchain" type="button" class="btn btn-primary" data-bs-dismiss="modal" onClick="uploadFileandPostToBlockChain();">Confirm</button>
         </div>
@@ -810,15 +1704,15 @@ filter: invert(24%) sepia(89%) saturate(6838%) hue-rotate(356deg) brightness(103
   <!-- gifModal start -->
   <div class="modal fade" id="gifModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title align-center" id="linkModalLabel">Link Gif from Giphy</h5>
+      <div class="modal-content boxesColor">
+        <div class="modal-header boxesLineTop">
+          <h5 class="modal-title align-center textChange" id="linkModalLabel">Link Gif from Giphy</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <textarea id="gifLink" style = "border: solid 2px black; color:black;" class="form-control" placeholder="Paste Link Here" rows="1"></textarea>
+          <textarea id="gifLink" class="form-control textBox" placeholder="Paste Link Here" rows="1"></textarea>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer boxesLine">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onClick="handleUserGif();">Confirm</button>
         </div>
@@ -829,15 +1723,15 @@ filter: invert(24%) sepia(89%) saturate(6838%) hue-rotate(356deg) brightness(103
   <!-- linkModal start -->
   <div class="modal fade" id="linkModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title align-center" id="linkModalLabel">Link to Website</h5>
+      <div class="modal-content boxesColor">
+        <div class="modal-header boxesLineTop">
+          <h5 class="modal-title align-center textChange" id="linkModalLabel">Link to Website</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <textarea id="link" style = "border: solid 2px black; color:black;" class="form-control" placeholder="Paste Link Here" rows="1"></textarea>
+          <textarea id="link" class="form-control textBox" placeholder="Paste Link Here" rows="1"></textarea>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer boxesLine">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onClick="handleUserLink();">Confirm</button>
         </div>
@@ -845,16 +1739,199 @@ filter: invert(24%) sepia(89%) saturate(6838%) hue-rotate(356deg) brightness(103
     </div>
   </div>
   <!-- Modal End -->
-  <!-- userModal start -->
-  <div class="modal fade" id="userAccountModal" tabindex="-1" aria-labelledby="userAccountModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="userAccountLabel">DISCLAIMER!</h5>
+  <!-- followingModal start -->
+  <div class="modal fade" id="followModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content boxesColor">
+        <div class="modal-header boxesLineTop">
+          <h5 class="modal-title align-center textChange" id="linkModalLabel">Follow New User</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-
+          <textarea id="followAddress" class="form-control textBox" placeholder="Paste Address Here: 0x....." rows="1"></textarea>
+        </div>
+        <div class="modal-footer boxesLine">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onClick="followNewUser()">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal End -->
+  <!-- donationModal start -->
+  <div class="modal fade" id="donationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content boxesColor">
+        <div class="modal-header boxesLineTop">
+          <h5 class="modal-title textChange" id="exampleModalLabel" >Donate Ethereum</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h5 class="mb-5 textChange" style="margin-bottom: 10px!important">How much money would you like to donate to?</h5>
+          <h5 id="donationRecipient" class="mb-5 textChange" style="margin-bottom: 10px!important"></h5>
+          <textarea id="donationAmount" class="form-control textBox" placeholder="Enter in USD" rows="1"></textarea>
+        </div>
+        <div class="modal-footer boxesLine">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button id="confirmToBlockchain" type="button" class="btn btn-primary" data-bs-dismiss="modal" onClick="donateEthereum();">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal End -->
+  <!-- userModal start -->
+  <div class="modal fade" id="userAccountModal" tabindex="-1" aria-labelledby="userAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" id="userAccountModalContent" style="width:40%;max-width:1250px;min-width:600px; border-radius: 20px;">
+      <div class="modal-content boxesColor">
+        <div class="modal-header boxesLineTop">
+          <h5 class="modal-title textChange" id="userAccountLabel">Your Social Profile</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row align-items-start" >
+            <div class="col-3">
+              <span class="iconColor" style="font-size: 4.5em; margin-left:30px">
+                  <i class="fas fa-user-secret"></i>
+              </span>
+            </div>
+            <div class="col-5">
+            <div class="row align-items-start">
+                <h6 class="modal-title textChange" style="margin-bottom: 5px">Johny Boy</h6>
+            </div>
+            <div class="row align-items-start">
+              <h6 class="modal-title textChange" style="margin-bottom: 5px">@0x5784683285868....</h6>
+            </div>
+            <div class="row align-items-start">
+              <div class="col-2">
+              <span class="iconColor" style="font-size: 1.5em;">
+                  <i class="far fa-calendar-alt"></i>
+              </span>
+              </div>
+              <div class="col-10" style="padding:4px;">
+              <h6 class="modal-title textChange" style="margin-top: 5px">Since July 24, 2017</h6>
+              </div>
+            </div>
+            </div>
+            <div class="col-4">
+              <div class="row align-items-start">
+                <div class="col-2">
+                <span class="iconColor" style="font-size: 1.5em;">
+                    <i class="far fa-user"></i>
+                </span>
+                </div>
+                <div class="col-10">
+                <h6 class="modal-title textChange" style="margin-top: 5px">56 Followers</h6>
+                </div>
+              </div>
+              <div class="row align-items-start">
+                <div class="col-2">
+                <span class="iconColor" style="font-size: 1.5em;">
+                    <i class="far fa-comment-alt"></i>
+                </span>
+                </div>
+                <div class="col-10">
+                <h6 class="modal-title textChange" style="margin-top: 5px">23 Posts</h6>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row align-items-start" style="margin:20px 0px 20px">
+          <div class="col-12">
+            <div class="row align-items-start">
+              <p class="textChange boxesShadow boxesBioColor" style="border-radius: 20px; padding:10px 20px 10px 20px;" >Nullam quis risuse magnis dis parturient montes, nascetur ridiculus mus. Nullam id</p>
+            </div>
+          </div>
+          </div>
+          <div class="row align-items-start">
+            <div class="col-12">
+              <div class="card mb-3 boxesColor neon" >
+              <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
+                <div class="row align-items-start">
+                  <div class="col-1">
+                    <span class="iconColor" style="font-size: 2em;">
+                        <i class="fas fa-user-secret"></i>
+                    </span>
+                  </div>
+                  <div class="col-10">
+                    <div class="row align-items-start">
+                      <h6 class="textChange" style="margin-bottom:0px;">John @ 0x4783GW783T74838 posted</h6>
+                    </div>
+                    <div class="row align-items-start text-left">
+                      <p class="textChange" >18th Oct 5:23 PM</p>
+                    </div>
+                  </div>
+                  <div class="col-1 text-left">
+                    <span class="iconColor" style="font-size: 1.5em;">
+                        <i class="far fa-star"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body" style ="border-top: 1px solid #535353" >
+                <div class="row align-items-start">
+                  <div id="messageContent" class="col-12">
+                  <p class="textChange">Nullam quis risuse magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula. d nibh ultricies vehicula d nibh ultricies.</p>
+                  </div>
+                </div>
+                <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
+                  <div class="col-3 text-center">
+                    <div class="row align-items-start">
+                      <div class="col-4 text-center">
+                      </div>
+                      <div class="col-2 text-center" style="padding:0px">
+                        <a class="iconColor" style="font-size: 1.5em;">
+                          <i class="far fa-heart"></i>
+                        </a>
+                      </div>
+                      <div class="col-4 text-center">
+                        <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">56</h6>
+                      </div>
+                      <div class="col-2 text-center">
+                      </div>
+                      </div>
+                  </div>
+                  <div class="col-3 text-center">
+                    <div class="row align-items-start">
+                      <div class="col-4 text-center">
+                      </div>
+                      <div class="col-2 text-center" style="padding:0px">
+                        <a class="iconColor" style="font-size: 1.5em;">
+                          <i class="far fa-comments"></i>
+                        </a>
+                      </div>
+                      <div class="col-4 text-center">
+                        <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
+                      </div>
+                      <div class="col-2 text-center">
+                      </div>
+                      </div>
+                  </div>
+                  <div class="col-3 text-center">
+                    <div class="row align-items-start">
+                      <div class="col-4 text-center">
+                      </div>
+                      <div class="col-2 text-center" style="padding:0px">
+                        <a class="iconColor" style="font-size: 1.5em;">
+                          <i class="far fa-share-square"></i>
+                        </a>
+                      </div>
+                      <div class="col-4 text-center">
+                        <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
+                      </div>
+                      <div class="col-2 text-center">
+                      </div>
+                      </div>
+                  </div>
+                  <div class="col-3 text-center">
+                    <a class="iconColor" style="font-size: 1.5em;">
+                      <i class="fab fa-ethereum"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -862,25 +1939,25 @@ filter: invert(24%) sepia(89%) saturate(6838%) hue-rotate(356deg) brightness(103
   <!-- Modal End -->
   <!-- savedPostModal start -->
   <div class="modal fade" id="savedPostModal" tabindex="-1" aria-labelledby="userAccountModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="width:35%;max-width:1250px; border-radius: 20px;">
+    <div class="modal-dialog modal-dialog-centered" id="savedPostModalContent" style="width:35%;min-width:550px;max-width:1250px; border-radius: 20px;">
       <div class="modal-content" style="border-radius: 20px; background-color:#313334;">
-          <div class="card-header" style ="border-radius: 20px; border: 0px;">
+          <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
             <div class="row align-items-start">
               <div class="col-1">
-                <span style="font-size: 2em; color: white;">
+                <span class="iconColor" style="font-size: 2em;">
                     <i class="fas fa-user-secret"></i>
                 </span>
               </div>
               <div class="col-10">
                 <div class="row align-items-start">
-                  <h6 style="margin-bottom:0px;">0x4783GW783T74838 posted</h6>
+                  <h6 class="textChange" style="margin-bottom:0px;">John @ 0x4783GW783T74838 posted</h6>
                 </div>
                 <div class="row align-items-start text-left">
-                  <p>18th Oct 5:23 PM</p>
+                  <p class="textChange">18th Oct 5:23 PM</p>
                 </div>
               </div>
               <div class="col-1 text-left">
-                <span style="font-size: 1.5em; color: grey;">
+                <span class="iconColor" style="font-size: 1.5em;">
                     <i class="far fa-star"></i>
                 </span>
               </div>
@@ -890,27 +1967,60 @@ filter: invert(24%) sepia(89%) saturate(6838%) hue-rotate(356deg) brightness(103
           <div class="card-body" style ="border-top: 1px solid #535353" >
             <div class="row align-items-start">
               <div class="col-12">
-              <p>Nullam quis risuse magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula. d nibh ultricies vehicula d nibh ultricies.</p>
+              <p class="textChange">Nullam quis risuse magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula. d nibh ultricies vehicula d nibh ultricies.</p>
               </div>
             </div>
             <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
               <div class="col-3 text-center">
-                <a style="font-size: 1.5em; color: white; border-color: #fff">
-                  <i class="far fa-heart"></i>
-                </a>
+                <div class="row align-items-start">
+                  <div class="col-4 text-center">
+                  </div>
+                  <div class="col-2 text-center" style="padding:0px">
+                    <a class="iconColor" style="font-size: 1.5em;">
+                      <i class="far fa-heart"></i>
+                    </a>
+                  </div>
+                  <div class="col-2 text-center">
+                    <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">56</h6>
+                  </div>
+                  <div class="col-4 text-center">
+                  </div>
+                  </div>
               </div>
               <div class="col-3 text-center">
-                <a style="font-size: 1.5em; color: white; border-color: #fff">
-                  <i class="far fa-comments"></i>
-                </a>
+                <div class="row align-items-start">
+                  <div class="col-4 text-center">
+                  </div>
+                  <div class="col-2 text-center" style="padding:0px">
+                    <a class="iconColor" style="font-size: 1.5em;">
+                      <i class="far fa-comments"></i>
+                    </a>
+                  </div>
+                  <div class="col-2 text-center">
+                    <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
+                  </div>
+                  <div class="col-4 text-center">
+                  </div>
+                  </div>
               </div>
               <div class="col-3 text-center">
-                <a style="font-size: 1.5em; color: white; border-color: #fff">
-                  <i class="far fa-share-square"></i>
-                </a>
+                <div class="row align-items-start">
+                  <div class="col-4 text-center">
+                  </div>
+                  <div class="col-2 text-center" style="padding:0px">
+                    <a class="iconColor" style="font-size: 1.5em;">
+                      <i class="far fa-share-square"></i>
+                    </a>
+                  </div>
+                  <div class="col-2 text-center">
+                    <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
+                  </div>
+                  <div class="col-4 text-center">
+                  </div>
+                  </div>
               </div>
               <div class="col-3 text-center">
-                <a style="font-size: 1.5em; color: white; border-color: #fff">
+                <a class="iconColor" style="font-size: 1.5em;">
                   <i class="fab fa-ethereum"></i>
                 </a>
               </div>
@@ -922,127 +2032,155 @@ filter: invert(24%) sepia(89%) saturate(6838%) hue-rotate(356deg) brightness(103
   </div>
   <!-- Modal End -->
 
-      <div class="row align-items-start" style = "background-color: #112F46; border-radius: 0px 10px 10px 0px;">
-        <div class="col-3">
-            <h2 style="color: white; margin: 6px 0px 8px 40px">deSocialNet</h2>
-        </div>
-        <div class="col-4">
-        </div>
-        <div class="col-1">
-        </div>
-        <div class="col-1 text-center">
-          <span style="font-size: 1.5em; color: red;">
-              <i class="fas fa-bell  align-bottom"></i>
-          </span>
-        </div>
-        <div class="col-1 text-center">
+
+      <div class="row align-items-start  backgroundColor"  style ="padding-top: 0px;">
+          <div class="col-3 min-vh-100 sticky backgroundColorSideBar" style="padding:20px 20px 0px;">
             <div class="row align-items-start">
-                <div class="col-12 text-end">
-          <span style="font-size: 2em; color: white;">
-              <i type="button" data-bs-toggle="modal" data-bs-target="#userAccountModal" class="fas fa-user-secret"></i>
-          </span>
+            <img src="https://i.ibb.co/VtgVRkx/Logo-Small.png" alt="Logo-01" border="0" style="display: block; margin:auto; padding:0px 0px 10px 0px; max-width: 60%" >
             </div>
-          </div>
-        </div>
-        <div class="col-1">
-          <div class="row align-items-start">
-            <h6 type="button" data-bs-toggle="modal" data-bs-target="#userAccountModal" style="margin:5px 0px 0px; color: white">You</h6>
-          </div>
-          <div class="row align-items-start text-left">
-            <h6 type="button" data-bs-toggle="modal" data-bs-target="#userAccountModal" style = "color: white">0x47886...</h6>
-          </div>
-        </div>
-        <div class="col-1" style = "padding-top: 6px">
-          <button type="button" class="btn btn-secondary" onClick="logOut();">Logout</button>
-        </div>
-      </div>
-      <div class="row align-items-start"  style ="padding-top: 0px;">
-          <div class="col-3 vh-100" style="background-color: #313334; box-shadow: 0 0px 0px -5px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
-            <div class="card mb-3" style="max-width: 30rem; border-radius: 20px; margin-top: 20px; background-color:#535353;">
-              <div class="row align-baseline" style="padding-top: 10px;">
-                  <div class="col-3 text-end" style = "padding-right: 0px;">
-                    <span style="font-size: 1em; color: white;">
-                        <i class="fas fa-home"></i>
-                    </span>
-                  </div>
-                  <div class="col-9 text-left align-bottom">
-                    <h6 style="margin-bottom:0px;">Feed</h6>
-                  </div>
-              </div>
-            <div class="card-body" style = "padding: 6px 16px 16px 16px">
-              <div class="row align-items-start">
-                <div class="col-3">
+            <div id="socialFeedHover" onclick="loadSocialFeedPage()" class="row align-baseline" style = "padding-top: 10px">
+                <div class="col-5 text-end" style = "padding-right: 0px;">
+                  <span class="iconColor" style="font-size: 1.5em;">
+                      <i class="fas fa-home"></i>
+                  </span>
                 </div>
-                <div class="col-9">
-                  <div class="row align-items-start" style = "padding-left: 30px; border-top: 1px solid white">
-                    <h6 style="margin-top:4px;">Trending</h6>
-                  </div>
-                  <div class="row align-items-start" style = "padding-left: 30px; border-top: 1px solid white">
-                    <h6 style="margin-top:4px;">Recent</h6>
-                  </div>
-                  <div class="row align-items-start" style = "padding-left: 30px; border-top: 1px solid white">
-                    <h6 style="margin-top:4px;">Top</h6>
-                  </div>
+                <div class="col-5 text-left align-bottom">
+                  <h6 class="textChange"  style="margin-top:7px; font-size: 1.25em;">Social Feed</h6>
                 </div>
-              </div>
             </div>
-          </div>
-          <div class="row align-baseline">
-              <div class="col-4 text-end" style = "padding-right: 0px;">
-                <span style="font-size: 1em; color: white;">
+          <div id="explorePageHover" onclick="loadExplorePage()" class="row align-baseline" style = "padding-top: 10px">
+              <div class="col-5 text-end" style = "padding-right: 0px;">
+                <span class="iconColor" style="font-size: 1.5em;">
                     <i class="far fa-eye"></i>
                 </span>
               </div>
-              <div class="col-8 text-left align-bottom">
-                <h6 style="margin-bottom:0px; color:white">Explore</h6>
+              <div class="col-5 text-left align-bottom">
+                <h6 class="textChange" onclick="loadExplorePage()"; style="margin-top:7px; font-size: 1.25em;">Explore</h6>
+              </div>
+          </div>
+          <div id="shopPageHover" onclick="loadShopPage()" class="row align-baseline" style = "padding-top: 10px">
+              <div class="col-5 text-end" style = "padding-right: 0px;">
+                <span class="iconColor" style="font-size: 1.5em;">
+                    <i class="far fa-gem"></i>
+                </span>
+              </div>
+              <div class="col-5 text-left align-bottom">
+                <h6 class="textChange" style="margin-top:7px; font-size: 1.25em;">Shop</h6>
+              </div>
+          </div>
+          <div id="walletPageHover" onclick="loadWalletPage()" class="row align-baseline" style = "padding-top: 10px">
+              <div class="col-5 text-end" style = "padding-right: 0px;">
+                <span class="iconColor" style="font-size: 1.5em;">
+                    <i class="fas fa-wallet"></i>
+                </span>
+              </div>
+              <div class="col-5 text-left align-bottom">
+                <h6 class="textChange" style="margin-top:7px; font-size: 1.25em;">NFTs</h6>
+              </div>
+          </div>
+          <div id="playPageHover" onclick="loadPlayPage()" class="row align-baseline" style = "padding-top: 10px">
+              <div class="col-5 text-end" style = "padding-right: 0px;">
+                <span class="iconColor" style="font-size: 1.5em;">
+                    <i class="fas fa-gamepad"></i>
+                </span>
+              </div>
+              <div class="col-5 text-left align-bottom">
+                <h6 class="textChange" style="margin-top:7px; font-size: 1.25em;">Play</h6>
               </div>
           </div>
           <div class="row align-baseline" style = "padding-top: 10px">
-              <div class="col-4 text-end" style = "padding-right: 0px;">
-                <span style="font-size: 1em; color: white;">
-                  <i class="fas fa-sliders-h"></i>
+            <div class="col-5" style = "padding-right: 0px">
+              <div class="form-check form-switch text-center">
+                <input class="form-check-input" style = "transform: scale(1.2); float:right; margin:4px 2px 0px 0px; padding:10px 0px 0px;"  onClick="toggleDarkMode()" type="checkbox" id="flexSwitchCheckChecked" checked/>
+              </div>
+            </div>
+            <div class="col-5 text-left">
+                <h6 class="textChange" style="margin-bottom:0px; font-size: 1.25em;" >Dark Mode</h6>
+            </div>
+          </div>
+                          <button type="button" class="btn btn-primary" onClick="insertEmoji('emoji')">TestButton</button>
+          </div>
+          <div class="col-9">
+            <div class="row align-items-start backgroundColorNavBar" style = "border-radius: 0px 10px 10px 0px;">
+              <div class="col-3">
+                  <h2 style="color: white; margin: 6px 0px 8px 40px;"></h2>
+              </div>
+              <div class="col-4">
+              </div>
+              <div class="col-2 text-center">
+                  <div class="row align-items-start">
+                    <div class="col-4 text-center">
+                    <div class="row align-items-start">
+                    <span class="iconColor" style="font-size: 1.75em; margin-top:2px">
+                        <i class="far fa-envelope"></i>
+                    </span>
+                      </div>
+                      </div>
+                      <div class="col-4 text-center">
+                      <div class="row align-items-start">
+                      <span class="iconColor" style="font-size: 1.75em; margin-top:2px">
+                          <i class="far fa-bell"></i>
+                      </span>
+                        </div>
+                        </div>
+                      <div class="col-4 text-end">
+                <span class="iconColor" style="font-size: 2em;">
+                    <i type="button" data-bs-toggle="modal" data-bs-target="#userAccountModal" class="fas fa-user-secret" ></i>
                 </span>
+                  </div>
+                </div>
               </div>
-              <div class="col-8 text-left align-bottom">
-                <h6 style="margin-bottom:0px; color:white">Settings</h6>
-                <button type="button" class="btn btn-primary" onClick="uploadFile();">TestButton</button>
+              <div class="col-1">
+                <div class="row align-items-start">
+                  <h6 type="button" data-bs-toggle="modal" data-bs-target="#userAccountModal" onclick="renderUserAccount('')" class="textChange" style="margin:5px 0px 0px;">BobtheBuilder</h6>
+                </div>
+                <div class="row align-items-start">
+                  <h6 type="button" class="textChange" data-bs-toggle="modal" onclick="renderUserAccount('')" data-bs-target="#userAccountModal" class="textChange">0x478867576...</h6>
+                </div>
               </div>
-          </div>
-          </div>
-          <div class="col-6" style ="padding-top: 20px;">
-            <div class="card mb-3" style="border-radius: 20px;  background-color:#313334;">
-            <div class="card-header text-center" style ="border-radius: 20px; border: 0px; color:white">Post Something</div>
-            <div class="card-body" style ="border-top: 1px solid #535353">
+              <div class="col-2" style = "padding-top: 7px">
+                <button type="button" class="btn btn-secondary changeButtonColor changeButtonTextColor" style="float:right" onClick="logOut();">Logout</button>
+              </div>
+            </div>
+          <div id="socialFeedPage" class="row align-items-start">
+          <div class="col-9" style ="padding-top: 20px;">
+            <div class="card mb-3 boxesColor boxesShadow" style="border-radius: 20px;">
+            <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b>Post Something</b></div>
+            <div class="card-body boxesLine">
               <div class="row align-items-start">
                 <div class="col-1">
-                  <span style="font-size: 2em; color: white;">
+                  <span class="iconColor" style="font-size: 2em;">
                       <i class="fas fa-user-secret"></i>
                   </span>
                 </div>
                 <div id ="textArea" class="col-11">
-                  <textarea id="messageToPost" style = "border: solid 1px #535353; background-color:#535353; color:white;" class="form-control" placeholder="Share your thoughts..." rows="1"></textarea>
+                  <textarea id="messageToPost" class="form-control textBox" placeholder="Share your thoughts..." rows="1"></textarea>
                 </div>
               </div>
               <div class="row align-items-start" style ="padding-top: 10px;">
                 <div class="col-1">
                 </div>
                 <div class="col-6">
-                  <span style="font-size: 1.5em; color: white;">
+                  <span class="iconColor" style="font-size: 1.5em;">
                     <label for='upload'>
                       <i style ="padding-left: 10px;" class="fas fa-images"></i>
                     </label>
                     <input id='upload' type='file' onchange="handleFile(this)" onclick="this.value = null" name="MAX_FILE_SIZE" value="10485760" style="display: none">
                   </span>
-                  <span style="font-size: 1.5em; color: white;">
+                  <span class="iconColor" style="font-size: 1.5em;">
                       <i data-bs-toggle="modal" data-bs-target="#linkModal" style ="padding-left: 10px;" class="fas fa-link"></i>
                   </span>
-                  <span style="font-size: 1.5em; color: white;">
+                  <span class="iconColor" style="font-size: 1.5em;">
                       <i data-bs-toggle="modal" data-bs-target="#gifModal" style ="padding-left: 10px;" class="fas fa-film"></i>
+                  </span>
+                  <span class="iconColor" style="font-size: 1.5em;"> <!-- Probably a neater way to do the smiley box. -->
+                      <i style ="padding-left: 10px;" onclick="showEmojiBox();" class="far fa-smile"></i>
+                      <div id ="smileyBox" class="neon boxesColor" style="position: absolute; z-index: 100; margin:0px 0px 0px 135px; display: none"><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙂`)">🙂</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙁`)">🙁</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😀`)">😀</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😁`)">😁</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😂`)">😂</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😃`)">😃</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😄`)">😄</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😅`)">😅</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😆`)">😆</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😇`)">😇</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😈`)">😈</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😉`)">😉</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😊`)">😊</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😋`)">😋</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😌`)">😌</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😍`)">😍</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😎`)">😎</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😏`)">😏</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😐`)">😐</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😑`)">😑</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😒`)">😒</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😓`)">😓</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😔`)">😔</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😕`)">😕</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😖`)">😖</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😗`)">😗</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😘`)">😘</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😙`)">😙</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😚`)">😚</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😛`)">😛</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😜`)">😜</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😝`)">😝</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😞`)">😞</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😟`)">😟</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😠`)">😠</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😡`)">😡</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😢`)">😢</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😣`)">😣</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😤`)">😤</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😥`)">😥</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😦`)">😦</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😧`)">😧</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😨`)">😨</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😩`)">😩</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😪`)">😪</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😫`)">😫</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😬`)">😬</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😭`)">😭</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😮`)">😮</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😯`)">😯</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😰`)">😰</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😱`)">😱</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😲`)">😲</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😳`)">😳</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😴`)">😴</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😵`)">😵</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😶`)">😶</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😷`)">😷</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😸`)">😸</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😹`)">😹</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😺`)">😺</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😻`)">😻</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😼`)">😼</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😽`)">😽</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😾`)">😾</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😿`)">😿</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙀`)">🙀</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙃`)">🙃</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`💩`)">💩</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙄`)">🙄</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`☠`)">☠</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`👌`)">👌</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`👍`)">👍</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`👎`)">👎</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙈`)">🙈</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙉`)">🙉</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙊`)">🙊</span></div>
                   </span>
 
                 </div>
                 <div class="col-5 text-end">
-                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#postModal" style="background-color: #112F46; border-color:#313334;">
+                  <button type="button" class="btn btn-primary changeButtonColor changeButtonTextColor" data-bs-toggle="modal" data-bs-target="#postModal">
                     Submit
                   </button>
 
@@ -1050,24 +2188,24 @@ filter: invert(24%) sepia(89%) saturate(6838%) hue-rotate(356deg) brightness(103
               </div>
             </div>
           </div>
-          <div class="card mb-3" style="border-radius: 20px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); background-color:#313334;">
-          <div class="card-header" style ="border-radius: 20px; border: 0px;">
+          <div class="card mb-3 boxesColor boxesShadow" style="border-radius: 20px;">
+          <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
             <div class="row align-items-start">
               <div class="col-1">
-                <span style="font-size: 2em; color: white;">
+                <span class="iconColor" style="font-size: 2em;">
                     <i class="fas fa-user-secret"></i>
                 </span>
               </div>
               <div class="col-10">
                 <div class="row align-items-start">
-                  <h6 style="margin-bottom:0px;">0x4783GW783T74838 posted</h6>
+                  <h6 class="textChange" style="margin-bottom:0px;">John @ 0x4783GW783T74838 posted</h6>
                 </div>
                 <div class="row align-items-start text-left">
-                  <p>18th Oct 5:23 PM</p>
+                  <p class="textChange" >18th Oct 5:23 PM</p>
                 </div>
               </div>
               <div class="col-1 text-left">
-                <span id="greyStar" style="font-size: 1.5em; color: grey;">
+                <span class="iconColor" style="font-size: 1.5em;">
                     <i class="far fa-star"></i>
                 </span>
               </div>
@@ -1076,28 +2214,61 @@ filter: invert(24%) sepia(89%) saturate(6838%) hue-rotate(356deg) brightness(103
           <div class="card-body" style ="border-top: 1px solid #535353" >
             <div class="row align-items-start">
               <div id="messageContent" class="col-12">
-              <p>Nullam quis risuse magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula. d nibh ultricies vehicula d nibh ultricies.</p>
+              <p class="textChange">Nullam quis risuse magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula. d nibh ultricies vehicula d nibh ultricies.</p>
               </div>
             </div>
             <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
               <div class="col-3 text-center">
-                <a style="font-size: 1.5em; color: white; border-color: #fff">
-                  <i class="far fa-heart"></i>
-                </a>
+                <div class="row align-items-start">
+                  <div class="col-4 text-center">
+                  </div>
+                  <div class="col-2 text-center" style="padding:0px">
+                    <a class="iconColor" style="font-size: 1.5em;">
+                      <i class="far fa-heart"></i>
+                    </a>
+                  </div>
+                  <div class="col-3 text-center">
+                    <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">0</h6>
+                  </div>
+                  <div class="col-5 text-center">
+                  </div>
+                  </div>
               </div>
               <div class="col-3 text-center">
-                <a style="font-size: 1.5em; color: white; border-color: #fff">
-                  <i class="far fa-comments"></i>
-                </a>
+                <div class="row align-items-start">
+                  <div class="col-4 text-center">
+                  </div>
+                  <div class="col-2 text-center" style="padding:0px">
+                    <a class="iconColor" style="font-size: 1.5em;">
+                      <i class="far fa-comments"></i>
+                    </a>
+                  </div>
+                  <div class="col-3 text-center">
+                    <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">0</h6>
+                  </div>
+                  <div class="col-5 text-center">
+                  </div>
+                  </div>
               </div>
               <div class="col-3 text-center">
-                <a style="font-size: 1.5em; color: white; border-color: #fff">
-                  <i class="far fa-share-square"></i>
-                </a>
+                <div class="row align-items-start">
+                  <div class="col-4 text-center">
+                  </div>
+                  <div class="col-2 text-center" style="padding:0px">
+                    <a class="iconColor" style="font-size: 1.5em;">
+                      <i class="far fa-share-square"></i>
+                    </a>
+                  </div>
+                  <div class="col-3 text-center">
+                    <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">0</h6>
+                  </div>
+                  <div class="col-5 text-center">
+                  </div>
+                  </div>
               </div>
               <div class="col-3 text-center">
-                <a style="font-size: 1.5em; color: white; border-color: #fff">
-                  <i class="fab fa-ethereum"></i>
+                <a class="iconColor" style="font-size: 1.5em;">
+                  <i data-bs-toggle="modal" data-bs-target="#donationModal" onclick="donationAddress('0x67847587394ijij7','BobtheBuilder')" class="fab fa-ethereum"></i>
                 </a>
               </div>
             </div>
@@ -1105,8 +2276,8 @@ filter: invert(24%) sepia(89%) saturate(6838%) hue-rotate(356deg) brightness(103
         </div>
           </div>
           <div class="col-3" style ="padding-top: 20px;">
-            <div class="card mb-3" style="max-width: 30rem; border-radius: 20px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); background-color:#313334;">
-            <div class="card-header text-center textChange" style ="color:white">Following</div>
+            <div class="card mb-3 boxesColor boxesShadow" style="max-width: 30rem; border-radius: 20px;">
+            <div class="card-header boxesColor text-center textChange"  style="border-radius: 20px; border: 0px;"><b>Following</b></div>
             <div class="card-body" style ="border-top: 1px solid #535353">
               <div class="row align-items-start">
                 <div id="followerList" class="col-12">
@@ -1115,15 +2286,15 @@ filter: invert(24%) sepia(89%) saturate(6838%) hue-rotate(356deg) brightness(103
               </div>
               <div class="row align-items-start" style ="padding-top: 10px;">
                 <div class="col-12 text-center">
-                  <span style="font-size: 1em; color: white;">
-                      <i class="fas fa-plus"></i>
+                  <span class="iconColor" style="font-size: 1em;">
+                      <i data-bs-toggle="modal" data-bs-target="#followModal" class="fas fa-plus"></i>
                   </span>
                 </div>
               </div>
             </div>
           </div>
-          <div class="card mb-3" style="max-width: 30rem; border-radius: 20px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); background-color:#313334;">
-          <div class="card-header text-center" style ="border-radius: 20px; border: 0px; color:white">Saved</div>
+          <div class="card mb-3 boxesColor boxesShadow" style="max-width: 30rem; border-radius: 20px;">
+          <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b>Saved Posts</b></div>
           <div class="card-body" style ="border-top: 1px solid #535353">
             <div class="row align-items-start">
               <div id="savedList" class="col-12">
@@ -1131,27 +2302,155 @@ filter: invert(24%) sepia(89%) saturate(6838%) hue-rotate(356deg) brightness(103
             </div>
             <div class="row align-items-start" style ="padding-top: 10px;">
               <div class="col-12 text-center">
-                <span style="font-size: 1em; color: white;">
-                    <i class="fas fa-trash-alt"></i>
-                </span>
               </div>
             </div>
           </div>
         </div>
           </div>
+          </div>
+          <div id="shopPage" class="row align-items-start" style="display:none;">
+          <div class="row align-items-start">
+            <div class="col-2" style="margin-top:40px;">
+
+            </div>
+            <div class="col-8" style="margin-top:40px;">
+              <h1 class="neonSign" contenteditable spellcheck="false">store</h1>
+            </div>
+            <div class="col-2" style="margin-top:40px;">
+
+            </div>
+          </div>
+          <div class="row align-items-start" style ="padding-top: 40px;">
+              <div class="col-4" >
+                <div class="card mb-3  neon" style="max-width: 30rem; border-radius: 20px; background-color:#313334;">
+                <div class="card-header  text-center textChange">Buy</div>
+                <div class="card-body" style ="border-top: 1px solid #535353">
+                  <div class="row align-items-start">
+                      <img src="jewels.png" alt="jewels" width="30%" height="30%">
+                  </div>
+                  <div class="row align-items-start" style ="padding-top: 10px;">
+                    <div class="col-12 text-center">
+                        <button type="button" class="btn btn-outline-primary">Buy</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
+              <div class="col-4">
+                  <div class="card mb-3 neonStrong" style="max-width: 30rem; border-radius: 20px; background-color:#313334;">
+                  <div class="card-header text-center textChange">Buy</div>
+                  <div class="card-body" style ="border-top: 1px solid #535353">
+                    <div class="row align-items-start">
+                        <img src="jewels.png" alt="jewels" width="30%" height="30%">
+                    </div>
+                    <div class="row align-items-start" style ="padding-top: 10px;">
+                      <div class="col-12 text-center">
+                          <button type="button" class="btn btn-outline-primary">Buy</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-4">
+                  <div class="card mb-3 neon" style="max-width: 30rem; border-radius: 20px; background-color:#313334;">
+                  <div class="card-header text-center textChange">Buy</div>
+                  <div class="card-body" style ="border-top: 1px solid #535353">
+                    <div class="row align-items-start">
+                        <img src="jewels.png" alt="jewels" width="30%" height="30%">
+                    </div>
+                    <div class="row align-items-start" style ="padding-top: 10px;">
+                      <div class="col-12 text-center">
+                          <button type="button" class="btn btn-outline-primary">Buy</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+          </div>
+
+          <div id="explorePostsPage" class="row align-items-start" style="display:none; margin-top:20px;">
+            <div id="explorePostsContainer" class="col-9">
+
+            </div>
+            <div class="col-3 sticky">
+              <div class="card mb-3 boxesColor boxesShadow"  style="max-width: 30rem; border-radius: 20px;">
+              <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b>Token Swap</b></div>
+              <div class="card-body" style ="border-top: 1px solid #535353">
+                <img alt="" src="https://raw.githubusercontent.com/sushiswap/sushi-content/master/products/chopsticks.png" style="display: block; margin-right: auto;margin-left: auto" align="middle" width="64px !important" height="81px"  >
+                <div class="row align-items-start" style ="padding-top: 10px;">
+                  <div class="col-12 text-center">
+                      <h6 class="textChange" style="margin:0px 0px 10px; font-size: 1.25em;">Sushiswap</h6>
+                      <button type="button" class="btn btn-secondary changeSushiButtonTextColor" style="border-radius: .375rem!important; justify-content: center!important; background-image: linear-gradient(to right, rgb(1, 110, 218), rgb(217, 0, 192))">
+                      <a href="https://app.sushi.com/swap"  target="_blank" class="changeSushiButtonTextColor">
+                      Enter Exchange</a></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-3 boxesColor boxesShadow" style="max-width: 30rem; border-radius: 20px; ">
+            <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b>Flight Insurance</b></div>
+            <div class="card-body" style ="border-top: 1px solid #535353">
+              <img alt="" src="https://etherisc.com/assets/flight-delay-icon.97de55.svg" style="display: block; margin-right: auto;margin-left: auto" align="middle" width="80px !important" height="100px"  >
+              <div class="row align-items-start" style ="padding-top: 10px;">
+                <div class="col-12 text-center">
+                    <h6 class="textChange" style="margin:0px 0px 10px; font-size: 1.25em;">Etherisc</h6>
+                    <button type="button" class="btn btn-secondary changeButtonColor changeButtonTextColor" style="border-radius: .375rem!important; justify-content: center!important; ">
+                    <a href="https://fdd.etherisc.com/#/" target="_blank" class="changeButtonTextColor">
+                    Enter App</a></button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card mb-3 boxesColor boxesShadow" style="max-width: 30rem; border-radius: 20px;">
+          <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b>dAPP Building</b></div>
+          <div class="card-body" style ="border-top: 1px solid #535353">
+            <img alt="" src="https://moralis.io/wp-content/uploads/2021/07/bigicon_hero2.svg" style="display: block; margin-right: auto;margin-left: auto" align="middle" width="80px !important" height="100px"  >
+            <div class="row align-items-start" style ="padding-top: 10px;">
+              <div class="col-12 text-center">
+                  <h6 class="textChange" style="margin:0px 0px 10px; font-size: 1.25em;">Moralis</h6>
+                  <button type="button" class="btn btn-secondary changeButtonColor" style="border-radius: .375rem!important; justify-content: center!important; ">
+                  <a href="https://moralis.io/" target="_blank" class="changeButtonTextColor">
+                  Visit Site</a></button>
+              </div>
+            </div>
+          </div>
+        </div>
+            </div>
+          </div>
+
+
+          <div id="walletPage" class="row align-items-start" style="display:none;">
+            <div id="explorePostsContainer" class="col-9">
+
+            </div>
+            <div class="col-3">
+            </div>
+          </div>
+
+          <div id="playPage" class="row align-items-start" style="display:none;">
+            <div id="explorePostsContainer" class="col-9">
+
+            </div>
+            <div class="col-3">
+            </div>
+          </div>
+
+
+          </div>
       </div>
     </div>
 
-<footer class="text-center text-white" style ="background-color: #112F46;"> <!--#3C719D -->
-  <div class="container p-3 align-center">
-      <p style="margin:0px">
-        Download the Code on Github!       <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
+<footer class="text-center text-white backgroundColorNavBar"> <!--#3C719D -->
+  <div class="container p-3 align-center ">
+      <p class="textChange" style="margin:0px">
+        Download the Code on Github!       <a class="btn btn-outline-light btn-floating m-1 iconColor" href="#!" role="button"
                 ><i class="fab fa-github"></i
               ></a>
-        Follow me Twitter!       <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
+        Follow me Twitter!       <a class="btn btn-outline-light btn-floating m-1 iconColor" href="#!" role="button"
                 ><i class="fab fa-twitter"></i
               ></a>
-        Connect with me on Linkedin!      <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
+        Connect with me on Linkedin!      <a class="btn btn-outline-light btn-floating m-1 iconColor" href="#!" role="button"
                 ><i class="fab fa-linkedin-in"></i
               ></a>
       </p>
