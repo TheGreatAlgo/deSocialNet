@@ -26,21 +26,40 @@ __________         ___.      __   .__             __________        .__ .__     
 <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 <script src="https://npmcdn.com/moralis@latest/dist/moralis.js"></script>
 <script>
-function showEmojiBox(){
-  let visible = document.getElementById("smileyBox").style.display;
-  if (visible == "none"){
-      document.getElementById("smileyBox").style.display = "block";
-  }
-  else{
-      document.getElementById("smileyBox").style.display = "none";
-  }
-}
+expandText()
 
+function expandText(){
+
+
+$(function() {
+  $('textarea').on('input keyup paste', function() {
+    var $el = $(this),
+        offset = $el.innerHeight() - $el.height();
+
+    if ($el.innerHeight() < this.scrollHeight) {
+      // Grow the field if scroll height is smaller
+      $el.height(this.scrollHeight - offset);
+    } else {
+      // Shrink the field and then re-set it to the scroll height in case it needs to shrink
+      $el.height(1);
+      $el.height(this.scrollHeight - offset);
+    }
+  });
+});
+}
+// Global Variables -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------Global Variables-------------------------------
 var file;
 var gif;
 var link;
-const kovanContract = "0xe55cBB27Fe4638eC377fD81c359459103533D20f";
-const ABI = [
+var following;
+var savedPosts;
+var mode
+var recipientAddress // global recipientAddress for donations
+var recipientNickname // global recipient nickname for donations
+const kovanWETHTokenAddress ="0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
+const kovanContract = "0x7B669377273E6a933d12a9889A7d18ad59B46960";
+const ABI =
+[
 	{
 		"anonymous": false,
 		"inputs": [
@@ -61,48 +80,79 @@ const ABI = [
 		"type": "event"
 	},
 	{
+		"anonymous": false,
 		"inputs": [
 			{
-				"internalType": "string",
-				"name": "messageText",
-				"type": "string"
+				"indexed": false,
+				"internalType": "address",
+				"name": "senderAddress",
+				"type": "address"
 			},
 			{
+				"indexed": false,
 				"internalType": "uint256",
-				"name": "randomResult1",
+				"name": "postID",
 				"type": "uint256"
 			}
 		],
-		"name": "addPost",
+		"name": "newPost",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "senderAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "recipientAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "time",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "message",
+				"type": "string"
+			}
+		],
+		"name": "sendMessageEvent",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "postOwner",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "postID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "commentText",
+				"type": "string"
+			}
+		],
+		"name": "addComment",
 		"outputs": [
 			{
 				"internalType": "bool",
 				"name": "success",
 				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes",
-				"name": "",
-				"type": "bytes"
-			}
-		],
-		"name": "checkUpkeep",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "upkeepNeeded",
-				"type": "bool"
-			},
-			{
-				"internalType": "bytes",
-				"name": "",
-				"type": "bytes"
 			}
 		],
 		"stateMutability": "nonpayable",
@@ -121,12 +171,114 @@ const ABI = [
 				"type": "string"
 			}
 		],
-		"name": "getRandomNumberAndPost",
+		"name": "addPost",
 		"outputs": [
 			{
-				"internalType": "bytes32",
-				"name": "requestId",
-				"type": "bytes32"
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "newCheckInTimeInterval",
+				"type": "uint256"
+			}
+		],
+		"name": "changeCheckInTime",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "postNumber",
+				"type": "uint256"
+			}
+		],
+		"name": "changeFeaturedPost",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newInheritor",
+				"type": "address"
+			}
+		],
+		"name": "changeInheritance",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "bioText",
+				"type": "string"
+			}
+		],
+		"name": "changeUserBio",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "newNickName",
+				"type": "string"
+			}
+		],
+		"name": "changeUserNickname",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "userAddress",
+				"type": "address"
+			}
+		],
+		"name": "followUser",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "nonpayable",
@@ -160,7 +312,12 @@ const ABI = [
 		"inputs": [
 			{
 				"internalType": "string",
-				"name": "text",
+				"name": "newProfileBio",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "nickName",
 				"type": "string"
 			}
 		],
@@ -172,6 +329,13 @@ const ABI = [
 				"type": "bool"
 			}
 		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "ownerCheckIn",
+		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
@@ -189,26 +353,26 @@ const ABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "requestId",
-				"type": "bytes32"
-			},
-			{
-				"internalType": "uint256",
-				"name": "randomness",
-				"type": "uint256"
-			}
-		],
-		"name": "rawFulfillRandomness",
+		"inputs": [],
+		"name": "renounceOwnership",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "renounceOwnership",
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "recipientAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "message",
+				"type": "string"
+			}
+		],
+		"name": "sendMessage",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -227,16 +391,26 @@ const ABI = [
 		"type": "function"
 	},
 	{
+		"stateMutability": "payable",
+		"type": "receive"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "_amount",
+				"name": "amount",
 				"type": "uint256"
 			}
 		],
 		"name": "withdraw",
-		"outputs": [],
-		"stateMutability": "payable",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -249,13 +423,45 @@ const ABI = [
 		],
 		"name": "withdrawErc20",
 		"outputs": [],
-		"stateMutability": "payable",
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
 		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
+		"name": "checkInTimeInterval",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "checkUpkeep",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "upkeepNeeded",
+				"type": "bool"
+			},
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
 	},
 	{
 		"inputs": [
@@ -268,9 +474,9 @@ const ABI = [
 		"name": "getAllUserPosts",
 		"outputs": [
 			{
-				"internalType": "uint256[]",
+				"internalType": "uint256",
 				"name": "userPosts",
-				"type": "uint256[]"
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -284,6 +490,50 @@ const ABI = [
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "postOwner",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "postID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "commentID",
+				"type": "uint256"
+			}
+		],
+		"name": "getComment",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "commenter",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "message",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "userNickname",
+				"type": "string"
 			}
 		],
 		"stateMutability": "view",
@@ -331,6 +581,21 @@ const ABI = [
 				"internalType": "uint256",
 				"name": "timestamp",
 				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "url",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "userNickname",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalComments",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -355,6 +620,52 @@ const ABI = [
 				"internalType": "uint256",
 				"name": "totalPosts",
 				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "joinDate",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "followerCount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "userNickname",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "featuredPost",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "lastCheckIn",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "nextOwner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
 			}
 		],
 		"stateMutability": "view",
@@ -372,62 +683,244 @@ const ABI = [
 		],
 		"stateMutability": "view",
 		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "randomResult",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
 	}
-];
-const options = {
-  contractAddress: kovanContract,
-  functionName: "newProfile",
-  abi: ABI,
-  params: {
-    text: "hello world"
-  },
-};
-var following
-var savedPosts
-var mode
-var recipientAddress // global recipientAddress
-var recipientNickname // global
+]
 const serverUrl = "https://h1fpcthpxdrt.usemoralis.com:2053/server";
 const appId = "xNLGUQH5eITa3ybsmQ7Zp2ZbekxAtVRa6umAJ1LZ";
 Moralis.start({ serverUrl, appId });
 onFirstLoad();
-async function newProfile(profileBio) {
+
+// MORALIS CONTRACT FUNCTIONS
+async function contractNewProfile(_profileBio,_nickName) {
   const options = {
     contractAddress: kovanContract,
     functionName: "newProfile",
     abi: ABI,
     params: {
-      text: profileBio
+      newProfileBio: _profileBio,
+      nickName: _NickName
     },
   };
   const receipt = await Moralis.executeFunction(options);
   console.log(receipt)
 }
-async function addPost(message,messageURL) {
+async function contractAddPost(_messageText,_messageURL) {
   const options = {
     contractAddress: kovanContract,
-    functionName: "getRandomNumberAndPost",
+    functionName: "addPost",
     abi: ABI,
     params: {
-      messageText: message,
-      url: messageURL
+      messageText: _messageText,
+      url: _messageURL
     },
   };
   const receipt = await Moralis.executeFunction(options);
   console.log(receipt)
+  renderSocialFeedPage();
+}
+async function contractGetUserProfile(_userAddress) {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "getUserProfile",
+    abi: ABI,
+    params: {
+      userAddress: _userAddress
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  return receipt; // return the data
+}
+async function contractLikePost(_userAddress, _postID) {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "likePost",
+    abi: ABI,
+    params: {
+      userAddress: _userAddress,
+      postKey:  _postID
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+}
+async function contractGetUserPost(_userAddress, _postID) {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "getUserPost",
+    abi: ABI,
+    params: {
+      userAddress: _userAddress,
+      postKey: _postID
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+  return receipt;
+}
+async function contractSendMessage(_userAddress, _messageText) {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "sendMessage",
+    abi: ABI,
+    params: {
+      recipientAddress: _userAddress,
+      message: _messageText
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+  return receipt;
+}
+async function contractChangeUserBio(_bioText) {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "changeUserBio",
+    abi: ABI,
+    params: {
+      bioText: _bioText
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+  return receipt;
+}
+async function contractFollowUser(_userAddress) {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "followUser",
+    abi: ABI,
+    params: {
+      userAddress: _userAddress
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+  return receipt;
+}
+async function contractChangeUserNickname(_nickName) {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "changeUserNickname",
+    abi: ABI,
+    params: {
+      newNickName: _nickName
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+  return receipt;
+}
+async function contractChangeFeaturedPost(_postNumber) {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "changeFeaturedPost",
+    abi: ABI,
+    params: {
+      post: _postNumber
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  return receipt;
+}
+async function contractAddComment(_postAddress, _postID, _commentText) {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "addComment",
+    abi: ABI,
+    params: {
+      postOwner: _postAddress,
+      postID: _postID,
+      commentText: _commentText
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+  return receipt;
+}
+async function contractGetComment(_postAddress, _postID, _commentID) {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "getComment",
+    abi: ABI,
+    params: {
+      postOwner: _postAddress,
+      postID: _postID,
+      commentID: _commentID
+    },
+  };
+    const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+  return receipt;
+}
+async function contractGetAllUserPosts(_userAddress) {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "getAllUserPosts",
+    abi: ABI,
+    params: {
+      userAddress: _userAddress
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+  return receipt;
+}
+async function contractGetTotalUsers() {
+  const options = {
+    contractAddress: kovanContract,
+    functionName: "getTotalUsers",
+    abi: ABI,
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+  return receipt;
+}
+
+async function uploadFileandPostToBlockChain() {
+  const data = file; // pull from global variable
+  const message = document.getElementById("messageToPost").value;
+  // *IMPORTANT* Check to see if file exists or not*
+  if (data) {
+    const moralisFile = new Moralis.File(data.name, data)
+    const receipt = await moralisFile.saveIPFS();
+    contractAddPost(message,moralisFile.hash()) //Save to BlockChain
+    var textArea = document.getElementById("textArea");
+    textArea.removeChild(textArea.lastElementChild);
+  }
+  if (gif){
+    let gifSource = document.getElementById("attachment").src;
+    gifSource = gifSource.replace('https://media.giphy.com/media/', '');
+    gifSource = gifSource.replace('/giphy.gif', '');
+    contractAddPost(message,gifSource) //Save to BlockChain
+    var textArea = document.getElementById("textArea");
+    textArea.removeChild(textArea.lastElementChild);
+  }
+  else{
+    contractAddPost(message," ") //Save to BlockChain.
+  }
+  console.log(message);
+  document.getElementById("messageToPost").value = ""; // reset text Box
+  file = false; // file or gif no longer exists
+  gif = false;
+  return true;
+}
+
+async function donateEthereum() { //_recieverAddress, _amount
+
+  let options = {address: kovanWETHTokenAddress, chain: "eth", exchange:"sushiswap"};
+  const usdPrice = await Moralis.Web3API.token.getTokenPrice(options);
+  let amount = document.getElementById("donationAmount").value;
+  let donationAmount = amount/usdPrice.usdPrice;
+  console.log(usdPrice.usdPrice);
+  console.log(recipientAddress);
+  console.log(donationAmount);
+  donationAmount = Moralis.Units.ETH(donationAmount); //make sure its converted to proper units
+  console.log(donationAmount);
+  options = {type: "native", amount: donationAmount , receiver: recipientAddress};
+  console.log(options);
+  const receipt = await Moralis.transfer(options)
+  console.log(receipt);
+  return receipt;
 }
 async function login() {
   console.log("login attempted");
@@ -443,10 +936,21 @@ async function login() {
   }
   console.log("logged in user:", user);
 }
-
+async function logOut() {
+  try{
+      await Moralis.User.logOut();
+  }
+  catch{
+    //in case they already got autologgedoff
+  }
+  document.getElementById("loginForm").style.display = "block";
+  document.getElementById("mainPage").style.display = "none";
+  console.log("logged out");
+}
 async function onFirstLoad() {
   const web3 = await Moralis.enableWeb3();
   let user = Moralis.User.current();
+  renderUserProfileTopRight()
   if (!user) {
     document.getElementById("loginForm").style.display = "block";
     document.getElementById("mainPage").style.display = "none";
@@ -457,141 +961,102 @@ async function onFirstLoad() {
   else{
     document.getElementById("loginForm").style.display = "none";
     document.getElementById("mainPage").style.display = "block";
-    getUserPreferences()//get the userPreferences
+    getUserPreferences() // user Preferences are then assigned to global variables
   }
   console.log("logged in user:", user);
 }
 
-async function logOut() {
-  try{
-      await Moralis.User.logOut();
-  }
-  catch{
+function sendMessage(){
+  let recipientOfMessage = document.getElementById('inboxToAddress').value;
+  let messageBody = document.getElementById('inboxMessage').value;
+  contractSendMessage(recipientOfMessage, messageBody)
+  $('#inboxModal').modal('hide'); //hide modal
+  console.log(recipientOfMessage);
+  console.log(messageBody);
+}
+function addComment(_commentAddress,_postID){
+  let postIDHTML = _commentAddress.concat(_postID); //this creates the unqiueID in which we reference the html.
+  let userCommentMessage = postIDHTML.concat('userCommentTextInput'); //this further creates the unqiueID in which we reference the html.
+  let messageBody = document.getElementById(userCommentMessage).value;
+  contractAddComment(_commentAddress, _postID, messageBody)
+  console.log(_commentAddress);
+  console.log(_postID);
+  console.log(messageBody);
+}
+function replytoMessage(_receiver){
+  $('#inboxModalBody').scrollTop(0);
+  document.getElementById('inboxToAddress').value = _receiver;
+  document.getElementById("inboxMessage").focus();
+}
 
-  }
-  document.getElementById("loginForm").style.display = "block";
-  document.getElementById("mainPage").style.display = "none";
-  console.log("logged out");
-}
-async function getUserProfile() {
-  const options = {
-    contractAddress: kovanContract,
-    functionName: "getUserProfile",
-    abi: ABI,
-    params: {
-      userAddress: "0x252d2f2293098AF088623a641546c98687DeB884"
-    },
-  };
-  const receipt = await Moralis.executeFunction(options);
-  console.log(receipt)
-}
-async function likePost(_address, _postID) {
-  const options = {
-    contractAddress: kovanContract,
-    functionName: "likePost",
-    abi: ABI,
-    params: {
-      userAddress: _address,
-      postKey:  _postID
-    },
-  };
-  const receipt = await Moralis.executeFunction(options);
-  console.log(receipt)
-}
-async function getUserPost(_userAddress, _postKey) {
-  const options = {
-    contractAddress: kovanContract,
-    functionName: "getUserPost",
-    abi: ABI,
-    params: {
-      userAddress: _userAddress,
-      postKey: _postKey
-    },
-  };
-  const receipt = await Moralis.executeFunction(options);
-  console.log(receipt)
-  return receipt;
-}
 function donationAddress(_recieverAddress,_recieverNickname){
-  recipientAddress = _recieverAddress;
-  recipientNickname = _recieverNickname;
-  var addressShort = recipientAddress.slice(0, 20);
-  addressShort = addressShort.concat("...");
-  document.getElementById('donationRecipient').textContent = recipientNickname + " @  " + addressShort
+  recipientAddress = _recieverAddress; // sets the global variables
+  recipientNickname = _recieverNickname; // sets the global variables
+  var addressShort = recipientAddress.slice(0, 20); // makes the address easier to read
+  addressShort = addressShort.concat("..."); // makes the address easier to read
+  document.getElementById('donationRecipient').textContent = recipientNickname + " @  " + addressShort //fills in the text for the donationModal
   $('#savedPostModal').modal('hide'); //hide other modal
   $('#userAccountModal').modal('hide'); //hide other modal
 }
-async function donateEthereum() { //_recieverAddress, _amount
-  let options = {
-  address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-  chain: "eth",
-  exchange:"sushiswap"
-  };
-  const usdPrice = await Moralis.Web3API.token.getTokenPrice(options);
-  let amount = document.getElementById("donationAmount").value;
-  let _recieverAddress = recipientAddress;
-  let donationAmount = amount/usdPrice.usdPrice;
-  console.log(usdPrice.usdPrice);
-  console.log(_recieverAddress);
-  console.log(donationAmount);
-  donationAmount = Moralis.Units.ETH(donationAmount);
-  console.log(donationAmount);
-  options = {type: "native", amount: donationAmount , receiver: _recieverAddress};
-  console.log(options);
-  const receipt = await Moralis.transfer(options)
-  console.log(receipt);
-  return receipt;
-}
+
 function followNewUser(){
   let newFollowing = document.getElementById("followAddress").value;
   console.log(newFollowing);
-  //let userProfile = getUserProfile(newFollowing);
-  //newUserPreference = [newFollowing,userProfile.nickName]
-  //updateUserPreferences(newUserPreference, "follow")
+  updateUserPreferences(newFollowing, "follow") // tell Moralis user is following new person
+  contractFollowUser(newFollowing) // follow user on smart contract. They can deny transaction and still have user preference
 }
-function updateUserPreferences(data, action){
-  //const userPreferences = Moralis.User.current();
-  switch(action){
+function updateUserPreferences(_data, _action){
+  const userPreferences = Moralis.User.current();
+  console.log("sending to moralis",_data)
+  switch(_action){
     case "unfollow":
-        userPreferences.remove("following",data); //Array of Addresses
+        userPreferences.remove("following",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
         break;
     case "follow":
-        userPreferences.add("following",data);
+        userPreferences.addUnique("following",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
+        console.log("Moralis followed uploaded");
         break;
     case "modeChange":
-        userPreferences.set("mode",data); //Either "Light" or "dark"
+        userPreferences.set("mode",_data); //Either "Light" or "dark"
         break;
     case "savePost":
-        userPreferences.add("savedPosts",data); //Array of Addresses with Post ID
+        userPreferences.addUnique("savedPosts",_data); //Array of Addresses with Post ID. Example [[0x578783,4],[0x57846,5]]
         break;
     case "unSavePost":
-        userPreferences.remove("savedPosts",data);
+        userPreferences.remove("savedPosts",_data); //Array of Addresses with Post ID. Example [[0x578783,4],[0x57846,5]]
+        $('#savedPostModal').modal('hide'); //hide other modal
         break;
     default:
       //do nothing
   }
   userPreferences.save()
   .then((userPreferences) => {
-  getUserPreferences()
-  //alert('New object created with objectId: ' + userPreferences.id);
+  getUserPreferences() //refreshUserPreferences
    }, (error) => {
-  // Execute any logic that should take place if the save fails.
-  // error is a Moralis.Error with an error code and message.
+
   alert('Failed to create new object, with error code: ' + error.message);
 });
 }
-function getUserPreferences() { // only time this should be called is on a page refresh or on change of userPreferences
-  userPreferences = Moralis.User.current();
-  following = userPreferences.get("following");
-  savedPosts = userPreferences.get("savedPosts");
-  mode = userPreferences.get("mode");
-  savedPosts= [["john","0x252d2f2293098AF088623a641546c98687DeB884","1"],["phil","0x252d2f2293098AF088623a641546c98687DeB884","2"]];
-  followingArray= [["john","0x264d2f2293098AF088623a641546c98687DeB884"],["phil","0x252d2f2293098AF088623a641546c98687DeB884"]];
+async function getUserPreferences() { // only time this should be called is on a page refresh or on change of userPreferences
+  userPreferences = await Moralis.User.current();
+  following = await userPreferences.get("following");
+  savedPosts = await userPreferences.get("savedPosts");
+  console.log(savedPosts);
+  mode = await userPreferences.get("mode");
   renderSaved(savedPosts); // replace with "savedPosts" on launch;
-  renderFollowing(followingArray);
+  renderFollowing(following);
+  if (mode=="light"){
+    //toggleLightMode();
+  }
+  else{
+    //toggleDarkMode();
+  }
 }
-function toggleDarkMode() {
+
+function toggleLightMode() {
   const style = document.createElement('style');
+  document.getElementById("logoSideBar").src="https://ipfs.io/ipfs/Qmdfd7qFcfdUrFqwdzxuaFxXGy2GbC1rdCYsLn2ByW1wg8?filename=logoLightMode.png";
+  document.getElementById("loginLogo").src="https://ipfs.io/ipfs/Qmdfd7qFcfdUrFqwdzxuaFxXGy2GbC1rdCYsLn2ByW1wg8?filename=logoLightMode.png";
   style.innerHTML = `
     .textChange {
         color: black;
@@ -629,8 +1094,8 @@ function toggleDarkMode() {
       color:#3E3E3E;
     }
     .changeButtonColor{
-      background-color: #318ce7;
-      border-color: #318ce7;
+      background-color: #112F46;
+      border-color: #112F46;
     }
     .changeButtonTextColor{
       color: #fff;
@@ -639,10 +1104,16 @@ function toggleDarkMode() {
       color: #fff;
     }
     .changeButtonColor:hover{
-      background-color: #318ce7;
-      border-color: #318ce7;
+      background-color: #112F46;
+      border-color:  #112F46;
     }
     .textBox{
+      border: solid 1px #535353;
+      background-color: #fff;
+      color: black;
+      font-size: 18px;
+    }
+    .textBox:focus{
       border: solid 1px #535353;
       background-color: #fff;
       color: black;
@@ -651,22 +1122,39 @@ function toggleDarkMode() {
     .boxesBioColor{
       background-color:#D7D7D7 ;
     }
+    .boxesCommentColor{
+      background-color:#F0F0F0 ;
+    }
 `;
   document.head.appendChild(style);
 }
-function insertEmoji(emoji){
-  document.getElementById("messageToPost").value += emoji;
+
+// EMOJIS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------EMOJIS-------------------------------
+function insertEmoji(_emoji){
+  document.getElementById("messageToPost").value += _emoji;
   document.getElementById("smileyBox").style.display = "none";
 }
+function showEmojiBox(){
+  let visible = document.getElementById("smileyBox").style.display;
+  if (visible == "none"){
+      document.getElementById("smileyBox").style.display = "block";
+  }
+  else{
+      document.getElementById("smileyBox").style.display = "none";
+  }
+}
 
-// HANDLING FILES/LINKS ------------------------------------------------------------------------------------------------------------HANDLING FILES/LINKS-------------------------------
-function handleFile(input) {
-  file = input.files[0]; //input.files[0];
+
+// HANDLING FILES/LINKS -----------------------------------------------------------------------------------------------------------------------------------------------------------HANDLING FILES/LINKS-------------------------------
+function handleUserFile(_input) {
+  deleteFile(); // delete any file previously there since only one is uploaded at a time
+  file = _input.files[0]; //input.files[0];
   console.log("new file");
-  const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
+  gif = false;
+  const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after for user experience
   document.getElementById("textArea").innerHTML +=
     `
-    <div class="row align-items-start">
+    <div id="attachment" class="row align-items-start">
       <div class="col-4">
           <p style = "margin: 10px 0px 0px"><em>${file.name}</em></p>
       </div>
@@ -674,34 +1162,27 @@ function handleFile(input) {
           <button type="button" class="btn-close" onclick="deleteFile()" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
     </div>`; // Profile Overview in the Modal
-
-  document.getElementById("messageToPost").value = message;
-//  alert(`File name: ${file.name}`); // e.g my.png
-//  alert(`Last modified: ${file.lastModified}`); // e.g 1552830408824
-}
-function handleGif(gifLink) {
-  const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
-  document.getElementById("messageContent").innerHTML +=
-    `<img src="https://media.giphy.com/media/${gifLink}/giphy.gif" style="display: block; margin:auto; padding:0px 0px 20px 0px" width="100%">`; // Profile Overview in the Modal
   document.getElementById("messageToPost").value = message;
 }
 function handleUserGif() {
+  deleteFile();
   console.log("New Gif");
   gif = true;
+  file = false;
   const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
   const gifLink = document.getElementById("gifLink").value
   document.getElementById("textArea").innerHTML +=
-    `<img id="gif" src="${gifLink}" style="display: block; margin:auto; padding:20px 0px 20px 0px" width="100%">`; // Profile Overview in the Modal
+    `<img id="attachment" src="${gifLink}" style="display: block; margin:auto; padding:20px 0px 20px 0px" width="100%">`; // Profile Overview in the Modal
   document.getElementById("messageToPost").value = message;
 }
-function returnLinksGifsHTML(url) {
-  if (url == ""){ //nothing attached to the message
+function returnLinksGifsHTML(url) { //rendering for the users links and gifs
+  if (url == " " || url == ""){ //nothing attached to the message
     return url
   }
   if (url.length < 30){ // its giphy
     url = "https://media.giphy.com/media/"+url+"/giphy.gif";
     console.log(url);
-    let htmlCode =   `<img id="gif" src="${url}" style="display: block; margin:auto; padding:20px 0px 20px 0px;" width="100%">`;
+    let htmlCode =   `<div style="background-color: black;"><img id="gif" src="${url}" style="display: block; margin: 20px auto; padding:0px 0px 0px 0px; "  width="50%"></div>`;
     console.log(htmlCode);
     return htmlCode
   }
@@ -720,73 +1201,20 @@ function returnLinksGifsHTML(url) {
   }
   return url
 }
-function handleUserLink() {
-  link = true;
-  console.log("new link");
-  const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
-  const linkValue = document.getElementById("link").value
-  document.getElementById("textArea").innerHTML +=
-    `
-    <div class="row align-items-start">
-      <div class="col-6">
-          <p id="link" style = "margin: 10px 0px 0px"><em>${linkValue}</em></p>
-      </div>
-      <div class="col-1" style="margin: 10px 0px 0px">
-          <button  type="button" class="btn-close" onclick="deleteFile()" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-    </div>`; // Profile Overview in the Modal
-
-  document.getElementById("messageToPost").value = message;
-//  alert(`File name: ${file.name}`); // e.g my.png
-//  alert(`Last modified: ${file.lastModified}`); // e.g 1552830408824
-}
-async function uploadFileandPostToBlockChain() {
-  const data = file;
-  const message = document.getElementById("messageToPost").value;
-  // *IMPORTANT* Check to see if file exists or not*
-  if (data) {
-    //  const moralisFile = new Moralis.File(data.name, data)
-    //  const receipt = await moralisFile.saveIPFS();
-    //  addPost(message,moralisFile.hash()) //Save to BlockChain
-    var textArea = document.getElementById("textArea");
-    textArea.removeChild(textArea.lastElementChild);
+function deleteFile(){
+  let attachment = document.getElementById("attachment");
+  if (attachment){
+    document.getElementById("attachment").remove();
   }
-  if (gif){
-    let gifSource = document.getElementById("gif").src;
-    gifSource = gifSource.replace('https://media.giphy.com/media/', '');
-    gifSource = gifSource.replace('/giphy.gif', '');
-    // addPost(message,gifSource) //Save to BlockChain
-    var textArea = document.getElementById("textArea");
-    textArea.removeChild(textArea.lastElementChild);
-  }
-  if (link){
-    let linkSource = document.getElementById("link").value;
-    // addPost(message,linkSource) //Save to BlockChain
-    var textArea = document.getElementById("textArea");
-    textArea.removeChild(textArea.lastElementChild);
-    console.log(linkSource);
-  }
-  else{
-    //  addPost(message,"") //Save to BlockChain
-  }
-  console.log(message);
-  //addPost(message,"QmUXTtySmd7LD4p6RG6rZW6RuUuPZXTtNMmRQ6DSQo3aMw") //Only for Testing
-//  console.log(moralisFile.ipfs(), moralisFile.hash())
-//  console.log("Receipt ",receipt)
-
-  document.getElementById("messageToPost").value = ""; // reset text Box
-
   file = false;
   gif = false;
-  link = false;
-  return receipt;
 }
   // function getUserPreferences(){
   //   const userPreferences = Moralis.User.current();
   //   console.log(userPreferences.fetch())
   // }
-var myModal = document.getElementById('myModal')
-var myInput = document.getElementById('myInput')
+//var myModal = document.getElementById('myModal')
+//var myInput = document.getElementById('myInput')
 
 function getLocalTime(unixTimeStamp){
   unixTimeStamp = unixTimeStamp*1000;
@@ -799,6 +1227,7 @@ function getLocalDate(unixTimeStamp){
   var date = new Date(unixTimeStamp).toLocaleDateString("en-US");
   return (date)
 }
+
 // DYNAMIC RENDERING Code -----------------------------------------------------------------------------------------------------------Dynamic Rendering ------------------------------
 function loadExplorePage(){
   document.getElementById("socialFeedPage").style.display="none";
@@ -806,22 +1235,21 @@ function loadExplorePage(){
   document.getElementById("walletPage").style.display="none";
   document.getElementById("playPage").style.display="none";
   renderExplorePage();
-  document.getElementById("explorePostsPage").style.display="";
+  document.getElementById("explorePostsPage").style.display="";  //wierd glitch where if i put inline it shows lower
 }
 function loadSocialFeedPage(){
   document.getElementById("explorePostsPage").style.display="none";
   document.getElementById("shopPage").style.display="none";
   document.getElementById("walletPage").style.display="none";
   document.getElementById("playPage").style.display="none";
-  //renderSocialFeedPageExplorePosts();
-  document.getElementById("socialFeedPage").style.display=""; //wierd glitch where if i put inline it shows lower
+  renderSocialFeedPage();
+  document.getElementById("socialFeedPage").style.display="";
 }
 function loadShopPage(){
   document.getElementById("explorePostsPage").style.display="none";
   document.getElementById("socialFeedPage").style.display="none";
   document.getElementById("walletPage").style.display="none";
   document.getElementById("playPage").style.display="none";
-  //renderSocialFeedPageExplorePosts();
   document.getElementById("shopPage").style.display="";
 }
 function loadWalletPage(){
@@ -829,51 +1257,278 @@ function loadWalletPage(){
   document.getElementById("socialFeedPage").style.display="none";
   document.getElementById("shopPage").style.display="none";
   document.getElementById("playPage").style.display="none";
-  //renderSocialFeedPageExplorePosts();
   document.getElementById("walletPage").style.display="";
 }
 function loadPlayPage(){
   document.getElementById("explorePostsPage").style.display="none";
   document.getElementById("socialFeedPage").style.display="none";
   document.getElementById("walletPage").style.display="none";
-  document.getElementById("shopPage").style.display="";
-  //renderSocialFeedPageExplorePosts();
+  document.getElementById("shopPage").style.display="none";
   document.getElementById("playPage").style.display="";
 }
-function deleteFile(){
-  var textArea = document.getElementById("textArea");
-  textArea.removeChild(textArea.lastElementChild);
-  file = false;
-}
-function renderFollowing(followingArray) { //followingArray
+
+async function renderFollowing(followingArray) { //followingArray
   var followerHTML = document.getElementById("followerList");
   while (followerHTML.hasChildNodes()) { // This removes all of them and re-renders it
     followerHTML.removeChild(followerHTML.firstChild);
     }
-//  const followingArray = [["john","0x4532f2293098AF088623a641546c98687DeB884"],["phil","0x5354f2293098AF088623a641546c98687DeB884"],["Sarah","0x4532f2293098AF088623a641546c98687DeB884"]]
-  for (let i = 0; i < followingArray.length; i++) {
-    const nickName = followingArray[i][0];
-    const address = followingArray[i][1];
-    var addressShort = address.slice(0, 10);
-    addressShort = addressShort.concat("...");
-    document.getElementById("followerList").innerHTML +=
-      `<h6 class = "text-center textChange" data-bs-toggle="modal" onclick="renderUserProfile('${address}')" data-bs-target="#userAccountModal" >${nickName}  ${addressShort}</h6>`; // Profile Overview in the Modal
-    }
+    //  expected array should be like ["0x4532f229","0x5354f229","0x5354f229"]
+  if (following) {
+    for (let i = 0; i < following.length; i++) {
+      let userProfile = await contractGetUserProfile(following[i]); // get userProfile to find the currentNickname
+      let nickName = userProfile.userNickname;
+      let address = following[i];
+      var addressShort = address.slice(0, 5);
+      addressShort = addressShort.concat("...");
+      var nickNameShort = nickName.slice(0, 5);
+      nickNameShort = nickNameShort.concat("...");
+      document.getElementById("followerList").innerHTML +=
+        `<h6 type="button" class = "text-center textChange" data-bs-toggle="modal" onclick="renderUserAccount('${address}')" data-bs-target="#userAccountModal" >${nickNameShort} @ ${addressShort}</h6>`; // Profile Overview in the Modal
+      }
   }
-function renderSaved(savedArray) { //savedArray
+  }
+async function renderSaved(savedArray) { //savedArray
     var savedHTML = document.getElementById("savedList");
     while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
       savedHTML.removeChild(savedHTML.firstChild);
       }
-  //  const savedArray = [["john","0x4532f2293098AF088623a641546c98687DeB884","1"],["phil","0x5354f2293098AF088623a641546c98687DeB884","2"],["Sarah","0x4532f2293098AF088623a641546c98687DeB884","48022637"]]
-    for (let i = 0; i < savedArray.length; i++) {
-      const nickName = savedArray[i][0];
-      const address = savedArray[i][1];
-      const postID = savedArray[i][2];
-      document.getElementById("savedList").innerHTML +=
-        `<h6 class = "text-center textChange" onclick="renderSavedModal('${address}','${postID}')" type="button" data-bs-toggle="modal" data-bs-target="#savedPostModal" >${nickName}  ${postID}</h6>`; //Solve this later to load up a modal
-      }
+   //const savedArray = [["0x4532f2293098AF088623a641546c98687DeB884","1"],["0x5354f2293098AF088623a641546c98687DeB884","2"],["0x4532f2293098AF088623a641546c98687DeB884","47"]]
+    if (savedPosts) {
+      console.log(savedPosts.length);
+      for (let i = 0; i < savedPosts.length; i++) {
+        let savedPostsSplit = savedPosts[i].split(",");
+        savedPostsSplit[1] = ""+savedPostsSplit[1]
+        console.log("postID",savedPostsSplit[1]);
+        const postInformation = await contractGetUserPost(savedPostsSplit[0], savedPostsSplit[1]); // get post information
+        let message = postInformation.message;
+        message = message.slice(0,15); // first ten letters
+        message = message.concat("...");
+        const address = savedPostsSplit[0];
+        const postID = savedPostsSplit[1];
+        document.getElementById("savedList").innerHTML +=
+          `<h6 class = "text-center textChange" onclick="renderSavedModal('${address}','${postID}')" type="button" data-bs-toggle="modal" data-bs-target="#savedPostModal" >${message}</h6>`;
+        }
+    }
+
   }
+async function renderUserProfileTopRight() { //savedArray
+    const currentUser = await Moralis.User.current();
+    address = currentUser.get("accounts");
+    address = address[0];
+    profile = await contractGetUserProfile(address);
+    var addressShort = address.slice(0, 10);
+    addressShort = addressShort.concat("...");
+    nickName = profile.userNickname;
+    var nickNameShort = nickName.slice(0, 5);
+    nickNameShort = nickNameShort.concat("...");
+    document.getElementById("userProfileOverview").innerHTML +=
+    `
+    <div class="row align-items-start">
+      <h6 type="button" data-bs-toggle="modal" data-bs-target="#userAccountModal" onclick="renderUserAccount('${address}')" class="textChange" style="margin:5px 0px 0px;">${nickNameShort}</h6>
+    </div>
+    <div class="row align-items-start">
+      <h6 type="button" class="textChange" data-bs-toggle="modal" onclick="renderUserAccount('${address}')" data-bs-target="#userAccountModal" class="textChange">${addressShort}</h6>
+    </div>
+    `;
+  }
+
+async function renderCommentArea(postAddress, postID) { //savedArray
+    let postIDHTML = postAddress.concat(postID); //this creates the unqiueID in which we reference the html.
+    console.log(postIDHTML);
+    var savedHTML = document.getElementById(postIDHTML);
+    let allCommentContainer = postIDHTML.concat('allCommentContainer'); //this creates the unqiueID in which we reference the html.
+    let userCommentContainer = postIDHTML.concat('userCommentContainer'); //this creates the unqiueID in which we reference the html.
+    let userCommentTextInput = postIDHTML.concat('userCommentTextInput'); //this creates the unqiueID in which we reference later when sending the message for the text value
+    if (document.getElementById(allCommentContainer)){
+          document.getElementById(allCommentContainer).remove();
+    }
+    if (document.getElementById(userCommentContainer)){
+          document.getElementById(userCommentContainer).remove();
+    }
+    console.log(postAddress);
+    console.log(postID);
+    const postInformation = await contractGetUserPost(postAddress, postID); // moralis will get the post and see how many comments
+    let totalComments = postInformation.totalComments;
+    let commentHTMl ='';
+    console.log(totalComments);
+    for (let i = 0; i < totalComments; i++) {
+      let commentID = ""+i; // doesn't seem to like numbers so sent as string
+      console.log(commentID);
+      const commentInformation = await contractGetComment(postAddress, postID,commentID); // moralis will get each comment information
+      let message = commentInformation.message;
+      let timeStamp = getLocalTime(commentInformation.timestamp);
+      let nickName = commentInformation.userNickname;
+      let address = commentInformation.commenter;
+      var addressShort = address.slice(0, 10);
+      addressShort = addressShort.concat("...");
+      if (commentID=="0"){
+      commentHTMl +=
+        `
+        <div class="row align-items-start" id="${allCommentContainer}" style ="margin-top: 10px; padding:20px 0px 0px; border-top: 1px solid #535353">
+          <div class="col-12 text-left">
+            <div class="row align-items-start">
+              <div class="col-1 text-center">
+                <a class="iconColor" style="font-size: 1.75em;">
+                  <i class="fas fa-user-secret"></i>
+                </a>
+              </div>
+              <div class="col-11 text-left boxesCommentColor boxesShadow" style=" padding-top:4px; border-radius: 20px;">
+                <div class="row align-items-start">
+                  <p class="textChange" style="font-size:1em; margin-bottom:0px"><b>${nickName} @ ${addressShort}</b></p>
+                  </div>
+                  <div class="row align-items-start">
+                    <p class="textChange" style="font-size:0.75em;margin-bottom:2px">${timeStamp}</p>
+                    </div>
+                  <div class="row align-items-start">
+                    <h6 class="textChange" style="font-size:0.75em">${message}</h6>
+                  </div>
+              </div>
+          </div>
+        `; //Solve this later to load up a modal
+          }
+        else{
+          commentHTMl +=
+            `
+            <div class="row align-items-start" style ="margin-top: 10px;">
+              <div class="col-1 text-center">
+                <a class="iconColor" style="font-size: 1.75em;">
+                  <i class="fas fa-user-secret"></i>
+                </a>
+              </div>
+              <div class="col-11 text-left boxesCommentColor boxesShadow" style=" padding-top:4px; border-radius: 20px;">
+                <div class="row align-items-start">
+                  <p class="textChange" style="font-size:1em; margin-bottom:0px"><b>${nickName} @ ${addressShort}</b></p>
+                  </div>
+                  <div class="row align-items-start">
+                    <p class="textChange" style="font-size:0.75em;margin-bottom:2px">${timeStamp}</p>
+                    </div>
+                  <div class="row align-items-start">
+                    <h6 class="textChange" style="font-size:0.75em">${message}</h6>
+                  </div>
+              </div>
+          </div>
+            `; //Solve this later to load up a modal
+        }
+      }
+      commentHTMl += "</div></div>";
+      document.getElementById(postIDHTML).innerHTML += commentHTMl;
+      document.getElementById(postIDHTML).innerHTML +=
+      `
+      <div class="row align-items-start" id="${userCommentContainer}" style ="margin-top: 10px; padding-top:20px; border-top: 1px solid #535353">
+        <div class="col-1 text-center">
+          <a class="iconColor" style="font-size: 1.75em;">
+            <i class="fas fa-user-secret"></i>
+          </a>
+        </div>
+        <div class="col-9 text-center" style=" padding-top:4px">
+          <textarea id="${userCommentTextInput}" class="form-control textBox" placeholder="Comment Here" style="border-radius:20px; font-size:0.9em;" rows="1"></textarea>
+        </div>
+        <div class="col-2 text-center"  style=" padding-top:4px">
+          <button type="button" class="btn btn-primary changeButtonColor changeButtonTextColor" onclick="addComment('${postAddress}','${postID}')" style="float:right; font-size:0.9em">Comment</button>
+        </div>
+      </div>
+      `;
+          expandText()
+}
+async function renderModalCommentArea(postAddress, postID) {
+    let postIDHTML = postAddress.concat(postID); //this creates the unqiueID in which we reference the html.
+    postIDHTML = postIDHTML.concat("modal"); //this creates the unqiueID in which we reference the html.
+    console.log(postIDHTML);
+    var savedHTML = document.getElementById(postIDHTML);
+    let allCommentContainer = postIDHTML.concat('allCommentContainer'); //this creates the unqiueID in which we reference the html.
+    let userCommentContainer = postIDHTML.concat('userCommentContainer'); //this creates the unqiueID in which we reference the html.
+    let userCommentTextInput = postIDHTML.concat('userCommentTextInput'); //this creates the unqiueID in which we reference later when sending the message for the text value
+    if (document.getElementById(allCommentContainer)){
+          document.getElementById(allCommentContainer).remove();
+    }
+    if (document.getElementById(userCommentContainer)){
+          document.getElementById(userCommentContainer).remove();
+    }
+    console.log(postAddress);
+    console.log(postID);
+    const postInformation = await contractGetUserPost(postAddress, postID); // moralis will get the post and see how many comments
+    let totalComments = postInformation.totalComments;
+    let commentHTMl ='';
+    console.log(totalComments);
+    for (let i = 0; i < totalComments; i++) {
+      let commentID = ""+i; // doesn't seem to like numbers so sent as string
+      console.log(commentID);
+      const commentInformation = await contractGetComment(postAddress, postID,commentID); // moralis will get each comment information
+      let message = commentInformation.message;
+      let timeStamp = getLocalTime(commentInformation.timestamp);
+      let nickName = commentInformation.userNickname;
+      let address = commentInformation.commenter;
+      var addressShort = address.slice(0, 10);
+      addressShort = addressShort.concat("...");
+      if (commentID=="0"){
+      commentHTMl +=
+        `
+        <div class="row align-items-start" id="${allCommentContainer}" style ="margin-top: 10px; padding:20px 0px 0px; border-top: 1px solid #535353">
+          <div class="col-12 text-left">
+            <div class="row align-items-start">
+              <div class="col-1 text-center">
+                <a class="iconColor" style="font-size: 1.75em;">
+                  <i class="fas fa-user-secret"></i>
+                </a>
+              </div>
+              <div class="col-11 text-left boxesCommentColor boxesShadow" style=" padding-top:4px; border-radius: 20px;">
+                <div class="row align-items-start">
+                  <p class="textChange" style="font-size:1em; margin-bottom:0px"><b>${nickName} @ ${addressShort}</b></p>
+                  </div>
+                  <div class="row align-items-start">
+                    <p class="textChange" style="font-size:0.75em;margin-bottom:2px">${timeStamp}</p>
+                    </div>
+                  <div class="row align-items-start">
+                    <h6 class="textChange" style="font-size:0.75em">${message}</h6>
+                  </div>
+              </div>
+          </div>
+        `; //Solve this later to load up a modal
+          }
+        else{
+          commentHTMl +=
+            `
+            <div class="row align-items-start" style ="margin-top: 10px;">
+              <div class="col-1 text-center">
+                <a class="iconColor" style="font-size: 1.75em;">
+                  <i class="fas fa-user-secret"></i>
+                </a>
+              </div>
+              <div class="col-11 text-left boxesCommentColor boxesShadow" style=" padding-top:4px; border-radius: 20px;">
+                <div class="row align-items-start">
+                  <p class="textChange" style="font-size:1em; margin-bottom:0px"><b>${nickName} @ ${addressShort}</b></p>
+                  </div>
+                  <div class="row align-items-start">
+                    <p class="textChange" style="font-size:0.75em;margin-bottom:2px">${timeStamp}</p>
+                    </div>
+                  <div class="row align-items-start">
+                    <h6 class="textChange" style="font-size:0.75em">${message}</h6>
+                  </div>
+              </div>
+          </div>
+            `; //Solve this later to load up a modal
+        }
+      }
+      commentHTMl += "</div></div>";
+      document.getElementById(postIDHTML).innerHTML += commentHTMl;
+      document.getElementById(postIDHTML).innerHTML +=
+      `
+      <div class="row align-items-start" id="${userCommentContainer}" style ="margin-top: 10px; padding-top:20px; border-top: 1px solid #535353">
+        <div class="col-1 text-center">
+          <a class="iconColor" style="font-size: 1.75em;">
+            <i class="fas fa-user-secret"></i>
+          </a>
+        </div>
+        <div class="col-9 text-center" style=" padding-top:4px">
+          <textarea id="${userCommentTextInput}" class="form-control textBox" placeholder="Comment Here" style="border-radius:20px; font-size:0.9em;" rows="1"></textarea>
+        </div>
+        <div class="col-2 text-center"  style=" padding-top:4px">
+          <button type="button" class="btn btn-primary changeButtonColor changeButtonTextColor" onclick="addComment('${postAddress}','${postID}')" style="float:right; font-size:0.9em">Comment</button>
+        </div>
+      </div>
+      `;
+          expandText()
+}
 function renderExplorePage() { //savedArray
     // function that returns the 20 latest posts
     postsArray = 10;
@@ -892,7 +1547,6 @@ function renderExplorePage() { //savedArray
       var addressShort = address.slice(0, 10);
       addressShort = addressShort.concat("...");
       let gifLinkHTML = returnLinksGifsHTML(url)
-      console.log(savedHTML);
       // populate the render Saved Model
       document.getElementById("explorePostsContainer").innerHTML +=
           `
@@ -919,7 +1573,7 @@ function renderExplorePage() { //savedArray
               </div>
             </div>
           </div>
-          <div class="card-body" style ="border-top: 1px solid #535353" >
+          <div class="card-body" id="0x580" style ="border-top: 1px solid #535353" >
             <div class="row align-items-start">
               <div id="messageContent" class="col-12">
               <p class="textChange">${message}</p>${gifLinkHTML}
@@ -948,7 +1602,7 @@ function renderExplorePage() { //savedArray
                   </div>
                   <div class="col-2 text-center" style="padding:0px">
                     <a class="iconColor" style="font-size: 1.5em;">
-                      <i class="far fa-comments"></i>
+                      <i class="far fa-comments" onclick="renderCommentArea('0x58','0')"></i>
                     </a>
                   </div>
                   <div class="col-3 text-center">
@@ -960,15 +1614,12 @@ function renderExplorePage() { //savedArray
               </div>
               <div class="col-3 text-center">
                 <div class="row align-items-start">
-                  <div class="col-4 text-center">
+                  <div class="col-5 text-center">
                   </div>
                   <div class="col-2 text-center" style="padding:0px">
                     <a class="iconColor" style="font-size: 1.5em;">
                       <i class="far fa-share-square"></i>
                     </a>
-                  </div>
-                  <div class="col-3 text-center">
-                    <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">0</h6>
                   </div>
                   <div class="col-5 text-center">
                   </div>
@@ -985,17 +1636,29 @@ function renderExplorePage() { //savedArray
           `; //Solve this later to load up a modal
       }
   }
-function renderSavedModal(address,postID) { //nickName,address,postID
-    //const postInformation = getUserPost(address,postID);
+async function renderSavedModal(address,postID) { //nickName,address,postID
+    const postInformation = await contractGetUserPost(address, postID); // get post information
     console.log("rendering Modal");
-    let message = "Hello World";
-    let timeStamp = getLocalTime(1635461938);
+    let postIDHTML = address.concat(postID); //this creates the unqiueID in which we reference the html.
+    postIDHTML = postIDHTML.concat("modal"); //this creates the unqiueID in which we reference the html.
+    let allCommentContainer = postIDHTML.concat('allCommentContainer'); //this creates the unqiueID in which we reference the html.
+    let userCommentContainer = postIDHTML.concat('userCommentContainer'); //this creates the unqiueID in which we reference the html.
+    let userCommentTextInput = postIDHTML.concat('userCommentTextInput'); //this creates the unqiueID in which we reference later when sending the message for the text value
+
+    let alreadyExists = document.getElementById(postIDHTML); //delete already generated postID from any other sources.
+    if (alreadyExists){
+      document.getElementById(postIDHTML).remove();
+    }
+
+    let message = postInformation.message;
+    let timeStamp = getLocalTime(postInformation.timestamp);
     let savedHTML = document.getElementById("savedPostModalContent");
-    let url = "7cDhT0CDqFIvCWiNXKhhukugkgukugkugkufufkufkuf";
-    let numberOfLikes = "5";
-    let nickName = "BobtheBuilder";
+    let url = postInformation.url;
+    let numberOfLikes = postInformation.numberOfLikes;
+    let totalComments = postInformation.totalComments;
+    let nickName = postInformation.userNickname;
     let gifLinkHTML = returnLinksGifsHTML(url)
-    console.log(savedHTML);
+    let starArray = address+","+postID; //moralis doesn't seem to work with uploading arrays no so using a simple comment instead
     while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
       savedHTML.removeChild(savedHTML.firstChild);
       }
@@ -1020,13 +1683,13 @@ function renderSavedModal(address,postID) { //nickName,address,postID
                 </div>
                 <div class="col-1 text-left">
                   <span class="iconColor" style="font-size: 1.5em;">
-                      <i onclick="updateUserPreferences('[${address},${postID}]', 'unSavePost')" class="fas fa-star starFilledIn"></i>
+                      <i onclick="updateUserPreferences('${starArray}', 'unSavePost')" class="fas fa-star starFilledIn"></i>
                   </span>
                 </div>
               </div>
             </div>
           <div class="modal-body" style="padding:0px">
-            <div class="card-body" style ="border-top: 1px solid #535353" >
+            <div class="card-body" id="${postIDHTML}" style ="border-top: 1px solid #535353" >
               <div class="row align-items-start">
                 <div class="col-12">
                 <p class="textChange">${message}</p>${gifLinkHTML}
@@ -1039,7 +1702,7 @@ function renderSavedModal(address,postID) { //nickName,address,postID
                     </div>
                     <div class="col-2 text-center" style="padding:0px">
                       <a class="iconColor" style="font-size: 1.5em;">
-                        <i onclick="likePost('${address}','${postID}')" class="far fa-heart"></i>
+                        <i onclick="contractLikePost('${address}','${postID}')" class="far fa-heart"></i>
                       </a>
                     </div>
                     <div class="col-2 text-center">
@@ -1055,11 +1718,11 @@ function renderSavedModal(address,postID) { //nickName,address,postID
                     </div>
                     <div class="col-2 text-center" style="padding:0px">
                       <a class="iconColor" style="font-size: 1.5em;">
-                        <i class="far fa-comments"></i>
+                        <i class="far fa-comments" onclick="renderModalCommentArea('${address}','${postID}')"></i>
                       </a>
                     </div>
                     <div class="col-2 text-center">
-                      <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
+                      <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">${totalComments}</h6>
                     </div>
                     <div class="col-4 text-center">
                     </div>
@@ -1067,17 +1730,14 @@ function renderSavedModal(address,postID) { //nickName,address,postID
                 </div>
                 <div class="col-3 text-center">
                   <div class="row align-items-start">
-                    <div class="col-4 text-center">
+                    <div class="col-5 text-center">
                     </div>
                     <div class="col-2 text-center" style="padding:0px">
                       <a class="iconColor" style="font-size: 1.5em;">
                         <i class="far fa-share-square"></i>
                       </a>
                     </div>
-                    <div class="col-2 text-center">
-                      <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
-                    </div>
-                    <div class="col-4 text-center">
+                    <div class="col-5 text-center">
                     </div>
                     </div>
                 </div>
@@ -1093,23 +1753,35 @@ function renderSavedModal(address,postID) { //nickName,address,postID
         `; //Solve this later to load up a modal
 
   }
-function renderUserAccountPosts(address,totalPosts) { //nickName,address,postID
-    //const postInformation = getUserPost(address,postID);
+
+async function renderUserAccountPosts(address,totalPosts) { //nickName,address,postID
     let savedHTML = document.getElementById("userAccountPosts");
     var addressShort = address.slice(0, 10);
     addressShort = addressShort.concat("...");
     while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
       savedHTML.removeChild(savedHTML.firstChild);
       }
-    for (let i=0; i<totalPosts; i++){
-      //const postInformation = getUserPost(address,postID);
-      let message = "Hello World";
-      let timeStamp = getLocalTime(1635461938);
-      let url = "7cDhT0CDqFIvCWiNXK";
-      let numberOfLikes = "5";
-      let nickName = "BobtheBuilder";
+    for (let i=(totalPosts-1); i>-1; i--){
+      console.log(i);
+      let postID = ""+i; // doesn't seem to like numbers so sent as string
+      let postIDHTML = address.concat(postID); //this creates the unqiueID in which we reference when rendering the comments
+      postIDHTML = postIDHTML.concat("modal"); //this creates the unqiueID in which we reference the html.
+      const postInformation = await contractGetUserPost(address, postID); // get post information
+      let message = postInformation.message;
+      let timeStamp = getLocalTime(postInformation.timestamp);
+      let savedHTML = document.getElementById("savedPostModalContent");
+      let url = postInformation.url;
+      let numberOfLikes = postInformation.numberOfLikes;
+      let nickName = postInformation.userNickname;
+      let totalComments = postInformation.totalComments;
       let gifLinkHTML = returnLinksGifsHTML(url)
-      console.log(savedHTML);
+
+      let alreadyExists = document.getElementById(postIDHTML); //delete already generated postID from any other sources.
+      if (alreadyExists){
+        document.getElementById(postIDHTML).remove();
+      }
+      let starArray = address+","+postID; //moralis doesn't seem to work with uploading arrays no so using a simple comment instead
+      console.log(starArray);
       // populate the render Saved Model
       document.getElementById("userAccountPosts").innerHTML +=
           `
@@ -1132,12 +1804,12 @@ function renderUserAccountPosts(address,totalPosts) { //nickName,address,postID
                 </div>
                 <div class="col-1 text-left">
                   <span class="iconColor" style="font-size: 1.5em;">
-                      <i class="far fa-star"></i>
+                      <i onclick="updateUserPreferences('${starArray}', 'savePost')" class="far fa-star"></i>
                   </span>
                 </div>
               </div>
             </div>
-            <div class="card-body" style ="border-top: 1px solid #535353" >
+            <div class="card-body" id="${postIDHTML}" style ="border-top: 1px solid #535353" >
               <div class="row align-items-start">
                 <div id="messageContent" class="col-12">
                 <p class="textChange">${message}</p>${gifLinkHTML}
@@ -1150,7 +1822,7 @@ function renderUserAccountPosts(address,totalPosts) { //nickName,address,postID
                     </div>
                     <div class="col-2 text-center" style="padding:0px">
                       <a class="iconColor" style="font-size: 1.5em;">
-                        <i onclick="likePost('${address}','${i}')" class="far fa-heart"></i>
+                        <i onclick="contractLikePost('${address}','${i}')" class="far fa-heart"></i>
                       </a>
                     </div>
                     <div class="col-4 text-center">
@@ -1166,11 +1838,260 @@ function renderUserAccountPosts(address,totalPosts) { //nickName,address,postID
                     </div>
                     <div class="col-2 text-center" style="padding:0px">
                       <a class="iconColor" style="font-size: 1.5em;">
-                        <i class="far fa-comments"></i>
+                        <i class="far fa-comments" onclick="renderModalCommentArea('${address}','${i}')"></i>
                       </a>
                     </div>
                     <div class="col-4 text-center">
-                      <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
+                      <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">${totalComments}</h6>
+                    </div>
+                    <div class="col-2 text-center">
+                    </div>
+                    </div>
+                </div>
+                <div class="col-3 text-center">
+                  <div class="row align-items-start">
+                    <div class="col-5 text-center">
+                    </div>
+                    <div class="col-2 text-center" style="padding:0px">
+                      <a class="iconColor" style="font-size: 1.5em;">
+                        <i class="far fa-share-square"></i>
+                      </a>
+                    </div>
+                    <div class="col-5 text-center">
+                    </div>
+                    </div>
+                </div>
+                <div class="col-3 text-center">
+                  <a class="iconColor" style="font-size: 1.5em;">
+                    <i data-bs-toggle="modal" data-bs-target="#donationModal" onclick="donationAddress('${address}','${nickName}')" class="fab fa-ethereum"></i>
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          </div>
+        </div>
+          `;
+    }
+  }
+async function renderFeaturedPost(address,postID) { //nickName,address,postID
+    var addressShort = address.slice(0, 10);
+    addressShort = addressShort.concat("...");
+    const featuredPost = await contractGetUserPost(address, postID);
+    let featuredMessage = featuredPost.message;
+    let featuredTimeStamp = getLocalTime(featuredPost.timestamp);
+    let featuredUrl = featuredPost.url;
+    let featuredNumberOfLikes = featuredPost.numberOfLikes;
+    let featuredGifLinkHTML = returnLinksGifsHTML(featuredUrl)
+    let nickName = featuredPost.userNickname;
+    let totalComments = featuredPost.totalComments;
+    let starArray = address+","+postID; //moralis doesn't seem to work with uploading arrays no so using a simple comment instead
+    if (featuredPost.timestamp == "0"){
+      console.log("user Doesn't have any posts")
+    }
+    else{
+      document.getElementById("featuredPostContainer").innerHTML +=
+        `
+        <div class="col-12">
+          <div class="card mb-3 boxesColor neon" >
+          <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
+            <div class="row align-items-start">
+              <div class="col-1">
+                <span class="iconColor" style="font-size: 2em;">
+                    <i class="fas fa-user-secret"></i>
+                </span>
+              </div>
+              <div class="col-10">
+                <div class="row align-items-start">
+                  <h6 class="textChange" style="margin-bottom:0px;">${nickName} @ ${addressShort} posted</h6>
+                </div>
+                <div class="row align-items-start text-left">
+                  <p class="textChange" >${featuredTimeStamp}</p>
+                </div>
+              </div>
+              <div class="col-1 text-left">
+                <span class="iconColor" style="font-size: 1.5em;">
+                    <i onclick="updateUserPreferences('${starArray}', 'savePost')" class="far fa-star"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="card-body" id="0x55" style ="border-top: 1px solid #535353" >
+            <div class="row align-items-start">
+              <div id="messageContent" class="col-12">
+              <p class="textChange">${featuredMessage}</p>${featuredGifLinkHTML}
+              </div>
+            </div>
+            <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
+              <div class="col-3 text-center">
+                <div class="row align-items-start">
+                  <div class="col-4 text-center">
+                  </div>
+                  <div class="col-2 text-center" style="padding:0px">
+                    <a class="iconColor" style="font-size: 1.5em;">
+                      <i onclick="contractLikePost('${address}','${postID}')"  class="far fa-heart"></i>
+                    </a>
+                  </div>
+                  <div class="col-4 text-center">
+                    <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">${featuredNumberOfLikes}</h6>
+                  </div>
+                  <div class="col-2 text-center">
+                  </div>
+                  </div>
+              </div>
+              <div class="col-3 text-center">
+                <div class="row align-items-start">
+                  <div class="col-4 text-center">
+                  </div>
+                  <div class="col-2 text-center" style="padding:0px">
+                    <a class="iconColor" style="font-size: 1.5em;">
+                      <i class="far fa-comments" onclick="renderModalCommentArea('${address}','${postID}')"></i>
+                    </a>
+                  </div>
+                  <div class="col-5 text-center">
+                    <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">${totalComments}</h6>
+                  </div>
+                  <div class="col-1 text-center">
+                  </div>
+                  </div>
+              </div>
+              <div class="col-3 text-center">
+                <div class="row align-items-start">
+                  <div class="col-5 text-center">
+                  </div>
+                  <div class="col-2 text-center" style="padding:0px">
+                    <a class="iconColor" style="font-size: 1.5em;">
+                      <i class="far fa-share-square"></i>
+                    </a>
+                  </div>
+                  <div class="col-5 text-center">
+                  </div>
+                  </div>
+              </div>
+              <div class="col-3 text-center">
+                <a class="iconColor" style="font-size: 1.5em;">
+                  <i data-bs-toggle="modal" data-bs-target="#donationModal" onclick="donationAddress('${address}','${nickName}')" class="fab fa-ethereum"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+        `;
+    }
+  }
+
+async function renderSocialFeedPage() { //nickName,address,postID
+    let allPostArray = []; // initalizeArray
+    let savedHTML = document.getElementById("socialFeedPostsContainer");
+    while (savedHTML.childNodes.length>2) { // This removes all of them and re-renders it except for the post something box
+      savedHTML.removeChild(savedHTML.lastChild);
+      }
+    const currentUser = await Moralis.User.current();
+    address = await currentUser.get("accounts"); // we want also this users address to they are included in rendering of the social feed page.
+    address = address[0];
+    let followersToSearch = following;
+    if (followersToSearch.includes(address)){
+    }
+    else{
+      followersToSearch.push(address);
+    }
+    for (let i=0; i<followersToSearch.length; i++){
+          const userProfile = await contractGetUserProfile(followersToSearch[i]); // get userProfile
+          totalPosts = userProfile.totalPosts;
+          if (totalPosts > 5){ // only get the last 5 posts. if someone has 100 posts then no point rendering them all everytime.
+            totalPosts = 5;
+          }
+          for (let j=(totalPosts-1); j>-1; j--){ // get the post information for each post starting from latest
+              let postID = ""+j; //doesn't seem to like numbers so sent as string
+              const postInformation = await contractGetUserPost(followersToSearch[i], postID); // get post information
+              postInformation.postID = postID; // add post ID
+              postInformation.address = followersToSearch[i]; // add address
+              allPostArray.push(postInformation); // save Post Information in array for later handling
+              }
+      }
+      // now all the posts are collected for each user that is being followed as well as themselves
+      // now we want to reorganize them based on when they posted.
+      allPostArray.sort((a, b) => {
+          return b.timestamp - a.timestamp;
+      });
+    console.log(allPostArray);
+    for (let i=0; i<allPostArray.length; i++){
+      console.log(i);
+      const postInformation = allPostArray[i]; // get post information
+      let address = postInformation.address
+      let postID = ""+postInformation.postID; // doesn't seem to like numbers so sent as string
+      console.log(postID);
+      let postIDHTML = address.concat(postID); //this creates the unqiueID in which we reference when rendering the comments
+      let message = postInformation.message;
+      let timeStamp = getLocalTime(postInformation.timestamp);
+      let savedPostHTML = document.getElementById("savedPostModalContent");
+      let url = postInformation.url;
+
+      let numberOfLikes = postInformation.numberOfLikes;
+      let nickName = postInformation.userNickname;
+      let totalComments = postInformation.totalComments;
+
+      let gifLinkHTML = returnLinksGifsHTML(url)
+      var addressShort = address.slice(0, 10);
+      addressShort = addressShort.concat("...");
+
+      let alreadyExists = document.getElementById(savedPostHTML); //delete already generated postID from any other sources.
+      if (alreadyExists){
+        document.getElementById(savedPostHTML).remove();
+      }
+      let starArray = address+","+postID; //moralis doesn't seem to work with uploading arrays no so using a simple comment instead
+      console.log(starArray);
+      // populate the render Saved Model
+      document.getElementById("socialFeedPostsContainer").innerHTML +=
+          `
+            <div class="card mb-3 boxesColor" style="border-radius: 20px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"  >
+            <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
+              <div class="row align-items-start">
+                <div class="col-1">
+                  <span class="iconColor" style="font-size: 2em;">
+                      <i class="fas fa-user-secret"></i>
+                  </span>
+                </div>
+                <div class="col-9">
+                  <div class="row align-items-start">
+                    <h6 class="textChange" style="margin-bottom:0px;">${nickName} @ ${addressShort} posted</h6>
+                  </div>
+                  <div class="row align-items-start text-left">
+                    <p class="textChange" >${timeStamp}</p>
+                  </div>
+                </div>
+                <div class="col-1 text-left">
+                  <span class="iconColor" style="font-size: 1.5em;">
+                      <i onclick="updateUserPreferences('${address}', 'follow')" class="fas fa-user-friends"></i>
+                  </span>
+                </div>
+                <div class="col-1 text-left">
+                  <span class="iconColor" style="font-size: 1.5em;">
+                      <i onclick="updateUserPreferences('${starArray}', 'savePost')" class="far fa-star"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="card-body" id="${postIDHTML}" style ="border-top: 1px solid #535353" >
+              <div class="row align-items-start">
+                <div id="messageContent" class="col-12">
+                <pre style="font-size:16px; font-family:sans-serif; font-weight:500"><p class="textChange">${message}</p></pre>${gifLinkHTML}
+                </div>
+              </div>
+              <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
+                <div class="col-3 text-center">
+                  <div class="row align-items-start">
+                    <div class="col-4 text-center">
+                    </div>
+                    <div class="col-2 text-center" style="padding:0px">
+                      <a class="iconColor" style="font-size: 1.5em;">
+                        <i onclick="contractLikePost('${address}','${postID}')" class="far fa-heart"></i>
+                      </a>
+                    </div>
+                    <div class="col-4 text-center">
+                      <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">${numberOfLikes}</h6>
                     </div>
                     <div class="col-2 text-center">
                     </div>
@@ -1182,13 +2103,26 @@ function renderUserAccountPosts(address,totalPosts) { //nickName,address,postID
                     </div>
                     <div class="col-2 text-center" style="padding:0px">
                       <a class="iconColor" style="font-size: 1.5em;">
-                        <i class="far fa-share-square"></i>
+                        <i class="far fa-comments" onclick="renderCommentArea('${address}','${postID}')"></i>
                       </a>
                     </div>
                     <div class="col-4 text-center">
-                      <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
+                      <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">${totalComments}</h6>
                     </div>
                     <div class="col-2 text-center">
+                    </div>
+                    </div>
+                </div>
+                <div class="col-3 text-center">
+                  <div class="row align-items-start">
+                    <div class="col-5 text-center">
+                    </div>
+                    <div class="col-2 text-center" style="padding:0px">
+                      <a class="iconColor" style="font-size: 1.5em;">
+                        <i class="far fa-share-square"></i>
+                      </a>
+                    </div>
+                    <div class="col-5 text-center">
                     </div>
                     </div>
                 </div>
@@ -1198,206 +2132,122 @@ function renderUserAccountPosts(address,totalPosts) { //nickName,address,postID
                   </a>
                 </div>
               </div>
+
             </div>
           </div>
           </div>
-        </div>
-          `; //Solve this later to load up a modal
+          `;
     }
-
+  expandText()
   }
-function renderUserAccount(address) { //nickName,address,postID
+async function renderUserAccount(address) { //nickName,address,postID
     let savedHTML = document.getElementById("userAccountModalContent"); //prepare to wipe prior profile
-    //const userProfile = getUserProfile(address);
-    address = "0x252d2f2293098AF088623a641546c98687DeB884";
+    const userProfile = await contractGetUserProfile(address);
     var addressShort = address.slice(0, 10);
     addressShort = addressShort.concat("...");
     console.log("rendering Modal");
-    let userProfileBio = "Hello World";
-    let joinDate = getLocalDate(1635461938);
-    let followerCount = 45;
-    let totalPosts = 3;
-    let featuredPost = 1;
-    let nickName = "BobtheBuilder";
-    // Get featuredPost
-
-    //const featuredPost = getUserPost(address,postID);
-    let featuredMessage = "Hello World";
-    let featuredTimeStamp = getLocalTime(1635461938);
-    let featuredUrl = "7cDhT0CDqFIvCWiNXKhhukugkgukugkugkufufkufkuf";
-    let featuredNumberOfLikes = "5";
-    let featuredGifLinkHTML = returnLinksGifsHTML(featuredUrl)
-    console.log(savedHTML);
-    while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
-      savedHTML.removeChild(savedHTML.firstChild);
-      }
-    // populate the render Saved Model
-    document.getElementById("userAccountModalContent").innerHTML +=
-        `
-        <div class="modal-content boxesColor">
-          <div class="modal-header boxesLineTop">
-            <h5 class="modal-title textChange" id="userAccountLabel">Your Social Profile</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="row align-items-start" >
-              <div class="col-3">
-                <span class="iconColor" style="font-size: 4.5em; margin-left:30px">
-                    <i class="fas fa-user-secret"></i>
-                </span>
-              </div>
-              <div class="col-5">
-              <div class="row align-items-start">
-                  <h6 class="modal-title textChange" style="margin-bottom: 5px">${nickName}</h6>
-              </div>
-              <div class="row align-items-start">
-                <h6 class="modal-title textChange" style="margin-bottom: 5px">@ ${addressShort}</h6>
-              </div>
-              <div class="row align-items-start">
-                <div class="col-2">
-                <span class="iconColor" style="font-size: 1.5em;">
-                    <i class="far fa-calendar-alt"></i>
-                </span>
-                </div>
-                <div class="col-10" style="padding:4px;">
-                <h6 class="modal-title textChange" style="margin-top: 5px;">Since ${joinDate}</h6>
-                </div>
-              </div>
-              </div>
-              <div class="col-4">
-                <div class="row align-items-start">
-                  <div class="col-2">
-                  <span class="iconColor" style="font-size: 1.5em;">
-                      <i class="far fa-user"></i>
+    let userProfileBio = userProfile.profileBio;
+    let joinDate = getLocalDate(userProfile.joinDate);
+    let followerCount = userProfile.followerCount;
+    let totalPosts = userProfile.totalPosts;
+    let featuredPostID = userProfile.featuredPost;
+    let nickName = userProfile.userNickname;
+    if (joinDate == 0){
+      console.log("User Profile Does Not Exist");
+    }
+    else{
+      console.log(savedHTML);
+      while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
+        savedHTML.removeChild(savedHTML.firstChild);
+        }
+      // populate the render Saved Model
+      document.getElementById("userAccountModalContent").innerHTML +=
+          `
+          <div class="modal-content boxesColor">
+            <div class="modal-header boxesLineTop">
+              <h5 class="modal-title textChange" id="userAccountLabel">Social Profile</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row align-items-start" >
+                <div class="col-3">
+                  <span class="iconColor" style="font-size: 4.5em; margin-left:30px">
+                      <i class="fas fa-user-secret"></i>
                   </span>
-                  </div>
-                  <div class="col-10">
-                  <h6 class="modal-title textChange" style="margin-top: 5px">${followerCount} Followers</h6>
-                  </div>
+                </div>
+                <div class="col-5">
+                <div class="row align-items-start">
+                    <h6 class="modal-title textChange" style="margin-bottom: 5px">${nickName}</h6>
+                </div>
+                <div class="row align-items-start">
+                  <h6 class="modal-title textChange" style="margin-bottom: 5px">@ ${addressShort}</h6>
                 </div>
                 <div class="row align-items-start">
                   <div class="col-2">
                   <span class="iconColor" style="font-size: 1.5em;">
-                      <i class="far fa-comment-alt"></i>
+                      <i class="far fa-calendar-alt"></i>
                   </span>
                   </div>
-                  <div class="col-10">
-                  <h6 class="modal-title textChange" style="margin-top: 5px">${totalPosts} Posts</h6>
+                  <div class="col-10" style="padding:4px;">
+                  <h6 class="modal-title textChange" style="margin-top: 5px;">Since ${joinDate}</h6>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div class="row align-items-start" style="margin:20px 0px 20px">
-            <div class="col-12">
-              <div class="row align-items-start">
-                <p class="textChange boxesShadow boxesBioColor" style="border-radius: 20px; padding:10px 20px 10px 20px;" >${userProfileBio}</p>
-              </div>
-            </div>
-            </div>
-            <div class="row align-items-start">
-              <div class="col-12">
-                <div class="card mb-3 boxesColor neon" >
-                <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
+                </div>
+                <div class="col-4">
                   <div class="row align-items-start">
-                    <div class="col-1">
-                      <span class="iconColor" style="font-size: 2em;">
-                          <i class="fas fa-user-secret"></i>
-                      </span>
+                    <div class="col-2">
+                    <span class="iconColor" style="font-size: 1.5em;">
+                        <i class="far fa-user"></i>
+                    </span>
                     </div>
                     <div class="col-10">
-                      <div class="row align-items-start">
-                        <h6 class="textChange" style="margin-bottom:0px;">${nickName} @ ${addressShort} posted</h6>
-                      </div>
-                      <div class="row align-items-start text-left">
-                        <p class="textChange" >${featuredTimeStamp}</p>
-                      </div>
-                    </div>
-                    <div class="col-1 text-left">
-                      <span class="iconColor" style="font-size: 1.5em;">
-                          <i class="far fa-star"></i>
-                      </span>
+                    <h6 class="modal-title textChange" style="margin-top: 5px">${followerCount} Followers</h6>
                     </div>
                   </div>
-                </div>
-                <div class="card-body" style ="border-top: 1px solid #535353" >
                   <div class="row align-items-start">
-                    <div id="messageContent" class="col-12">
-                    <p class="textChange">${featuredMessage}</p>${featuredGifLinkHTML}
+                    <div class="col-2">
+                    <span class="iconColor" style="font-size: 1.5em;">
+                        <i class="far fa-comment-alt"></i>
+                    </span>
                     </div>
-                  </div>
-                  <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
-                    <div class="col-3 text-center">
-                      <div class="row align-items-start">
-                        <div class="col-4 text-center">
-                        </div>
-                        <div class="col-2 text-center" style="padding:0px">
-                          <a class="iconColor" style="font-size: 1.5em;">
-                            <i onclick="likePost('${address}','${featuredPost}')"  class="far fa-heart"></i>
-                          </a>
-                        </div>
-                        <div class="col-4 text-center">
-                          <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">${featuredNumberOfLikes}</h6>
-                        </div>
-                        <div class="col-2 text-center">
-                        </div>
-                        </div>
-                    </div>
-                    <div class="col-3 text-center">
-                      <div class="row align-items-start">
-                        <div class="col-4 text-center">
-                        </div>
-                        <div class="col-2 text-center" style="padding:0px">
-                          <a class="iconColor" style="font-size: 1.5em;">
-                            <i class="far fa-comments"></i>
-                          </a>
-                        </div>
-                        <div class="col-5 text-center">
-                          <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
-                        </div>
-                        <div class="col-1 text-center">
-                        </div>
-                        </div>
-                    </div>
-                    <div class="col-3 text-center">
-                      <div class="row align-items-start">
-                        <div class="col-4 text-center">
-                        </div>
-                        <div class="col-2 text-center" style="padding:0px">
-                          <a class="iconColor" style="font-size: 1.5em;">
-                            <i class="far fa-share-square"></i>
-                          </a>
-                        </div>
-                        <div class="col-5 text-center">
-                          <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
-                        </div>
-                        <div class="col-1 text-center">
-                        </div>
-                        </div>
-                    </div>
-                    <div class="col-3 text-center">
-                      <a class="iconColor" style="font-size: 1.5em;">
-                        <i data-bs-toggle="modal" data-bs-target="#donationModal" onclick="donationAddress('${address}','${nickName}')" class="fab fa-ethereum"></i>
-                      </a>
+                    <div class="col-10">
+                    <h6 class="modal-title textChange" style="margin-top: 5px">${totalPosts} Posts</h6>
                     </div>
                   </div>
                 </div>
               </div>
+              <div class="row align-items-start" style="margin:20px 0px 20px">
+              <div class="col-12">
+                <div class="row align-items-start">
+                  <p class="textChange boxesShadow boxesBioColor" style="border-radius: 20px; padding:10px 20px 10px 20px;" >${userProfileBio}</p>
+                </div>
               </div>
+              </div>
+              <div id="featuredPostContainer" class="row align-items-start">
+              </div>
+
+              <div id="userAccountPosts" class="row align-items-start">
+              </div>
+
             </div>
-
-
-            <div id="userAccountPosts" class="row align-items-start">
-            </div>
-
           </div>
-        </div>
-        `; //Solve this later to load up a modal
-        renderUserAccountPosts(address,totalPosts)
+          `; //Solve this later to load up a modal
+          renderFeaturedPost(address,featuredPostID)
+          renderUserAccountPosts(address,totalPosts)
+    }
+
   }
 </script>
 <!-- =========================================== STYLE-================================================================================= STYLE---------------------------------------------->
 <style>
-@import url(https://fonts.googleapis.com/css?family=Exo+2:200i);
+.fa-reply:hover {
+  color: #13B0E5;
+  cursor: pointer;
+}
+.fa-user-friends:hover {
+  color: #ED2828;
+  cursor: pointer;
+}
 .fa-star:hover {
   color: #E0D836;
   cursor: pointer;
@@ -1436,10 +2286,7 @@ function renderUserAccount(address) { //nickName,address,postID
   cursor: pointer;
 }
 
-.fa-link:hover {
-  color: #4599A8;
-  cursor: pointer;
-}
+
 .fa-images:hover {
   color: #4599A8;
   cursor: pointer;
@@ -1524,6 +2371,7 @@ function renderUserAccount(address) { //nickName,address,postID
   box-shadow: 0 0 10px #fff;
 }
 .textChange {
+
   color: #D6D6D6;
 }
 .iconColor {
@@ -1537,7 +2385,10 @@ function renderUserAccount(address) { //nickName,address,postID
   background-color:#313334;
 }
 .boxesBioColor{
-  background-color:#535353
+  background-color:#535353;
+}
+.boxesCommentColor{
+  background-color:#535353;
 }
 .boxesLine {
   border-top: 1px solid #535353
@@ -1586,10 +2437,25 @@ function renderUserAccount(address) { //nickName,address,postID
   color:white;
   font-size: 18px;
 }
+.textBox:focus{
+  border: solid 1px #535353;
+  background-color:#535353;
+  color:white;
+  font-size: 18px;
+}
 div.sticky {
   position: -webkit-sticky; /* Safari */
   position: sticky;
   top: 0;
+}
+
+
+.middle {
+  position: absolute;
+  top: 50%;
+  left: 51%;
+  color: white;
+  font-size: 25px;
 }
 
 .btn-close{
@@ -1607,6 +2473,9 @@ p {
 }
 h6 {
   color: white;
+}
+textarea{
+  overflow-y: hidden;
 }
 
 :root {
@@ -1659,16 +2528,15 @@ h6 {
     }
 }
 </style>
-
   <body class="backgroundColor" > <!-- 313334 -->
     <section id="loginForm" class="vh-100 backgroundColor" style="display: none"> <!--  #3C719D-->
       <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
           <div class="col-12 col-md-8 col-lg-6 col-xl-5">
             <div class="card shadow-2-strong neonAnimated" style="border-radius: 1rem;" style="background-color: #313334"> <!--  #F5F0F2-->
-              <div class="card-body p-5 text-center" style="background-color: #313334" >
+              <div class="card-body p-5 text-center boxesColor" >
                 <div class="row align-items-start">
-                <img src="https://i.ibb.co/VtgVRkx/Logo-Small.png" alt="Logo-01" border="0" style="display: block; margin:auto; padding:0px 0px 60px 0px; max-width: 60%" >
+                <img src="https://ipfs.io/ipfs/QmQnBt2MLdPYUqYxqNEptmgLmerpTpuAQxfc79nyZxUEc6?filename=logoDarkMode.png" id="loginLogo" alt="Logo-01" border="0" style="display: block; margin:auto; padding:0px 0px 60px 0px; max-width: 60%" >
                 </div>
 
 
@@ -1763,7 +2631,7 @@ h6 {
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content boxesColor">
         <div class="modal-header boxesLineTop">
-          <h5 class="modal-title textChange" id="exampleModalLabel" >Donate Ethereum</h5>
+          <h5 class="modal-title textChange" id="exampleModalLabel">Donate Ethereum</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -1867,7 +2735,7 @@ h6 {
                   </div>
                 </div>
               </div>
-              <div class="card-body" style ="border-top: 1px solid #535353" >
+              <div class="card-body" id="0x510" style ="border-top: 1px solid #535353" >
                 <div class="row align-items-start">
                   <div id="messageContent" class="col-12">
                   <p class="textChange">Nullam quis risuse magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula. d nibh ultricies vehicula d nibh ultricies.</p>
@@ -1896,7 +2764,7 @@ h6 {
                       </div>
                       <div class="col-2 text-center" style="padding:0px">
                         <a class="iconColor" style="font-size: 1.5em;">
-                          <i class="far fa-comments"></i>
+                          <i class="far fa-comments" onclick="renderCommentArea('0x51','0')"></i>
                         </a>
                       </div>
                       <div class="col-4 text-center">
@@ -1908,18 +2776,17 @@ h6 {
                   </div>
                   <div class="col-3 text-center">
                     <div class="row align-items-start">
-                      <div class="col-4 text-center">
+                      <div class="col-5 text-center">
                       </div>
                       <div class="col-2 text-center" style="padding:0px">
                         <a class="iconColor" style="font-size: 1.5em;">
                           <i class="far fa-share-square"></i>
                         </a>
                       </div>
-                      <div class="col-4 text-center">
-                        <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
+                      <div class="col-45text-center">
+
                       </div>
-                      <div class="col-2 text-center">
-                      </div>
+
                       </div>
                   </div>
                   <div class="col-3 text-center">
@@ -1964,7 +2831,7 @@ h6 {
             </div>
           </div>
         <div class="modal-body" style="padding:0px">
-          <div class="card-body" style ="border-top: 1px solid #535353" >
+          <div class="card-body" id="savedPostModalCommentID" style ="border-top: 1px solid #535353" >
             <div class="row align-items-start">
               <div class="col-12">
               <p class="textChange">Nullam quis risuse magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula. d nibh ultricies vehicula d nibh ultricies.</p>
@@ -1993,7 +2860,7 @@ h6 {
                   </div>
                   <div class="col-2 text-center" style="padding:0px">
                     <a class="iconColor" style="font-size: 1.5em;">
-                      <i class="far fa-comments"></i>
+                      <i class="far fa-comments" onclick="renderCommentArea('0x53','0')"></i>
                     </a>
                   </div>
                   <div class="col-2 text-center">
@@ -2005,18 +2872,16 @@ h6 {
               </div>
               <div class="col-3 text-center">
                 <div class="row align-items-start">
-                  <div class="col-4 text-center">
+                  <div class="col-5 text-center">
                   </div>
                   <div class="col-2 text-center" style="padding:0px">
                     <a class="iconColor" style="font-size: 1.5em;">
                       <i class="far fa-share-square"></i>
                     </a>
                   </div>
-                  <div class="col-2 text-center">
-                    <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">56</h6>
+                  <div class="col-5 text-center">
                   </div>
-                  <div class="col-4 text-center">
-                  </div>
+
                   </div>
               </div>
               <div class="col-3 text-center">
@@ -2031,12 +2896,73 @@ h6 {
     </div>
   </div>
   <!-- Modal End -->
+  <!-- inboxModal start -->
+  <div class="modal fade" id="inboxModal" tabindex="-1" aria-labelledby="inboxtModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" id="userAccountModalContent" style="width:40%;max-width:1250px;min-width:600px; border-radius: 20px;">
+      <div class="modal-content boxesColor">
+        <div class="modal-header boxesLineTop">
+          <h5 class="modal-title textChange" id="userAccountLabel">Mail Center</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="inboxModalBody">
+          <h5 class="textChange"  style="padding:0px 0px 5px" >To:</h5>
+          <textarea id="inboxToAddress" class="form-control textBox" placeholder="Enter Recipient: 0x......" rows="1"></textarea>
+          <h5 class="textChange"  style="padding:10px 0px 5px">Message:</h5>
+          <textarea id="inboxMessage" class="form-control textBox" placeholder="Write your message here" rows="1"></textarea>
+          <div class="row align-items-start" style="padding:20px 0px 20px">
+          <div class="col-10">
+          <h6 class="textChange"  style="padding:10px 0px 5px"><b>Disclaimer:</b> Anything you send will be permanently on the blockchain!</h6>
+          </div>
+          <div class="col-2">
+          <button type="button" class="btn btn-primary changeButtonColor changeButtonTextColor" onclick="sendMessage()" style="float:right;">Send</button>
+          </div>
+          </div>
+          <h5 class="modal-title textChange boxesLine boxesLineTop" id="userAccountLabel" style="margin: 00px 0px 10px; padding:10px 0px 10px">Your Inbox</h5>
+          <div class="card mb-3 boxesColor boxesShadow" style="border-radius: 20px;">
+          <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
+            <div class="row align-items-start">
+              <div class="col-1">
+                <span class="iconColor" style="font-size: 2em;">
+                    <i class="fas fa-user-secret"></i>
+                </span>
+              </div>
+              <div class="col-10">
+                <div class="row align-items-start">
+                  <h6 class="textChange" style="margin-bottom:0px;">John @ 0x4783GW783T74838</h6>
+                </div>
+                <div class="row align-items-start text-left">
+                  <p class="textChange" >18th Oct 5:23 PM</p>
+                </div>
+              </div>
+              <div class="col-1 text-left">
+                  <span class="iconColor" style="font-size: 1.5em;">
+                      <i onclick="replytoMessage('0xthtfhfhtf')" class="fas fa-reply iconColor"></i>
+                  </span>
+              </div>
+            </div>
+          </div>
+          <div class="card-body" style ="border-top: 1px solid #535353" >
+            <div class="row align-items-start">
+              <div id="messageContent" class="col-12">
+              <p class="textChange">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip </p>
+              </div>
+            </div>
+            <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
+            </div>
+          </div>
+        </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal End -->
 
 
       <div class="row align-items-start  backgroundColor"  style ="padding-top: 0px;">
           <div class="col-3 min-vh-100 sticky backgroundColorSideBar" style="padding:20px 20px 0px;">
             <div class="row align-items-start">
-            <img src="https://i.ibb.co/VtgVRkx/Logo-Small.png" alt="Logo-01" border="0" style="display: block; margin:auto; padding:0px 0px 10px 0px; max-width: 60%" >
+            <img src="https://ipfs.io/ipfs/QmQnBt2MLdPYUqYxqNEptmgLmerpTpuAQxfc79nyZxUEc6?filename=logoDarkMode.png" id="logoSideBar" alt="Logo-01" border="0" style="display: block; margin:auto; padding:0px 0px 10px 0px; max-width: 60%" >
             </div>
             <div id="socialFeedHover" onclick="loadSocialFeedPage()" class="row align-baseline" style = "padding-top: 10px">
                 <div class="col-5 text-end" style = "padding-right: 0px;">
@@ -2088,6 +3014,16 @@ h6 {
                 <h6 class="textChange" style="margin-top:7px; font-size: 1.25em;">Play</h6>
               </div>
           </div>
+          <div id="SettingsHover" class="row align-baseline" style = "padding-top: 10px">
+              <div class="col-5 text-end" style = "padding-right: 0px;">
+                <span class="iconColor" style="font-size: 1.5em;">
+                    <i class="fas fa-sliders-h"></i>
+                </span>
+              </div>
+              <div class="col-5 text-left align-bottom">
+                <h6 class="textChange" style="margin-top:7px; font-size: 1.25em;">Settings</h6>
+              </div>
+          </div>
           <div class="row align-baseline" style = "padding-top: 10px">
             <div class="col-5" style = "padding-right: 0px">
               <div class="form-check form-switch text-center">
@@ -2098,7 +3034,6 @@ h6 {
                 <h6 class="textChange" style="margin-bottom:0px; font-size: 1.25em;" >Dark Mode</h6>
             </div>
           </div>
-                          <button type="button" class="btn btn-primary" onClick="insertEmoji('emoji')">TestButton</button>
           </div>
           <div class="col-9">
             <div class="row align-items-start backgroundColorNavBar" style = "border-radius: 0px 10px 10px 0px;">
@@ -2112,7 +3047,7 @@ h6 {
                     <div class="col-4 text-center">
                     <div class="row align-items-start">
                     <span class="iconColor" style="font-size: 1.75em; margin-top:2px">
-                        <i class="far fa-envelope"></i>
+                        <i type="button" data-bs-toggle="modal" data-bs-target="#inboxModal" class="far fa-envelope"></i>
                     </span>
                       </div>
                       </div>
@@ -2125,68 +3060,59 @@ h6 {
                         </div>
                       <div class="col-4 text-end">
                 <span class="iconColor" style="font-size: 2em;">
-                    <i type="button" data-bs-toggle="modal" data-bs-target="#userAccountModal" class="fas fa-user-secret" ></i>
+                    <i type="button" class="fas fa-user-secret" ></i>
                 </span>
                   </div>
                 </div>
               </div>
-              <div class="col-1">
-                <div class="row align-items-start">
-                  <h6 type="button" data-bs-toggle="modal" data-bs-target="#userAccountModal" onclick="renderUserAccount('')" class="textChange" style="margin:5px 0px 0px;">BobtheBuilder</h6>
-                </div>
-                <div class="row align-items-start">
-                  <h6 type="button" class="textChange" data-bs-toggle="modal" onclick="renderUserAccount('')" data-bs-target="#userAccountModal" class="textChange">0x478867576...</h6>
-                </div>
+              <div id="userProfileOverview" class="col-1">
               </div>
               <div class="col-2" style = "padding-top: 7px">
                 <button type="button" class="btn btn-secondary changeButtonColor changeButtonTextColor" style="float:right" onClick="logOut();">Logout</button>
               </div>
             </div>
           <div id="socialFeedPage" class="row align-items-start">
-          <div class="col-9" style ="padding-top: 20px;">
-            <div class="card mb-3 boxesColor boxesShadow" style="border-radius: 20px;">
-            <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b>Post Something</b></div>
-            <div class="card-body boxesLine">
-              <div class="row align-items-start">
-                <div class="col-1">
-                  <span class="iconColor" style="font-size: 2em;">
-                      <i class="fas fa-user-secret"></i>
-                  </span>
-                </div>
-                <div id ="textArea" class="col-11">
-                  <textarea id="messageToPost" class="form-control textBox" placeholder="Share your thoughts..." rows="1"></textarea>
-                </div>
-              </div>
-              <div class="row align-items-start" style ="padding-top: 10px;">
-                <div class="col-1">
-                </div>
-                <div class="col-6">
-                  <span class="iconColor" style="font-size: 1.5em;">
-                    <label for='upload'>
-                      <i style ="padding-left: 10px;" class="fas fa-images"></i>
-                    </label>
-                    <input id='upload' type='file' onchange="handleFile(this)" onclick="this.value = null" name="MAX_FILE_SIZE" value="10485760" style="display: none">
-                  </span>
-                  <span class="iconColor" style="font-size: 1.5em;">
-                      <i data-bs-toggle="modal" data-bs-target="#linkModal" style ="padding-left: 10px;" class="fas fa-link"></i>
-                  </span>
-                  <span class="iconColor" style="font-size: 1.5em;">
-                      <i data-bs-toggle="modal" data-bs-target="#gifModal" style ="padding-left: 10px;" class="fas fa-film"></i>
-                  </span>
-                  <span class="iconColor" style="font-size: 1.5em;"> <!-- Probably a neater way to do the smiley box. -->
-                      <i style ="padding-left: 10px;" onclick="showEmojiBox();" class="far fa-smile"></i>
-                      <div id ="smileyBox" class="neon boxesColor" style="position: absolute; z-index: 100; margin:0px 0px 0px 135px; display: none"><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙂`)">🙂</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙁`)">🙁</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😀`)">😀</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😁`)">😁</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😂`)">😂</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😃`)">😃</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😄`)">😄</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😅`)">😅</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😆`)">😆</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😇`)">😇</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😈`)">😈</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😉`)">😉</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😊`)">😊</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😋`)">😋</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😌`)">😌</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😍`)">😍</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😎`)">😎</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😏`)">😏</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😐`)">😐</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😑`)">😑</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😒`)">😒</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😓`)">😓</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😔`)">😔</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😕`)">😕</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😖`)">😖</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😗`)">😗</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😘`)">😘</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😙`)">😙</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😚`)">😚</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😛`)">😛</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😜`)">😜</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😝`)">😝</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😞`)">😞</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😟`)">😟</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😠`)">😠</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😡`)">😡</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😢`)">😢</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😣`)">😣</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😤`)">😤</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😥`)">😥</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😦`)">😦</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😧`)">😧</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😨`)">😨</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😩`)">😩</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😪`)">😪</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😫`)">😫</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😬`)">😬</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😭`)">😭</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😮`)">😮</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😯`)">😯</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😰`)">😰</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😱`)">😱</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😲`)">😲</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😳`)">😳</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😴`)">😴</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😵`)">😵</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😶`)">😶</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😷`)">😷</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😸`)">😸</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😹`)">😹</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😺`)">😺</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😻`)">😻</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😼`)">😼</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😽`)">😽</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😾`)">😾</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😿`)">😿</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙀`)">🙀</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙃`)">🙃</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`💩`)">💩</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙄`)">🙄</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`☠`)">☠</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`👌`)">👌</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`👍`)">👍</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`👎`)">👎</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙈`)">🙈</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙉`)">🙉</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙊`)">🙊</span></div>
-                  </span>
+          <div id="socialFeedPostsContainer" class="col-9" style ="padding-top: 20px;">
+            <div id="postSomething" class="card mb-3 boxesColor boxesShadow" style="border-radius: 20px;">
+                <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b>Post Something</b></div>
+                <div class="card-body boxesLine">
+                  <div class="row align-items-start">
+                    <div class="col-1">
+                      <span class="iconColor" style="font-size: 2em;">
+                          <i class="fas fa-user-secret"></i>
+                      </span>
+                    </div>
+                    <div id ="textArea" class="col-11">
+                      <textarea id="messageToPost" class="form-control textBox" placeholder="Share your thoughts..." rows="1" ></textarea>
+                    </div>
+                  </div>
+                  <div class="row align-items-start" style ="padding-top: 10px;">
+                    <div class="col-1">
+                    </div>
+                    <div class="col-6">
+                      <span class="iconColor" style="font-size: 1.5em;">
+                        <label for='upload'>
+                          <i style ="padding-left: 10px;" class="fas fa-images"></i>
+                        </label>
+                        <input id='upload' type='file' onchange="handleUserFile(this)" onclick="this.value = null" name="MAX_FILE_SIZE" value="10485760" style="display: none">
+                      </span>
+                      <span class="iconColor" style="font-size: 1.5em;">
+                          <i data-bs-toggle="modal" data-bs-target="#gifModal" style ="padding-left: 10px;" class="fas fa-film"></i>
+                      </span>
+                      <span class="iconColor" style="font-size: 1.5em;"> <!-- Probably a neater way to do the smiley box. -->
+                          <i style ="padding-left: 10px;" onclick="showEmojiBox();" class="far fa-smile"></i>
+                          <div id ="smileyBox" class="neon boxesColor" style="position: absolute; z-index: 100; margin:0px 0px 0px 100px; display: none"><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙂`)">🙂</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙁`)">🙁</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😀`)">😀</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😁`)">😁</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😂`)">😂</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😃`)">😃</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😄`)">😄</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😅`)">😅</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😆`)">😆</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😇`)">😇</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😈`)">😈</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😉`)">😉</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😊`)">😊</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😋`)">😋</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😌`)">😌</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😍`)">😍</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😎`)">😎</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😏`)">😏</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😐`)">😐</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😑`)">😑</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😒`)">😒</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😓`)">😓</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😔`)">😔</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😕`)">😕</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😖`)">😖</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😗`)">😗</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😘`)">😘</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😙`)">😙</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😚`)">😚</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😛`)">😛</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😜`)">😜</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😝`)">😝</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😞`)">😞</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😟`)">😟</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😠`)">😠</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😡`)">😡</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😢`)">😢</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😣`)">😣</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😤`)">😤</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😥`)">😥</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😦`)">😦</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😧`)">😧</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😨`)">😨</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😩`)">😩</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😪`)">😪</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😫`)">😫</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😬`)">😬</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😭`)">😭</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😮`)">😮</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😯`)">😯</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😰`)">😰</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😱`)">😱</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😲`)">😲</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😳`)">😳</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😴`)">😴</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😵`)">😵</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😶`)">😶</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😷`)">😷</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😸`)">😸</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😹`)">😹</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😺`)">😺</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😻`)">😻</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😼`)">😼</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😽`)">😽</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😾`)">😾</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😿`)">😿</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙀`)">🙀</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙃`)">🙃</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`💩`)">💩</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙄`)">🙄</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`☠`)">☠</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`👌`)">👌</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`👍`)">👍</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`👎`)">👎</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙈`)">🙈</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙉`)">🙉</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🚀`)">🚀</span></div>
+                      </span>
 
-                </div>
-                <div class="col-5 text-end">
-                  <button type="button" class="btn btn-primary changeButtonColor changeButtonTextColor" data-bs-toggle="modal" data-bs-target="#postModal">
-                    Submit
-                  </button>
+                    </div>
+                    <div class="col-5 text-end">
+                      <button type="button" class="btn btn-primary changeButtonColor changeButtonTextColor" data-bs-toggle="modal" data-bs-target="#postModal">
+                        Submit
+                      </button>
 
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
           </div>
           <div class="card mb-3 boxesColor boxesShadow" style="border-radius: 20px;">
           <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
@@ -2211,7 +3137,7 @@ h6 {
               </div>
             </div>
           </div>
-          <div class="card-body" style ="border-top: 1px solid #535353" >
+          <div class="card-body" id="0x570" style ="border-top: 1px solid #535353">
             <div class="row align-items-start">
               <div id="messageContent" class="col-12">
               <p class="textChange">Nullam quis risuse magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula. d nibh ultricies vehicula d nibh ultricies.</p>
@@ -2240,7 +3166,7 @@ h6 {
                   </div>
                   <div class="col-2 text-center" style="padding:0px">
                     <a class="iconColor" style="font-size: 1.5em;">
-                      <i class="far fa-comments"></i>
+                      <i class="far fa-comments" onclick="renderCommentArea('0x57','0')"></i>
                     </a>
                   </div>
                   <div class="col-3 text-center">
@@ -2252,24 +3178,56 @@ h6 {
               </div>
               <div class="col-3 text-center">
                 <div class="row align-items-start">
-                  <div class="col-4 text-center">
+                  <div class="col-5 text-center">
                   </div>
                   <div class="col-2 text-center" style="padding:0px">
                     <a class="iconColor" style="font-size: 1.5em;">
                       <i class="far fa-share-square"></i>
                     </a>
                   </div>
-                  <div class="col-3 text-center">
-                    <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">0</h6>
-                  </div>
                   <div class="col-5 text-center">
                   </div>
-                  </div>
+                </div>
               </div>
               <div class="col-3 text-center">
                 <a class="iconColor" style="font-size: 1.5em;">
                   <i data-bs-toggle="modal" data-bs-target="#donationModal" onclick="donationAddress('0x67847587394ijij7','BobtheBuilder')" class="fab fa-ethereum"></i>
                 </a>
+              </div>
+            </div>
+            <div class="row align-items-start" id="0x570allCommentContainer" style ="margin-top: 10px; padding:20px 0px 10px; border-top: 1px solid #535353">
+              <div class="col-12 text-left">
+                <div class="row align-items-start">
+                  <div class="col-1 text-center">
+                    <a class="iconColor" style="font-size: 1.75em;">
+                      <i class="fas fa-user-secret"></i>
+                    </a>
+                  </div>
+                  <div class="col-11 text-left boxesCommentColor boxesShadow" style=" padding-top:4px; border-radius: 20px;">
+                    <div class="row align-items-start">
+                      <p class="textChange" style="font-size:1em; margin-bottom:0px"><b>John @ 0x5873826</b></p>
+                      </div>
+                      <div class="row align-items-start">
+                        <p class="textChange" style="font-size:0.75em;margin-bottom:2px">18th 0ct 5.23</p>
+                        </div>
+                      <div class="row align-items-start">
+                        <h6 class="textChange" style="font-size:0.75em">Nullam quis risuse magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula. d nibh ultricies vehicula d nibh ultricies.</h6>
+                      </div>
+                  </div>
+              </div>
+            </div>
+            </div>
+            <div class="row align-items-start" id="0x570userCommentContainer" style ="margin-top: 10px; padding-top:20px; border-top: 1px solid #535353">
+              <div class="col-1 text-center">
+                <a class="iconColor" style="font-size: 1.75em;">
+                  <i class="fas fa-user-secret"></i>
+                </a>
+              </div>
+              <div class="col-9 text-center" style=" padding-top:4px">
+                <textarea id="0x570userCommentTextInput" class="form-control textBox" placeholder="Comment Here" style="border-radius:20px; font-size:0.9em;" rows="1"></textarea>
+              </div>
+              <div class="col-2 text-center"  style=" padding-top:4px">
+                <button type="button" class="btn btn-primary changeButtonColor changeButtonTextColor" onclick="comment('0x57','0')" style="float:right; font-size:0.9em">Comment</button>
               </div>
             </div>
           </div>
@@ -2306,6 +3264,18 @@ h6 {
             </div>
           </div>
         </div>
+        <div class="card mb-3 boxesColor boxesShadow" style="max-width: 30rem; border-radius: 20px; ">
+        <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b>Support Us!</b></div>
+        <div class="card-body" style ="border-top: 1px solid #535353">
+          <img alt="" src="https://ipfs.io/ipfs/QmQnBt2MLdPYUqYxqNEptmgLmerpTpuAQxfc79nyZxUEc6?filename=logoDarkMode.png" style="display: block; margin-right: auto;margin-left: auto" align="middle" width="150px !important" height="150px"  >
+          <div class="row align-items-start" style ="padding-top: 10px;">
+            <div class="col-12 text-center">
+                <button type="button" class="btn btn-secondary changeButtonColor changeButtonTextColor" data-bs-toggle="modal" data-bs-target="#donationModal" onclick="donationAddress('0x252d2f2293098AF088623a641546c98687DeB884','Founder')" style="border-radius: .375rem!important; justify-content: center!important; ">
+                Donate</button>
+            </div>
+          </div>
+        </div>
+      </div>
           </div>
           </div>
           <div id="shopPage" class="row align-items-start" style="display:none;">
@@ -2321,52 +3291,151 @@ h6 {
             </div>
           </div>
           <div class="row align-items-start" style ="padding-top: 40px;">
+            <div class="col-1" >
+                </div>
+              <div class="col-10" >
+                  <div class="row align-items-start" style ="padding-top: 40px;">
               <div class="col-4" >
-                <div class="card mb-3  neon" style="max-width: 30rem; border-radius: 20px; background-color:#313334;">
-                <div class="card-header  text-center textChange">Buy</div>
-                <div class="card-body" style ="border-top: 1px solid #535353">
+                <div class="card mb-3 boxesColor neon" style="max-width: 30rem; border-radius: 20px; margin: 0px 20px 0px;">
+                <div class="card-body">
                   <div class="row align-items-start">
                       <img src="jewels.png" alt="jewels" width="30%" height="30%">
                   </div>
                   <div class="row align-items-start" style ="padding-top: 10px;">
                     <div class="col-12 text-center">
-                        <button type="button" class="btn btn-outline-primary">Buy</button>
+                        <h4 class="textChange">10,000 DSN</h4>
+                        <h6 class="textChange">0.025 Ether</h6>
+                    </div>
+                  </div>
+                  <div class="row align-items-start" style ="padding-top: 10px;">
+                    <div class="col-12 text-center">
+                        <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Exchange</button>
                     </div>
                   </div>
                 </div>
               </div>
               </div>
               <div class="col-4">
-                  <div class="card mb-3 neonStrong" style="max-width: 30rem; border-radius: 20px; background-color:#313334;">
-                  <div class="card-header text-center textChange">Buy</div>
-                  <div class="card-body" style ="border-top: 1px solid #535353">
+                  <div class="card mb-3 boxesColor neonStrong" style="max-width: 30rem; border-radius: 20px; margin: 0px 20px 0px;">
+                  <div class="card-body">
                     <div class="row align-items-start">
                         <img src="jewels.png" alt="jewels" width="30%" height="30%">
                     </div>
                     <div class="row align-items-start" style ="padding-top: 10px;">
                       <div class="col-12 text-center">
-                          <button type="button" class="btn btn-outline-primary">Buy</button>
+                          <h4 class="textChange">20,000 DSN</h4>
+                          <h6 class="textChange">0.04 Ether</h6>
+                      </div>
+                    </div>
+                    <div class="row align-items-start" style ="padding-top: 10px;">
+                      <div class="col-12 text-center">
+                          <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Exchange</button>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
               <div class="col-4">
-                  <div class="card mb-3 neon" style="max-width: 30rem; border-radius: 20px; background-color:#313334;">
-                  <div class="card-header text-center textChange">Buy</div>
-                  <div class="card-body" style ="border-top: 1px solid #535353">
+                  <div class="card mb-3 boxesColor neon" style="max-width: 30rem; border-radius: 20px; margin: 0px 20px 0px;">
+                  <div class="card-body">
                     <div class="row align-items-start">
                         <img src="jewels.png" alt="jewels" width="30%" height="30%">
                     </div>
                     <div class="row align-items-start" style ="padding-top: 10px;">
                       <div class="col-12 text-center">
-                          <button type="button" class="btn btn-outline-primary">Buy</button>
+                          <h4 class="textChange">100,000 DSN</4>
+                          <h6 class="textChange">0.15 Ether</h6>
+                      </div>
+                    </div>
+                    <div class="row align-items-start" style ="padding-top: 10px;">
+                      <div class="col-12 text-center">
+                          <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Exchange</button>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
+              </div>
+              </div>
+              <div class="col-1" >
               </div>
           </div>
+          <div class="row align-items-start" style ="padding-top: 10px;">
+            <div class="col-1" >
+                </div>
+            <div class="col-10" >
+            <div class="row align-items-start" style ="padding-top: 40px;">
+          <div class="col-4" >
+            <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+            <div class="card-body">
+              <div class="row align-items-start">
+                  <img src="jewels.png" alt="jewels" width="30%" height="30%">
+              </div>
+              <div class="row align-items-start" style ="padding-top: 10px;">
+                <div class="col-12 text-center">
+                      <h4 class="textChange"><b>Lockpick</b></h4>
+                      <h6 class="textChange">Chance of Entry: +1</h6>
+                      <h6 class="textChange">Chance of Detection: -1</h6>
+                      <h6 class="textChange">Protection: 0</h6>
+                </div>
+              </div>
+              <div class="row align-items-start" style ="padding-top: 10px;">
+                <div class="col-12 text-center">
+                    <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+          <div class="col-4" >
+            <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+            <div class="card-body">
+              <div class="row align-items-start">
+                  <img src="jewels.png" alt="jewels" width="30%" height="30%">
+              </div>
+              <div class="row align-items-start" style ="padding-top: 10px;">
+                <div class="col-12 text-center">
+                      <h4 class="textChange"><b>Crowbar</b></h4>
+                      <h6 class="textChange">Chance of Entry: +3</h6>
+                      <h6 class="textChange">Chance of Detection: +5</h6>
+                      <h6 class="textChange">Protection: +2</h6>
+                </div>
+              </div>
+              <div class="row align-items-start" style ="padding-top: 10px;">
+                <div class="col-12 text-center">
+                    <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+          <div class="col-4" >
+            <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+            <div class="card-body">
+              <div class="row align-items-start">
+                  <img src="jewels.png" alt="jewels" width="30%" height="30%">
+              </div>
+              <div class="row align-items-start" style ="padding-top: 10px;">
+                <div class="col-12 text-center">
+                      <h4 class="textChange"><b>Blueprints</b></h4>
+                      <h6 class="textChange">Chance of Entry: +10</h6>
+                      <h6 class="textChange">Chance of Detection: -5</h6>
+                      <h6 class="textChange">Protection: 0</h6>
+                </div>
+              </div>
+              <div class="row align-items-start" style ="padding-top: 10px;">
+                <div class="col-12 text-center">
+                    <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+                    </div>
+          </div>
+          <div class="col-1" >
+              </div>
+        </div>
           </div>
 
           <div id="explorePostsPage" class="row align-items-start" style="display:none; margin-top:20px;">
@@ -2421,18 +3490,173 @@ h6 {
 
 
           <div id="walletPage" class="row align-items-start" style="display:none;">
-            <div id="explorePostsContainer" class="col-9">
+            <div class="row align-items-start">
+              <div class="col-2" style="margin-top:40px;">
 
+              </div>
+              <div class="col-8" style="margin-top:40px;">
+                <h1 class="neonSign" contenteditable spellcheck="false">NFTs</h1>
+              </div>
+              <div class="col-2" style="margin-top:40px;">
+
+              </div>
             </div>
-            <div class="col-3">
+            <div id="walletContainer" class="col-12" style="margin-top:30px">
+              <div class="row align-items-start" style ="padding-top: 40px;">
+              <div class="col-4" >
+                <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+                <div class="card-body">
+                  <div class="row align-items-start">
+                      <img src="https://ipfs.io/ipfs/QmYRJGgnPnuSGd4ZiuhLE1QjJRS2NHSkc5ufkvNTxm5KPG?filename=Sarah.png" alt="jewels" width="30%" height="30%">
+                  </div>
+                  <div class="row align-items-start" style ="padding-top: 10px;">
+                    <div class="col-12 text-center">
+                          <h4 class="textChange"><b>Sarah</b></h4>
+                          <h6 class="textChange"><b>Agility:</b> High</h6>
+                          <h6 class="textChange"><b>Strength:</b> Low</h6>
+                          <h6 class="textChange"><b>Charm:</b> Medium</h6>
+                          <h6 class="textChange"><b>Sneak:</b> High</h6>
+                    </div>
+                  </div>
+                  <div class="row align-items-start" style ="padding-top: 10px;">
+                    <div class="col-12 text-center">
+                        <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
+              <div class="col-4" >
+                <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+                <div class="card-body">
+                  <div class="row align-items-start">
+                      <img src="https://ipfs.io/ipfs/QmYRJGgnPnuSGd4ZiuhLE1QjJRS2NHSkc5ufkvNTxm5KPG?filename=Sarah.png" alt="jewels" width="30%" height="30%">
+                  </div>
+                  <div class="row align-items-start" style ="padding-top: 10px;">
+                    <div class="col-12 text-center">
+                      <h4 class="textChange"><b>Liam</b></h4>
+                      <h6 class="textChange"><b>Agility:</b> Low</h6>
+                      <h6 class="textChange"><b>Strength:</b> High</h6>
+                      <h6 class="textChange"><b>Charm:</b> High</h6>
+                      <h6 class="textChange"><b>Sneak:</b> Low</h6>
+                    </div>
+                  </div>
+                  <div class="row align-items-start" style ="padding-top: 10px;">
+                    <div class="col-12 text-center">
+                        <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
+              <div class="col-4" >
+                <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+                <div class="card-body">
+                  <div class="row align-items-start">
+                      <img src="https://ipfs.io/ipfs/QmYRJGgnPnuSGd4ZiuhLE1QjJRS2NHSkc5ufkvNTxm5KPG?filename=Sarah.png" alt="jewels" width="30%" height="30%">
+                  </div>
+                  <div class="row align-items-start" style ="padding-top: 10px;">
+                    <div class="col-12 text-center">
+                          <h4 class="textChange"><b>Sarah</b></h4>
+                    </div>
+                  </div>
+                  <div class="row align-items-start" style ="padding-top: 10px;">
+                    <div class="col-12 text-center">
+                        <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
             </div>
+
           </div>
-
+          </div>
           <div id="playPage" class="row align-items-start" style="display:none;">
-            <div id="explorePostsContainer" class="col-9">
+            <div class="row align-items-start">
+              <div class="col-2" style="margin-top:40px;">
 
+              </div>
+              <div class="col-8" style="margin-top:40px;">
+                <h1 class="neonSign" contenteditable spellcheck="false">play</h1>
+              </div>
+              <div class="col-2" style="margin-top:40px;">
+
+              </div>
             </div>
-            <div class="col-3">
+            <div id="playPageContainer" class="col-12">
+              <img src="https://wallpapercave.com/wp/wp5565660.jpg" alt="jewels" width="100%" height="100%" style="filter: blur(10px) brightness(50%); margin-top:50px">
+              <div class="middle text-center">
+                <h1>COMING SOON</h1>
+              </div>
+              <div class="row align-items-start text-center">
+                <div class="col-12" style="margin-top:40px;">
+                <h1 class="textChange">Other Titles</h1>
+                </div>
+              </div>
+              <div class="row align-items-start">
+                <div class="col-12" style="margin-top:40px;">
+                  <div class="row align-items-start">
+                    <div class="col-4" style="margin-top:40px;">
+                      <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+                      <div class="card-body">
+                        <div class="row align-items-start">
+                            <img src="https://cdn.axieinfinity.com/landing-page/_next/static/images/banner-941f68fe82413ac57390b1d4b6ca51ef.png" alt="jewels" width="30%" height="30%">
+                        </div>
+                        <div class="row align-items-start" style ="padding-top: 10px;">
+                          <div class="col-12 text-center">
+                                <h4 class="textChange"><b>Axis Infinity</b></h4>
+                          </div>
+                        </div>
+                        <div class="row align-items-start" style ="padding-top: 10px;">
+                          <div class="col-12 text-center">
+                              <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Play Now</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+                    <div class="col-4" style="margin-top:40px;">
+                      <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+                      <div class="card-body">
+                        <div class="row align-items-start">
+                            <img src="https://www.cryptokitties.co/images/kitty-eth.svg" alt="jewels" width="30%" height="30%">
+                        </div>
+                        <div class="row align-items-start" style ="padding-top: 10px;">
+                          <div class="col-12 text-center">
+                                <h4 class="textChange"><b>CryptoKitties</b></h4>
+                          </div>
+                        </div>
+                        <div class="row align-items-start" style ="padding-top: 10px;">
+                          <div class="col-12 text-center">
+                              <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Play Now</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+                    <div class="col-4" style="margin-top:40px;">
+                      <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+                      <div class="card-body">
+                        <div class="row align-items-start">
+                            <img src="https://d36mxiodymuqjm.cloudfront.net/website/home/splinterlands_logo_fx_1000.png" alt="jewels" width="30%" height="30%">
+                        </div>
+                        <div class="row align-items-start" style ="padding-top: 10px;">
+                          <div class="col-12 text-center">
+                                <h4 class="textChange"><b>Splinterlands</b></h4>
+                          </div>
+                        </div>
+                        <div class="row align-items-start" style ="padding-top: 10px;">
+                          <div class="col-12 text-center">
+                              <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Play Now</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
