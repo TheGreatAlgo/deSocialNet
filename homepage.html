@@ -49,6 +49,8 @@ $(function() {
 }
 // Global Variables -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------Global Variables-------------------------------
 var file;
+var image;
+var share;
 var gif;
 var link;
 var following;
@@ -887,11 +889,33 @@ async function uploadFileandPostToBlockChain() {
     var textArea = document.getElementById("textArea");
     textArea.removeChild(textArea.lastElementChild);
   }
+  if (image) {
+    const moralisFile = new Moralis.File(data.name, image)
+    const receipt = await moralisFile.saveIPFS();
+    let fileHash = "Img:";
+    fileHash = fileHash.concat(moralisFile.hash());
+    console.log(fileHash);
+    contractAddPost(message,fileHash) //Save to BlockChain
+    var textArea = document.getElementById("textArea");
+    textArea.removeChild(textArea.lastElementChild);
+  }
   if (gif){
     let gifSource = document.getElementById("attachment").src;
     gifSource = gifSource.replace('https://media.giphy.com/media/', '');
     gifSource = gifSource.replace('/giphy.gif', '');
     contractAddPost(message,gifSource) //Save to BlockChain
+    var textArea = document.getElementById("textArea");
+    textArea.removeChild(textArea.lastElementChild);
+  }
+  if (share){
+    let address = document.getElementById("attachment").getAttribute("address");
+    let postID = document.getElementById("attachment").getAttribute("postID");
+    let url = "Post:";
+    url = url.concat(address);
+    url = url.concat(",");
+    url = url.concat(postID);
+    console.log(url);
+    contractAddPost(message,url) //Save to BlockChain
     var textArea = document.getElementById("textArea");
     textArea.removeChild(textArea.lastElementChild);
   }
@@ -902,6 +926,8 @@ async function uploadFileandPostToBlockChain() {
   document.getElementById("messageToPost").value = ""; // reset text Box
   file = false; // file or gif no longer exists
   gif = false;
+  share = false;
+  image = false;
   return true;
 }
 
@@ -976,6 +1002,16 @@ function sendMessage(){
 }
 function addComment(_commentAddress,_postID){
   let postIDHTML = _commentAddress.concat(_postID); //this creates the unqiueID in which we reference the html.
+  let userCommentMessage = postIDHTML.concat('userCommentTextInput'); //this further creates the unqiueID in which we reference the html.
+  let messageBody = document.getElementById(userCommentMessage).value;
+  contractAddComment(_commentAddress, _postID, messageBody)
+  console.log(_commentAddress);
+  console.log(_postID);
+  console.log(messageBody);
+}
+function addModalComment(_commentAddress,_postID){
+  let postIDHTML = _commentAddress.concat(_postID); //this creates the unqiueID in which we reference the html.
+  postIDHTML = postIDHTML.concat("modal"); //this creates the unqiueID in which we reference the html.
   let userCommentMessage = postIDHTML.concat('userCommentTextInput'); //this further creates the unqiueID in which we reference the html.
   let messageBody = document.getElementById(userCommentMessage).value;
   contractAddComment(_commentAddress, _postID, messageBody)
@@ -1149,8 +1185,11 @@ function showEmojiBox(){
 function handleUserFile(_input) {
   deleteFile(); // delete any file previously there since only one is uploaded at a time
   file = _input.files[0]; //input.files[0];
+  document.getElementById("messageToPost").focus();
   console.log("new file");
   gif = false;
+  share = false;
+  image = false;
   const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after for user experience
   document.getElementById("textArea").innerHTML +=
     `
@@ -1164,25 +1203,161 @@ function handleUserFile(_input) {
     </div>`; // Profile Overview in the Modal
   document.getElementById("messageToPost").value = message;
 }
+function handleUserImage(_input) {
+  deleteFile(); // delete any file previously there since only one is uploaded at a time
+  image = _input.files[0]; //input.files[0];
+  preRender =  URL.createObjectURL(image);
+  console.log(image);
+  document.getElementById("messageToPost").focus();
+  console.log("new file");
+  gif = false;
+  share = false;
+  file = false;
+  const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after for user experience
+  document.getElementById("textArea").innerHTML +=
+    `
+    <div id="attachment" class="row align-items-start">
+      <div class="col-11">
+            <img id="attachment" src="${preRender}" style="display: block; margin:auto; padding:20px 0px 20px 0px" width="30%">
+      </div>
+      <div class="col-1" style="margin: 10px 0px 0px">
+          <button type="button" class="btn-close" onclick="deleteFile()" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+    </div>`; // Profile Overview in the Modal
+  document.getElementById("messageToPost").value = message;
+}
+async function handleUserShare(address, postID) {
+  deleteFile();
+  window.scrollTo(0, 0);
+  document.getElementById("messageToPost").focus();
+  console.log("New Share");
+  gif = false;
+  file = false;
+  share = true;
+  var addressShort = address.slice(0, 10);
+  addressShort = addressShort.concat("...");
+  const postInformation = await contractGetUserPost(address, postID); // get post information
+  let message = postInformation.message;
+  let timeStamp = getLocalTime(postInformation.timestamp);
+  let url = postInformation.url;
+  let numberOfLikes = postInformation.numberOfLikes;
+  let totalComments = postInformation.totalComments;
+  let nickName = postInformation.userNickname;
+  let gifLinkHTML = await returnLinksGifsHTML(url)
+  const messageToPost = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
+  document.getElementById("textArea").innerHTML +=
+  `
+  <div id="attachment" address="${address}" postID="${postID}" class="card mb-3 boxesBioColor boxesShadow" style="border-radius: 20px; margin-top:20px">
+  <div class="card-header boxesBioColor" style ="border-radius: 20px; border: 0px;">
+    <div class="row align-items-start">
+      <div class="col-1">
+        <span class="iconColor" style="font-size: 2em;">
+            <i class="fas fa-user-secret"></i>
+        </span>
+      </div>
+      <div class="col-10">
+        <div class="row align-items-start">
+          <h6 class="textChange" style="margin-bottom:0px;">${nickName} @ ${addressShort} posted</h6>
+        </div>
+        <div class="row align-items-start text-left">
+          <p class="textChange" >${timeStamp}</p>
+        </div>
+      </div>
+      <div class="col-1 text-left">
+      </div>
+    </div>
+  </div>
+  <div class="card-body boxesLine" id="0x570" style ="border-top: 1px solid #D6D6D6">
+    <div class="row align-items-start">
+      <div id="messageContent" class="col-12">
+      <p class="textChange">${message}</p>${gifLinkHTML}
+      </div>
+    </div>
+  </div>
+  </div>
+  `; // Profile Overview in the Modal
+  document.getElementById("messageToPost").value = messageToPost;
+}
 function handleUserGif() {
   deleteFile();
   console.log("New Gif");
   gif = true;
   file = false;
+  share = false;
+  image = false;
+  document.getElementById("messageToPost").focus();
   const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
-  const gifLink = document.getElementById("gifLink").value
   document.getElementById("textArea").innerHTML +=
     `<img id="attachment" src="${gifLink}" style="display: block; margin:auto; padding:20px 0px 20px 0px" width="100%">`; // Profile Overview in the Modal
   document.getElementById("messageToPost").value = message;
 }
-function returnLinksGifsHTML(url) { //rendering for the users links and gifs
+async function returnLinksGifsHTML(url) { //rendering for the users links and gifs
   if (url == " " || url == ""){ //nothing attached to the message
     return url
+  }
+  let whatever = url;
+  let urlSlice = whatever.slice(0,5);
+  let imageSlice = whatever.slice(0,4);
+  console.log(urlSlice);
+  console.log(url)
+  if (urlSlice == "Post:"){
+    let linkSplit = whatever.split(",");
+    let postID = ""+linkSplit[1]
+    let address = ""+linkSplit[0].slice(-42);
+    console.log(address);
+    var addressShort = address.slice(0, 10);
+    addressShort = addressShort.concat("...");
+    const postInformation = await contractGetUserPost(address, postID); // get post information
+    let message = postInformation.message;
+    let timeStamp = getLocalTime(postInformation.timestamp);
+    let url = postInformation.url;
+    let numberOfLikes = postInformation.numberOfLikes;
+    let totalComments = postInformation.totalComments;
+    let nickName = postInformation.userNickname;
+    let gifLinkHTML = await returnLinksGifsHTML(url)
+    let htmlCode =
+    `
+    <div class="card mb-3 boxesBioColor boxesShadow" style="border-radius: 20px; margin-top:20px">
+    <div class="card-header boxesBioColor" style ="border-radius: 20px; border: 0px;">
+      <div class="row align-items-start">
+        <div class="col-1">
+          <span class="iconColor" style="font-size: 2em;">
+              <i class="fas fa-user-secret"></i>
+          </span>
+        </div>
+        <div class="col-10">
+          <div class="row align-items-start">
+            <h6 class="textChange" style="margin-bottom:0px;">${nickName} @ ${addressShort} posted</h6>
+          </div>
+          <div class="row align-items-start text-left">
+            <p class="textChange" >${timeStamp}</p>
+          </div>
+        </div>
+        <div class="col-1 text-left">
+        </div>
+      </div>
+    </div>
+    <div class="card-body boxesLine" id="0x570" style ="border-top: 1px solid #D6D6D6">
+      <div class="row align-items-start">
+        <div id="messageContent" class="col-12">
+        <p class="textChange">${message}</p>${gifLinkHTML}
+        </div>
+      </div>
+    </div>
+    </div>
+    `
+    return htmlCode
+  }
+  if (imageSlice == "Img:"){
+      let ipfsHash = whatever.slice(-46);
+      url = "https://ipfs.moralis.io:2053/ipfs/"+ipfsHash;
+      let htmlCode =   `<div style="border-radius:20px"><img id="gif" src="${url}" style="display: block; margin: 20px auto; padding:0px 0px 0px 0px; "  width="30%"></div>`;
+      return htmlCode
   }
   if (url.length < 30){ // its giphy
     url = "https://media.giphy.com/media/"+url+"/giphy.gif";
     console.log(url);
-    let htmlCode =   `<div style="background-color: black;"><img id="gif" src="${url}" style="display: block; margin: 20px auto; padding:0px 0px 0px 0px; "  width="50%"></div>`;
+    let htmlCode =   `<div style="background-color: black; border-radius:20px"><img id="gif" src="${url}" style="display: block; margin: 20px auto; padding:0px 0px 0px 0px; "  width="50%"></div>`;
     console.log(htmlCode);
     return htmlCode
   }
@@ -1208,6 +1383,7 @@ function deleteFile(){
   }
   file = false;
   gif = false;
+  share = false;
 }
   // function getUserPreferences(){
   //   const userPreferences = Moralis.User.current();
@@ -1266,7 +1442,14 @@ function loadPlayPage(){
   document.getElementById("shopPage").style.display="none";
   document.getElementById("playPage").style.display="";
 }
-
+function loadSettingsPage(){
+  document.getElementById("explorePostsPage").style.display="none";
+  document.getElementById("socialFeedPage").style.display="none";
+  document.getElementById("walletPage").style.display="none";
+  document.getElementById("shopPage").style.display="none";
+  document.getElementById("playPage").style.display="none";
+  document.getElementById("settingsPage").style.display="";
+}
 async function renderFollowing(followingArray) { //followingArray
   var followerHTML = document.getElementById("followerList");
   while (followerHTML.hasChildNodes()) { // This removes all of them and re-renders it
@@ -1523,13 +1706,13 @@ async function renderModalCommentArea(postAddress, postID) {
           <textarea id="${userCommentTextInput}" class="form-control textBox" placeholder="Comment Here" style="border-radius:20px; font-size:0.9em;" rows="1"></textarea>
         </div>
         <div class="col-2 text-center"  style=" padding-top:4px">
-          <button type="button" class="btn btn-primary changeButtonColor changeButtonTextColor" onclick="addComment('${postAddress}','${postID}')" style="float:right; font-size:0.9em">Comment</button>
+          <button type="button" class="btn btn-primary changeButtonColor changeButtonTextColor" onclick="addModalComment('${postAddress}','${postID}')" style="float:right; font-size:0.9em">Comment</button>
         </div>
       </div>
       `;
           expandText()
 }
-function renderExplorePage() { //savedArray
+async function renderExplorePage() { //savedArray
     // function that returns the 20 latest posts
     postsArray = 10;
     var savedHTML = document.getElementById("explorePostsContainer");
@@ -1546,7 +1729,7 @@ function renderExplorePage() { //savedArray
       let address = "0x564683rfgf634g3";
       var addressShort = address.slice(0, 10);
       addressShort = addressShort.concat("...");
-      let gifLinkHTML = returnLinksGifsHTML(url)
+      let gifLinkHTML = await returnLinksGifsHTML(url);
       // populate the render Saved Model
       document.getElementById("explorePostsContainer").innerHTML +=
           `
@@ -1618,7 +1801,7 @@ function renderExplorePage() { //savedArray
                   </div>
                   <div class="col-2 text-center" style="padding:0px">
                     <a class="iconColor" style="font-size: 1.5em;">
-                      <i class="far fa-share-square"></i>
+                      <i  class="far fa-share-square"></i>
                     </a>
                   </div>
                   <div class="col-5 text-center">
@@ -1657,7 +1840,7 @@ async function renderSavedModal(address,postID) { //nickName,address,postID
     let numberOfLikes = postInformation.numberOfLikes;
     let totalComments = postInformation.totalComments;
     let nickName = postInformation.userNickname;
-    let gifLinkHTML = returnLinksGifsHTML(url)
+    let gifLinkHTML = await returnLinksGifsHTML(url)
     let starArray = address+","+postID; //moralis doesn't seem to work with uploading arrays no so using a simple comment instead
     while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
       savedHTML.removeChild(savedHTML.firstChild);
@@ -1774,7 +1957,7 @@ async function renderUserAccountPosts(address,totalPosts) { //nickName,address,p
       let numberOfLikes = postInformation.numberOfLikes;
       let nickName = postInformation.userNickname;
       let totalComments = postInformation.totalComments;
-      let gifLinkHTML = returnLinksGifsHTML(url)
+      let gifLinkHTML = await returnLinksGifsHTML(url)
 
       let alreadyExists = document.getElementById(postIDHTML); //delete already generated postID from any other sources.
       if (alreadyExists){
@@ -1854,7 +2037,7 @@ async function renderUserAccountPosts(address,totalPosts) { //nickName,address,p
                     </div>
                     <div class="col-2 text-center" style="padding:0px">
                       <a class="iconColor" style="font-size: 1.5em;">
-                        <i class="far fa-share-square"></i>
+                        <i onclick="handleUserShare('${address}','${postID}')" class="far fa-share-square"></i>
                       </a>
                     </div>
                     <div class="col-5 text-center">
@@ -1883,7 +2066,7 @@ async function renderFeaturedPost(address,postID) { //nickName,address,postID
     let featuredTimeStamp = getLocalTime(featuredPost.timestamp);
     let featuredUrl = featuredPost.url;
     let featuredNumberOfLikes = featuredPost.numberOfLikes;
-    let featuredGifLinkHTML = returnLinksGifsHTML(featuredUrl)
+    let featuredGifLinkHTML = await returnLinksGifsHTML(featuredUrl)
     let nickName = featuredPost.userNickname;
     let totalComments = featuredPost.totalComments;
     let starArray = address+","+postID; //moralis doesn't seem to work with uploading arrays no so using a simple comment instead
@@ -2000,10 +2183,11 @@ async function renderSocialFeedPage() { //nickName,address,postID
     for (let i=0; i<followersToSearch.length; i++){
           const userProfile = await contractGetUserProfile(followersToSearch[i]); // get userProfile
           totalPosts = userProfile.totalPosts;
+          let stopAt = -1;
           if (totalPosts > 5){ // only get the last 5 posts. if someone has 100 posts then no point rendering them all everytime.
-            totalPosts = 5;
+            stopAt = totalPosts - 5 - 1;
           }
-          for (let j=(totalPosts-1); j>-1; j--){ // get the post information for each post starting from latest
+          for (let j=(totalPosts-1); j>stopAt; j--){ // get the post information for each post starting from latest
               let postID = ""+j; //doesn't seem to like numbers so sent as string
               const postInformation = await contractGetUserPost(followersToSearch[i], postID); // get post information
               postInformation.postID = postID; // add post ID
@@ -2033,7 +2217,7 @@ async function renderSocialFeedPage() { //nickName,address,postID
       let nickName = postInformation.userNickname;
       let totalComments = postInformation.totalComments;
 
-      let gifLinkHTML = returnLinksGifsHTML(url)
+      let gifLinkHTML = await returnLinksGifsHTML(url)
       var addressShort = address.slice(0, 10);
       addressShort = addressShort.concat("...");
 
@@ -2119,7 +2303,7 @@ async function renderSocialFeedPage() { //nickName,address,postID
                     </div>
                     <div class="col-2 text-center" style="padding:0px">
                       <a class="iconColor" style="font-size: 1.5em;">
-                        <i class="far fa-share-square"></i>
+                        <i onclick="handleUserShare('${address}','${postID}')" class="far fa-share-square"></i>
                       </a>
                     </div>
                     <div class="col-5 text-center">
@@ -2240,6 +2424,8 @@ async function renderUserAccount(address) { //nickName,address,postID
 </script>
 <!-- =========================================== STYLE-================================================================================= STYLE---------------------------------------------->
 <style>
+
+
 .fa-reply:hover {
   color: #13B0E5;
   cursor: pointer;
@@ -2286,8 +2472,11 @@ async function renderUserAccount(address) { //nickName,address,postID
   cursor: pointer;
 }
 
-
 .fa-images:hover {
+  color: #4599A8;
+  cursor: pointer;
+}
+.fa-file-alt:hover {
   color: #4599A8;
   cursor: pointer;
 }
@@ -2313,6 +2502,15 @@ async function renderUserAccount(address) { //nickName,address,postID
 }
 #explorePageHover:hover .textChange{
   color: #3652E0 !important;
+  cursor: pointer;
+}
+
+#settingsPageHover:hover .fa-sliders-h{
+  color:#576EEB !important;
+  cursor: pointer;
+}
+#settingsPageHover:hover .textChange{
+  color:#576EEB !important;
   cursor: pointer;
 }
 
@@ -3014,7 +3212,7 @@ textarea{
                 <h6 class="textChange" style="margin-top:7px; font-size: 1.25em;">Play</h6>
               </div>
           </div>
-          <div id="SettingsHover" class="row align-baseline" style = "padding-top: 10px">
+          <div id="settingsPageHover" onclick="loadSettingsPage()" class="row align-baseline" style = "padding-top: 10px">
               <div class="col-5 text-end" style = "padding-right: 0px;">
                 <span class="iconColor" style="font-size: 1.5em;">
                     <i class="fas fa-sliders-h"></i>
@@ -3084,7 +3282,11 @@ textarea{
                     </div>
                     <div id ="textArea" class="col-11">
                       <textarea id="messageToPost" class="form-control textBox" placeholder="Share your thoughts..." rows="1" ></textarea>
+
+
+
                     </div>
+
                   </div>
                   <div class="row align-items-start" style ="padding-top: 10px;">
                     <div class="col-1">
@@ -3092,16 +3294,22 @@ textarea{
                     <div class="col-6">
                       <span class="iconColor" style="font-size: 1.5em;">
                         <label for='upload'>
-                          <i style ="padding-left: 10px;" class="fas fa-images"></i>
+                          <i style ="padding-left: 10px;" class="fas fa-file-alt"></i>
                         </label>
                         <input id='upload' type='file' onchange="handleUserFile(this)" onclick="this.value = null" name="MAX_FILE_SIZE" value="10485760" style="display: none">
+                      </span>
+                      <span class="iconColor" style="font-size: 1.5em;">
+                        <label for='imageUpload'>
+                          <i style ="padding-left: 10px;" class="fas fa-images"></i>
+                        </label>
+                        <input id='imageUpload' accept="image/png, image/gif, image/jpeg" type='file' onchange="handleUserImage(this)" onclick="this.value = null" name="MAX_FILE_SIZE" value="10485760" style="display: none">
                       </span>
                       <span class="iconColor" style="font-size: 1.5em;">
                           <i data-bs-toggle="modal" data-bs-target="#gifModal" style ="padding-left: 10px;" class="fas fa-film"></i>
                       </span>
                       <span class="iconColor" style="font-size: 1.5em;"> <!-- Probably a neater way to do the smiley box. -->
                           <i style ="padding-left: 10px;" onclick="showEmojiBox();" class="far fa-smile"></i>
-                          <div id ="smileyBox" class="neon boxesColor" style="position: absolute; z-index: 100; margin:0px 0px 0px 100px; display: none"><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙂`)">🙂</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙁`)">🙁</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😀`)">😀</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😁`)">😁</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😂`)">😂</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😃`)">😃</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😄`)">😄</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😅`)">😅</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😆`)">😆</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😇`)">😇</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😈`)">😈</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😉`)">😉</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😊`)">😊</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😋`)">😋</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😌`)">😌</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😍`)">😍</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😎`)">😎</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😏`)">😏</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😐`)">😐</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😑`)">😑</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😒`)">😒</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😓`)">😓</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😔`)">😔</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😕`)">😕</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😖`)">😖</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😗`)">😗</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😘`)">😘</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😙`)">😙</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😚`)">😚</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😛`)">😛</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😜`)">😜</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😝`)">😝</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😞`)">😞</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😟`)">😟</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😠`)">😠</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😡`)">😡</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😢`)">😢</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😣`)">😣</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😤`)">😤</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😥`)">😥</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😦`)">😦</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😧`)">😧</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😨`)">😨</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😩`)">😩</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😪`)">😪</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😫`)">😫</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😬`)">😬</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😭`)">😭</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😮`)">😮</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😯`)">😯</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😰`)">😰</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😱`)">😱</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😲`)">😲</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😳`)">😳</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😴`)">😴</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😵`)">😵</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😶`)">😶</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😷`)">😷</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😸`)">😸</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😹`)">😹</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😺`)">😺</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😻`)">😻</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😼`)">😼</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😽`)">😽</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😾`)">😾</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😿`)">😿</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙀`)">🙀</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙃`)">🙃</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`💩`)">💩</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙄`)">🙄</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`☠`)">☠</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`👌`)">👌</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`👍`)">👍</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`👎`)">👎</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙈`)">🙈</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙉`)">🙉</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🚀`)">🚀</span></div>
+                          <div id ="smileyBox" class="neon boxesColor" style="position: absolute; z-index: 100; margin:0px 0px 0px 130px; display: none"><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙂`)">🙂</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙁`)">🙁</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😀`)">😀</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😁`)">😁</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😂`)">😂</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😃`)">😃</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😄`)">😄</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😅`)">😅</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😆`)">😆</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😇`)">😇</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😈`)">😈</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😉`)">😉</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😊`)">😊</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😋`)">😋</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😌`)">😌</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😍`)">😍</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😎`)">😎</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😏`)">😏</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😐`)">😐</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😑`)">😑</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😒`)">😒</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😓`)">😓</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😔`)">😔</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😕`)">😕</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😖`)">😖</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😗`)">😗</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😘`)">😘</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😙`)">😙</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😚`)">😚</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😛`)">😛</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😜`)">😜</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😝`)">😝</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😞`)">😞</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😟`)">😟</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😠`)">😠</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😡`)">😡</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😢`)">😢</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😣`)">😣</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😤`)">😤</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😥`)">😥</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😦`)">😦</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😧`)">😧</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😨`)">😨</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😩`)">😩</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😪`)">😪</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😫`)">😫</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😬`)">😬</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😭`)">😭</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😮`)">😮</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😯`)">😯</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😰`)">😰</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😱`)">😱</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😲`)">😲</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😳`)">😳</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😴`)">😴</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😵`)">😵</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😶`)">😶</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😷`)">😷</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😸`)">😸</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😹`)">😹</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😺`)">😺</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😻`)">😻</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😼`)">😼</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😽`)">😽</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😾`)">😾</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`😿`)">😿</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙀`)">🙀</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙃`)">🙃</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`💩`)">💩</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙄`)">🙄</span><br><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`☠`)">☠</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`👌`)">👌</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`👍`)">👍</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`👎`)">👎</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙈`)">🙈</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🙉`)">🙉</span><span style="cursor: pointer; font-size: 25px;" onclick="insertEmoji(`🚀`)">🚀</span></div>
                       </span>
 
                     </div>
@@ -3659,6 +3867,31 @@ textarea{
               </div>
             </div>
           </div>
+
+          <div id="settingsPage" class="row align-items-start" style="display:none;">
+            <div class="row align-items-start">
+              <div class="col-12" style="margin-top:40px;">
+                <div class="card mb-3 boxesColor boxesShadow" style="max-width: 30rem; border-radius: 20px;">
+                <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b>Saved Posts</b></div>
+                <div class="card-body" style ="border-top: 1px solid #535353">
+                  <div class="row align-items-start">
+                    <div id="savedList" class="col-12">
+                    </div>
+                  </div>
+                  <div class="row align-items-start" style ="padding-top: 10px;">
+                    <div class="col-12 text-center">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
+
+            <div id="settingsContainer" class="col-12" style="margin-top:30px">
+            </div>
+          </div>
+
+
+
 
 
           </div>
