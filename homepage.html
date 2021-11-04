@@ -48,6 +48,7 @@ $(function() {
 });
 }
 // Global Variables -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------Global Variables-------------------------------
+let enableNitro = false;
 var file;
 var image;
 var share;
@@ -59,7 +60,7 @@ var mode
 var recipientAddress // global recipientAddress for donations
 var recipientNickname // global recipient nickname for donations
 const kovanWETHTokenAddress ="0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
-const kovanContract = "0x7B669377273E6a933d12a9889A7d18ad59B46960";
+const kovanContract = "0xd5e0120Cf859AFA5ca8c07A337705Cc6D826aa6E";
 const ABI =
 [
 	{
@@ -270,12 +271,12 @@ const ABI =
 	{
 		"inputs": [
 			{
-				"internalType": "address",
-				"name": "userAddress",
-				"type": "address"
+				"internalType": "string",
+				"name": "url",
+				"type": "string"
 			}
 		],
-		"name": "followUser",
+		"name": "changeUserProfilePicture",
 		"outputs": [
 			{
 				"internalType": "bool",
@@ -283,148 +284,6 @@ const ABI =
 				"type": "bool"
 			}
 		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "userAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "postKey",
-				"type": "uint256"
-			}
-		],
-		"name": "likePost",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "success",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "newProfileBio",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "nickName",
-				"type": "string"
-			}
-		],
-		"name": "newProfile",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "success",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "ownerCheckIn",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes",
-				"name": "",
-				"type": "bytes"
-			}
-		],
-		"name": "performUpkeep",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "renounceOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "recipientAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "message",
-				"type": "string"
-			}
-		],
-		"name": "sendMessage",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"stateMutability": "payable",
-		"type": "receive"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"name": "withdraw",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "contract IERC20",
-				"name": "token",
-				"type": "address"
-			}
-		],
-		"name": "withdrawErc20",
-		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
@@ -463,6 +322,25 @@ const ABI =
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "userAddress",
+				"type": "address"
+			}
+		],
+		"name": "followUser",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -535,6 +413,11 @@ const ABI =
 			{
 				"internalType": "string",
 				"name": "userNickname",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "profileImageUrl",
 				"type": "string"
 			}
 		],
@@ -642,6 +525,11 @@ const ABI =
 				"internalType": "uint256",
 				"name": "featuredPost",
 				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "profileImageUrl",
+				"type": "string"
 			}
 		],
 		"stateMutability": "view",
@@ -658,6 +546,54 @@ const ABI =
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "userAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "postKey",
+				"type": "uint256"
+			}
+		],
+		"name": "likePost",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "newProfileBio",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "nickName",
+				"type": "string"
+			}
+		],
+		"name": "newProfile",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -685,6 +621,100 @@ const ABI =
 		],
 		"stateMutability": "view",
 		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "ownerCheckIn",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "performUpkeep",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "recipientAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "message",
+				"type": "string"
+			}
+		],
+		"name": "sendMessage",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdraw",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "token",
+				"type": "address"
+			}
+		],
+		"name": "withdrawErc20",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
 	}
 ]
 const serverUrl = "https://h1fpcthpxdrt.usemoralis.com:2053/server";
@@ -878,9 +908,44 @@ async function contractGetTotalUsers() {
   return receipt;
 }
 
+async function moralisGetMessages(_userAddress) {
+  const Messaging = Moralis.Object.extend("Messaging");
+  const query = new Moralis.Query(Messaging);
+
+  query.equalTo("recipientAddress", _userAddress);
+  const receipt = await query.find();
+  console.log(receipt)
+  return receipt;
+}
+
+async function moralisGetPosts() {
+  const posts = Moralis.Object.extend("Posts");
+  const query = new Moralis.Query(posts);
+  //let unixTime = Math.floor(Date.now() / 1000); /
+  //unixTime = unixTime - 86400 // in the last day
+  //query.greaterThan("time", unixTime);
+  query.limit(25);
+  const receipt = await query.find();
+  console.log(receipt)
+  return receipt;
+}
 async function uploadFileandPostToBlockChain() {
   const data = file; // pull from global variable
   const message = document.getElementById("messageToPost").value;
+  if (message.length > 46 & enableNitro == true){
+    const object = {
+    "message" : message,
+    "url" : "Gif:5794y974y92rh29hg729g97f"
+    }
+  const file = new Moralis.File("post.json", {base64 : btoa(JSON.stringify(object))});
+  let result = await file.saveIPFS();
+  let fileHash = "IPFS:";
+  console.log("sending via nitro");
+  fileHash = fileHash.concat(file.hash());
+  contractAddPost(fileHash," ") //Save to BlockChain
+  console.log(fileHash);
+  return;
+  }
   // *IMPORTANT* Check to see if file exists or not*
   if (data) {
     const moralisFile = new Moralis.File(data.name, data)
@@ -964,7 +1029,7 @@ async function login() {
 }
 async function logOut() {
   try{
-      await Moralis.User.logOut();
+      let result = await Moralis.User.logOut();
   }
   catch{
     //in case they already got autologgedoff
@@ -976,7 +1041,7 @@ async function logOut() {
 async function onFirstLoad() {
   const web3 = await Moralis.enableWeb3();
   let user = Moralis.User.current();
-  renderUserProfileTopRight()
+  let result = await renderUserProfileTopRight();
   if (!user) {
     document.getElementById("loginForm").style.display = "block";
     document.getElementById("mainPage").style.display = "none";
@@ -1052,6 +1117,10 @@ function updateUserPreferences(_data, _action){
         userPreferences.addUnique("following",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
         console.log("Moralis followed uploaded");
         break;
+    case "login":
+        userPreferences.set("lastLogin",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
+        console.log("Moralis last login updated");
+        break;
     case "modeChange":
         userPreferences.set("mode",_data); //Either "Light" or "dark"
         break;
@@ -1079,13 +1148,46 @@ async function getUserPreferences() { // only time this should be called is on a
   savedPosts = await userPreferences.get("savedPosts");
   console.log(savedPosts);
   mode = await userPreferences.get("mode");
-  renderSaved(savedPosts); // replace with "savedPosts" on launch;
-  renderFollowing(following);
+  let result = await renderSaved(savedPosts); // replace with "savedPosts" on launch;
+  result = await renderFollowing(following);
   if (mode=="light"){
     //toggleLightMode();
   }
   else{
     //toggleDarkMode();
+  }
+}
+async function getBellColor() { // only time this should be called is on a page refresh or on change of userPreferences
+  currentUser = await Moralis.User.current();
+  lastLogin = await currentUser.get("lastLogin");
+  address = currentUser.get("accounts");
+  address = address[0];
+  let lastMessageTime = 0;
+  allMessages = await moralisGetMessages(address);
+  for (let i=(allMessages.length-1); i>-1; i--){ // check the last timestamp
+    const object = allMessages[i];
+    let timestamp = object.get('time');
+    if (timestamp >= lastMessageTime){
+      lastMessageTime = timestamp;
+    }
+  }
+  if (lastLogin == undefined){
+    let bellHTML = `<span id="bellColor" class="iconColor" style="font-size: 1.75em; margin-top:2px; color:red;">
+                    <i class="fas fa-bell"></i>
+                      </span>`;
+    return bellHTML
+  }
+  if (lastLogin < lastMessageTime ){
+    let bellHTML = `<span id="bellColor" class="iconColor" style="font-size: 1.75em; margin-top:2px; color:red;">
+                    <i class="fas fa-bell"></i>
+                      </span>`;
+    return bellHTML
+  }
+  else{
+    let bellHTML = `<span id="bellColor" class="iconColor" style="font-size: 1.75em; margin-top:2px;">
+                    <i class="fas fa-bell"></i>
+                      </span>`
+    return bellHTML;
   }
 }
 
@@ -1164,7 +1266,15 @@ function toggleLightMode() {
 `;
   document.head.appendChild(style);
 }
-
+function toggleNitroGas(){
+  if (enableNitro == true){
+    enableNitro = false;
+  }
+  else{
+    enableNitro = true;
+  }
+  console.log(enableNitro);
+}
 // EMOJIS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------EMOJIS-------------------------------
 function insertEmoji(_emoji){
   document.getElementById("messageToPost").value += _emoji;
@@ -1228,6 +1338,8 @@ function handleUserImage(_input) {
 }
 async function handleUserShare(address, postID) {
   deleteFile();
+  $('#savedPostModal').modal('hide'); //hide other modal
+  $('#userAccountModal').modal('hide'); //hide other modal
   window.scrollTo(0, 0);
   document.getElementById("messageToPost").focus();
   console.log("New Share");
@@ -1247,7 +1359,9 @@ async function handleUserShare(address, postID) {
   const messageToPost = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
   document.getElementById("textArea").innerHTML +=
   `
-  <div id="attachment" address="${address}" postID="${postID}" class="card mb-3 boxesBioColor boxesShadow" style="border-radius: 20px; margin-top:20px">
+  <div id="attachment" address="${address}" postID="${postID}"  class="row align-items-start">
+  <div class="col-11">
+  <div class="card mb-3 boxesBioColor boxesShadow" style="border-radius: 20px; margin-top:20px">
   <div class="card-header boxesBioColor" style ="border-radius: 20px; border: 0px;">
     <div class="row align-items-start">
       <div class="col-1">
@@ -1275,6 +1389,11 @@ async function handleUserShare(address, postID) {
     </div>
   </div>
   </div>
+  </div>
+  <div class="col-1" style="margin: 10px 0px 0px">
+      <button type="button" class="btn-close" onclick="deleteFile()" data-bs-dismiss="modal" aria-label="Close"></button>
+  </div>
+ </div>
   `; // Profile Overview in the Modal
   document.getElementById("messageToPost").value = messageToPost;
 }
@@ -1286,9 +1405,13 @@ function handleUserGif() {
   share = false;
   image = false;
   document.getElementById("messageToPost").focus();
+  const gifLink = document.getElementById("gifLink").value;
   const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
   document.getElementById("textArea").innerHTML +=
-    `<img id="attachment" src="${gifLink}" style="display: block; margin:auto; padding:20px 0px 20px 0px" width="100%">`; // Profile Overview in the Modal
+    `
+    <div style="background-color: black; border-radius:20px">
+    <img id="attachment" src="${gifLink}" style="display: block; margin:20px auto; padding:0px 0px 0px 0px" width="50%">
+    </div>`; // Profile Overview in the Modal
   document.getElementById("messageToPost").value = message;
 }
 async function returnLinksGifsHTML(url) { //rendering for the users links and gifs
@@ -1406,6 +1529,7 @@ function getLocalDate(unixTimeStamp){
 
 // DYNAMIC RENDERING Code -----------------------------------------------------------------------------------------------------------Dynamic Rendering ------------------------------
 function loadExplorePage(){
+  window.scrollTo(0, 0);
   document.getElementById("socialFeedPage").style.display="none";
   document.getElementById("shopPage").style.display="none";
   document.getElementById("walletPage").style.display="none";
@@ -1414,6 +1538,7 @@ function loadExplorePage(){
   document.getElementById("explorePostsPage").style.display="";  //wierd glitch where if i put inline it shows lower
 }
 function loadSocialFeedPage(){
+  window.scrollTo(0, 0);
   document.getElementById("explorePostsPage").style.display="none";
   document.getElementById("shopPage").style.display="none";
   document.getElementById("walletPage").style.display="none";
@@ -1422,6 +1547,7 @@ function loadSocialFeedPage(){
   document.getElementById("socialFeedPage").style.display="";
 }
 function loadShopPage(){
+  window.scrollTo(0, 0);
   document.getElementById("explorePostsPage").style.display="none";
   document.getElementById("socialFeedPage").style.display="none";
   document.getElementById("walletPage").style.display="none";
@@ -1429,6 +1555,7 @@ function loadShopPage(){
   document.getElementById("shopPage").style.display="";
 }
 function loadWalletPage(){
+  window.scrollTo(0, 0);
   document.getElementById("explorePostsPage").style.display="none";
   document.getElementById("socialFeedPage").style.display="none";
   document.getElementById("shopPage").style.display="none";
@@ -1436,6 +1563,7 @@ function loadWalletPage(){
   document.getElementById("walletPage").style.display="";
 }
 function loadPlayPage(){
+  window.scrollTo(0, 0);
   document.getElementById("explorePostsPage").style.display="none";
   document.getElementById("socialFeedPage").style.display="none";
   document.getElementById("walletPage").style.display="none";
@@ -1443,6 +1571,7 @@ function loadPlayPage(){
   document.getElementById("playPage").style.display="";
 }
 function loadSettingsPage(){
+  window.scrollTo(0, 0);
   document.getElementById("explorePostsPage").style.display="none";
   document.getElementById("socialFeedPage").style.display="none";
   document.getElementById("walletPage").style.display="none";
@@ -1495,15 +1624,39 @@ async function renderSaved(savedArray) { //savedArray
 
   }
 async function renderUserProfileTopRight() { //savedArray
+    console.log("rendering top right");
     const currentUser = await Moralis.User.current();
     address = currentUser.get("accounts");
     address = address[0];
     profile = await contractGetUserProfile(address);
+    bellHTMl = await getBellColor();
     var addressShort = address.slice(0, 10);
     addressShort = addressShort.concat("...");
     nickName = profile.userNickname;
     var nickNameShort = nickName.slice(0, 5);
     nickNameShort = nickNameShort.concat("...");
+    document.getElementById("messagingNotificationsUserProfile").innerHTML +=
+    `
+    <div class="row align-items-start">
+      <div class="col-4 text-center">
+      <div class="row align-items-start">
+      <span class="iconColor" style="font-size: 1.75em; margin-top:2px">
+          <i type="button" data-bs-toggle="modal" data-bs-target="#inboxModal" onclick="renderUserAccountMessages('${address}')" class="far fa-envelope"></i>
+      </span>
+        </div>
+        </div>
+        <div class="col-4 text-center">
+        <div class="row align-items-start">
+        ${bellHTMl}
+          </div>
+          </div>
+        <div class="col-4 text-end">
+          <span class="iconColor" style="font-size: 2em;">
+              <i type="button" class="fas fa-user-secret" ></i>
+          </span>
+        </div>
+    </div>
+    `;
     document.getElementById("userProfileOverview").innerHTML +=
     `
     <div class="row align-items-start">
@@ -1513,6 +1666,9 @@ async function renderUserProfileTopRight() { //savedArray
       <h6 type="button" class="textChange" data-bs-toggle="modal" onclick="renderUserAccount('${address}')" data-bs-target="#userAccountModal" class="textChange">${addressShort}</h6>
     </div>
     `;
+    const unixTime = Math.floor(Date.now() / 1000); // notify moralis of new login. This is for my handling of login
+    updateUserPreferences(unixTime, "login")
+
   }
 
 async function renderCommentArea(postAddress, postID) { //savedArray
@@ -1712,113 +1868,6 @@ async function renderModalCommentArea(postAddress, postID) {
       `;
           expandText()
 }
-async function renderExplorePage() { //savedArray
-    // function that returns the 20 latest posts
-    postsArray = 10;
-    var savedHTML = document.getElementById("explorePostsContainer");
-    while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
-      savedHTML.removeChild(savedHTML.firstChild);
-      }
-  //  const savedArray = [["john","0x4532f2293098AF088623a641546c98687DeB884","1"],["phil","0x5354f2293098AF088623a641546c98687DeB884","2"],["Sarah","0x4532f2293098AF088623a641546c98687DeB884","48022637"]]
-    for (let i = 0; i < postsArray; i++) {
-      let message = "Hello World";
-      let timeStamp = getLocalTime(1635461938);
-      let url = "7cDhT0CDqFIvCWiNXKjjjjjjjjjjjjjjjjjjxxxxxxxxxxxxxjjjjjj";
-      let numberOfLikes = "5";
-      let nickName = "BobtheBuilder";
-      let address = "0x564683rfgf634g3";
-      var addressShort = address.slice(0, 10);
-      addressShort = addressShort.concat("...");
-      let gifLinkHTML = await returnLinksGifsHTML(url);
-      // populate the render Saved Model
-      document.getElementById("explorePostsContainer").innerHTML +=
-          `
-          <div class="card mb-3 boxesColor boxesShadow" style="border-radius: 20px;">
-          <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
-            <div class="row align-items-start">
-              <div class="col-1">
-                <span class="iconColor" style="font-size: 2em;">
-                    <i class="fas fa-user-secret"></i>
-                </span>
-              </div>
-              <div class="col-10">
-                <div class="row align-items-start">
-                  <h6 class="textChange" style="margin-bottom:0px;">${nickName} @ ${addressShort} posted</h6>
-                </div>
-                <div class="row align-items-start text-left">
-                  <p class="textChange" >${timeStamp}</p>
-                </div>
-              </div>
-              <div class="col-1 text-left">
-                <span class="iconColor" style="font-size: 1.5em;">
-                    <i class="far fa-star"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="card-body" id="0x580" style ="border-top: 1px solid #535353" >
-            <div class="row align-items-start">
-              <div id="messageContent" class="col-12">
-              <p class="textChange">${message}</p>${gifLinkHTML}
-              </div>
-            </div>
-            <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
-              <div class="col-3 text-center">
-                <div class="row align-items-start">
-                  <div class="col-4 text-center">
-                  </div>
-                  <div class="col-2 text-center" style="padding:0px">
-                    <a class="iconColor" style="font-size: 1.5em;">
-                      <i class="far fa-heart"></i>
-                    </a>
-                  </div>
-                  <div class="col-3 text-center">
-                    <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">${numberOfLikes}</h6>
-                  </div>
-                  <div class="col-5 text-center">
-                  </div>
-                  </div>
-              </div>
-              <div class="col-3 text-center">
-                <div class="row align-items-start">
-                  <div class="col-4 text-center">
-                  </div>
-                  <div class="col-2 text-center" style="padding:0px">
-                    <a class="iconColor" style="font-size: 1.5em;">
-                      <i class="far fa-comments" onclick="renderCommentArea('0x58','0')"></i>
-                    </a>
-                  </div>
-                  <div class="col-3 text-center">
-                    <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">0</h6>
-                  </div>
-                  <div class="col-5 text-center">
-                  </div>
-                  </div>
-              </div>
-              <div class="col-3 text-center">
-                <div class="row align-items-start">
-                  <div class="col-5 text-center">
-                  </div>
-                  <div class="col-2 text-center" style="padding:0px">
-                    <a class="iconColor" style="font-size: 1.5em;">
-                      <i  class="far fa-share-square"></i>
-                    </a>
-                  </div>
-                  <div class="col-5 text-center">
-                  </div>
-                  </div>
-              </div>
-              <div class="col-3 text-center">
-                <a class="iconColor" style="font-size: 1.5em;">
-                  <i data-bs-toggle="modal" data-bs-target="#donationModal" onclick="donationAddress('${address}','${nickName}')" class="fab fa-ethereum"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-          `; //Solve this later to load up a modal
-      }
-  }
 async function renderSavedModal(address,postID) { //nickName,address,postID
     const postInformation = await contractGetUserPost(address, postID); // get post information
     console.log("rendering Modal");
@@ -1858,7 +1907,7 @@ async function renderSavedModal(address,postID) { //nickName,address,postID
                 </div>
                 <div class="col-10">
                   <div class="row align-items-start">
-                    <h6 class="textChange" style="margin-bottom:0px;">${nickName} posted</h6>
+                    <h6 type="button" data-bs-toggle="modal" data-bs-target="#userAccountModal" onclick="renderUserAccount('${address}')" class="textChange" style="margin-bottom:0px;">${nickName} posted</h6>
                   </div>
                   <div class="row align-items-start text-left">
                     <p class="textChange">${timeStamp}</p>
@@ -1917,7 +1966,7 @@ async function renderSavedModal(address,postID) { //nickName,address,postID
                     </div>
                     <div class="col-2 text-center" style="padding:0px">
                       <a class="iconColor" style="font-size: 1.5em;">
-                        <i class="far fa-share-square"></i>
+                        <i onclick="handleUserShare('${address}','${postID}')" class="far fa-share-square"></i>
                       </a>
                     </div>
                     <div class="col-5 text-center">
@@ -1939,6 +1988,7 @@ async function renderSavedModal(address,postID) { //nickName,address,postID
 
 async function renderUserAccountPosts(address,totalPosts) { //nickName,address,postID
     let savedHTML = document.getElementById("userAccountPosts");
+    $('#savedPostModal').modal('hide'); //hide modal
     var addressShort = address.slice(0, 10);
     addressShort = addressShort.concat("...");
     while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
@@ -2165,6 +2215,65 @@ async function renderFeaturedPost(address,postID) { //nickName,address,postID
     }
   }
 
+async function renderUserAccountMessages(address) { //nickName,address,postID
+    document.getElementById('bellColor').style.color=""; // reset bell color
+    let savedHTML = document.getElementById("inboxModalBody");
+    $('#savedPostModal').modal('hide'); //hide modal
+    let allMessages = await moralisGetMessages(address)
+    while (savedHTML.childNodes.length>12) { // This removes all of them and re-renders it except for the post something box
+      savedHTML.removeChild(savedHTML.lastChild);
+      }
+    for (let i=(allMessages.length-1); i>-1; i--){
+      console.log(allMessages[i]);
+      const object = allMessages[i];
+      const userProfile = await contractGetUserProfile(address);
+      let message = object.get('message');
+      let senderAddress = object.get('senderAddress');
+      var addressShort = senderAddress.slice(0, 11);
+      addressShort = addressShort.concat("...");
+      let timeStamp = object.get('time')
+      timeStamp = getLocalTime(timeStamp);
+      let nickName = userProfile.userNickname;
+      // populate the render Saved Model
+      document.getElementById("inboxModalBody").innerHTML +=
+          `
+          <div class="card mb-3 boxesColor boxesShadow" style="border-radius: 20px;">
+          <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
+            <div class="row align-items-start">
+              <div class="col-1">
+                <span class="iconColor" style="font-size: 2em;">
+                    <i class="fas fa-user-secret"></i>
+                </span>
+              </div>
+              <div class="col-10">
+                <div class="row align-items-start">
+                  <h6 class="textChange" style="margin-bottom:0px;">${nickName} @ ${addressShort}</h6>
+                </div>
+                <div class="row align-items-start text-left">
+                  <p class="textChange" >${timeStamp}</p>
+                </div>
+              </div>
+              <div class="col-1 text-left">
+                  <span class="iconColor" style="font-size: 1.5em;">
+                      <i onclick="replytoMessage('${senderAddress}')" class="fas fa-reply iconColor"></i>
+                  </span>
+              </div>
+            </div>
+          </div>
+          <div class="card-body" style ="border-top: 1px solid #535353" >
+            <div class="row align-items-start">
+              <div id="messageContent" class="col-12">
+              <p class="textChange">${message}</p>
+              </div>
+            </div>
+            <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
+            </div>
+          </div>
+        </div>
+          `;
+    }
+  }
+
 async function renderSocialFeedPage() { //nickName,address,postID
     let allPostArray = []; // initalizeArray
     let savedHTML = document.getElementById("socialFeedPostsContainer");
@@ -2174,7 +2283,13 @@ async function renderSocialFeedPage() { //nickName,address,postID
     const currentUser = await Moralis.User.current();
     address = await currentUser.get("accounts"); // we want also this users address to they are included in rendering of the social feed page.
     address = address[0];
-    let followersToSearch = following;
+    let followersToSearch = []
+    followersToSearch = following;
+    if (followersToSearch == undefined){
+      followersToSearch = [];
+      followersToSearch[0] = address;
+      console.log(followersToSearch);
+    }
     if (followersToSearch.includes(address)){
     }
     else{
@@ -2240,7 +2355,7 @@ async function renderSocialFeedPage() { //nickName,address,postID
                 </div>
                 <div class="col-9">
                   <div class="row align-items-start">
-                    <h6 class="textChange" style="margin-bottom:0px;">${nickName} @ ${addressShort} posted</h6>
+                    <h6 type="button" data-bs-toggle="modal" data-bs-target="#userAccountModal" onclick="renderUserAccount('${address}')" class="textChange" style="margin-bottom:0px;">${nickName} @ ${addressShort} posted</h6>
                   </div>
                   <div class="row align-items-start text-left">
                     <p class="textChange" >${timeStamp}</p>
@@ -2420,6 +2535,154 @@ async function renderUserAccount(address) { //nickName,address,postID
           renderUserAccountPosts(address,totalPosts)
     }
 
+  }
+
+async function renderExplorePage() { //nickName,address,postID
+    console.log("rendering explore page");
+    let allPostArray = []; // initalizeArray
+    let postArray = [];
+    let moralisPosts = await moralisGetPosts() // gets the last 25 posts
+    console.log("moralis posts length ", moralisPosts.length)
+    for (let j=0; j<moralisPosts.length; j++){
+      console.log(moralisPosts[j]);
+      const object = moralisPosts[j];
+      let postID = object.get('postID');
+      let senderAddress = object.get('senderAddress');
+      const postInformation = await contractGetUserPost(senderAddress, postID); // get post information
+      postInformation.postID = postID; // add post ID
+      postInformation.address = address; // add address
+      allPostArray.push(postInformation); // save Post Information in array for later handling
+    }
+    // now all the posts should be in a nice array of objects
+      // now we want to reorganize them based on when they posted if moralis hasn't already
+      allPostArray.sort((a, b) => {
+          return b.timestamp - a.timestamp;
+      });
+    console.log(allPostArray.length);
+    var savedHTML = document.getElementById("explorePostsContainer");
+    while (savedHTML.hasChildNodes()) { // This removes all of them so we can re-render
+            savedHTML.removeChild(savedHTML.firstChild);
+      }
+    for (let i=0; i<allPostArray.length; i++){
+      console.log(i);
+      const postInformation = allPostArray[i]; // get post information
+      let address = postInformation.address
+      let postID = ""+postInformation.postID; // doesn't seem to like numbers so sent as string
+      console.log(postID);
+      let postIDHTML = address.concat(postID); //this creates the unqiueID in which we reference when rendering the comments
+      let message = postInformation.message;
+      let timeStamp = getLocalTime(postInformation.timestamp);
+      let savedPostHTML = document.getElementById("savedPostModalContent");
+      let url = postInformation.url;
+      let numberOfLikes = postInformation.numberOfLikes;
+      let nickName = postInformation.userNickname;
+      let totalComments = postInformation.totalComments;
+      let gifLinkHTML = await returnLinksGifsHTML(url)
+      var addressShort = address.slice(0, 10);
+      addressShort = addressShort.concat("...");
+
+      let alreadyExists = document.getElementById(savedPostHTML); //delete already generated postID from any other sources.
+      if (alreadyExists){
+        document.getElementById(savedPostHTML).remove();
+      }
+      let starArray = address+","+postID; //moralis doesn't seem to work with uploading arrays no so using a simple comment instead
+      console.log(starArray);
+      // populate the render Saved Model
+      document.getElementById("explorePostsContainer").innerHTML +=
+          `
+            <div class="card mb-3 boxesColor" style="border-radius: 20px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"  >
+            <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
+              <div class="row align-items-start">
+                <div class="col-1">
+                  <span class="iconColor" style="font-size: 2em;">
+                      <i class="fas fa-user-secret"></i>
+                  </span>
+                </div>
+                <div class="col-9">
+                  <div class="row align-items-start">
+                    <h6 type="button" data-bs-toggle="modal" data-bs-target="#userAccountModal" onclick="renderUserAccount('${address}')" class="textChange" style="margin-bottom:0px;">${nickName} @ ${addressShort} posted</h6>
+                  </div>
+                  <div class="row align-items-start text-left">
+                    <p class="textChange" >${timeStamp}</p>
+                  </div>
+                </div>
+                <div class="col-1 text-left">
+                  <span class="iconColor" style="font-size: 1.5em;">
+                      <i onclick="updateUserPreferences('${address}', 'follow')" class="fas fa-user-friends"></i>
+                  </span>
+                </div>
+                <div class="col-1 text-left">
+                  <span class="iconColor" style="font-size: 1.5em;">
+                      <i onclick="updateUserPreferences('${starArray}', 'savePost')" class="far fa-star"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="card-body" id="${postIDHTML}" style ="border-top: 1px solid #535353" >
+              <div class="row align-items-start">
+                <div id="messageContent" class="col-12">
+                <pre style="font-size:16px; font-family:sans-serif; font-weight:500"><p class="textChange">${message}</p></pre>${gifLinkHTML}
+                </div>
+              </div>
+              <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
+                <div class="col-3 text-center">
+                  <div class="row align-items-start">
+                    <div class="col-4 text-center">
+                    </div>
+                    <div class="col-2 text-center" style="padding:0px">
+                      <a class="iconColor" style="font-size: 1.5em;">
+                        <i onclick="contractLikePost('${address}','${postID}')" class="far fa-heart"></i>
+                      </a>
+                    </div>
+                    <div class="col-4 text-center">
+                      <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">${numberOfLikes}</h6>
+                    </div>
+                    <div class="col-2 text-center">
+                    </div>
+                    </div>
+                </div>
+                <div class="col-3 text-center">
+                  <div class="row align-items-start">
+                    <div class="col-4 text-center">
+                    </div>
+                    <div class="col-2 text-center" style="padding:0px">
+                      <a class="iconColor" style="font-size: 1.5em;">
+                        <i class="far fa-comments" onclick="renderCommentArea('${address}','${postID}')"></i>
+                      </a>
+                    </div>
+                    <div class="col-4 text-center">
+                      <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">${totalComments}</h6>
+                    </div>
+                    <div class="col-2 text-center">
+                    </div>
+                    </div>
+                </div>
+                <div class="col-3 text-center">
+                  <div class="row align-items-start">
+                    <div class="col-5 text-center">
+                    </div>
+                    <div class="col-2 text-center" style="padding:0px">
+                      <a class="iconColor" style="font-size: 1.5em;">
+                        <i onclick="handleUserShare('${address}','${postID}')" class="far fa-share-square"></i>
+                      </a>
+                    </div>
+                    <div class="col-5 text-center">
+                    </div>
+                    </div>
+                </div>
+                <div class="col-3 text-center">
+                  <a class="iconColor" style="font-size: 1.5em;">
+                    <i data-bs-toggle="modal" data-bs-target="#donationModal" onclick="donationAddress('${address}','${nickName}')" class="fab fa-ethereum"></i>
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          </div>
+          `;
+    }
+  expandText()
   }
 </script>
 <!-- =========================================== STYLE-================================================================================= STYLE---------------------------------------------->
@@ -2766,6 +3029,20 @@ textarea{
       </div>
     </div>
   </div>
+  <!-- iFrameModal start -->
+  <div class="modal fade" id="iFrameModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="width:60%;max-width:715px;min-width:715px; border-radius: 20px; max-height:500px">
+      <div class="modal-content boxesColor">
+        <div class="modal-body">
+          <div style="overflow: hidden; margin: 15px auto; max-width: 1280px;">
+            <iframe scrolling="no" src="" style="border: 0px none; margin-left: -300px; height: 600px; margin-top: -50px; width: 1280px;">
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal End -->
   <!-- gifModal start -->
   <div class="modal fade" id="gifModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -3179,7 +3456,7 @@ textarea{
                 </span>
               </div>
               <div class="col-5 text-left align-bottom">
-                <h6 class="textChange" onclick="loadExplorePage()"; style="margin-top:7px; font-size: 1.25em;">Explore</h6>
+                <h6 class="textChange" style="margin-top:7px; font-size: 1.25em;">Explore</h6>
               </div>
           </div>
           <div id="shopPageHover" onclick="loadShopPage()" class="row align-baseline" style = "padding-top: 10px">
@@ -3232,6 +3509,16 @@ textarea{
                 <h6 class="textChange" style="margin-bottom:0px; font-size: 1.25em;" >Dark Mode</h6>
             </div>
           </div>
+          <div class="row align-baseline" style = "padding-top: 10px">
+            <div class="col-5" style = "padding-right: 0px">
+              <div class="form-check form-switch text-center">
+                <input class="form-check-input" style = "transform: scale(1.2); float:right; margin:4px 2px 0px 0px; padding:10px 0px 0px;"  onclick="toggleNitroGas()" type="checkbox" id="flexSwitchCheckChecked" unchecked/>
+              </div>
+            </div>
+            <div class="col-5 text-left">
+                <h6 class="textChange" style="margin-bottom:0px; font-size: 1.25em;" >Nitro Gas</h6>
+            </div>
+          </div>
           </div>
           <div class="col-9">
             <div class="row align-items-start backgroundColorNavBar" style = "border-radius: 0px 10px 10px 0px;">
@@ -3240,28 +3527,7 @@ textarea{
               </div>
               <div class="col-4">
               </div>
-              <div class="col-2 text-center">
-                  <div class="row align-items-start">
-                    <div class="col-4 text-center">
-                    <div class="row align-items-start">
-                    <span class="iconColor" style="font-size: 1.75em; margin-top:2px">
-                        <i type="button" data-bs-toggle="modal" data-bs-target="#inboxModal" class="far fa-envelope"></i>
-                    </span>
-                      </div>
-                      </div>
-                      <div class="col-4 text-center">
-                      <div class="row align-items-start">
-                      <span class="iconColor" style="font-size: 1.75em; margin-top:2px">
-                          <i class="far fa-bell"></i>
-                      </span>
-                        </div>
-                        </div>
-                      <div class="col-4 text-end">
-                <span class="iconColor" style="font-size: 2em;">
-                    <i type="button" class="fas fa-user-secret" ></i>
-                </span>
-                  </div>
-                </div>
+              <div id="messagingNotificationsUserProfile" class="col-2 text-center">
               </div>
               <div id="userProfileOverview" class="col-1">
               </div>
@@ -3659,7 +3925,7 @@ textarea{
                   <div class="col-12 text-center">
                       <h6 class="textChange" style="margin:0px 0px 10px; font-size: 1.25em;">Sushiswap</h6>
                       <button type="button" class="btn btn-secondary changeSushiButtonTextColor" style="border-radius: .375rem!important; justify-content: center!important; background-image: linear-gradient(to right, rgb(1, 110, 218), rgb(217, 0, 192))">
-                      <a href="https://app.sushi.com/swap"  target="_blank" class="changeSushiButtonTextColor">
+                      <a href="https://app.sushi.com/swap" data-bs-toggle="modal" data-bs-target="#iFrameModal" target="_blank" class="changeSushiButtonTextColor">
                       Enter Exchange</a></button>
                   </div>
                 </div>
@@ -3715,11 +3981,11 @@ textarea{
                 <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
                 <div class="card-body">
                   <div class="row align-items-start">
-                      <img src="https://ipfs.io/ipfs/QmYRJGgnPnuSGd4ZiuhLE1QjJRS2NHSkc5ufkvNTxm5KPG?filename=Sarah.png" alt="jewels" width="30%" height="30%">
+                      <img src="https://ipfs.io/ipfs/QmVNi1MrwAbrBEjSoQNYRyEnJAP7FUQq9pS5htYH2KMEqc?filename=Virginia.png" alt="jewels" width="30%" height="30%">
                   </div>
                   <div class="row align-items-start" style ="padding-top: 10px;">
                     <div class="col-12 text-center">
-                          <h4 class="textChange"><b>Sarah</b></h4>
+                          <h4 class="textChange"><b>Virginia</b></h4>
                           <h6 class="textChange"><b>Agility:</b> High</h6>
                           <h6 class="textChange"><b>Strength:</b> Low</h6>
                           <h6 class="textChange"><b>Charm:</b> Medium</h6>
@@ -3738,11 +4004,11 @@ textarea{
                 <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
                 <div class="card-body">
                   <div class="row align-items-start">
-                      <img src="https://ipfs.io/ipfs/QmYRJGgnPnuSGd4ZiuhLE1QjJRS2NHSkc5ufkvNTxm5KPG?filename=Sarah.png" alt="jewels" width="30%" height="30%">
+                      <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="30%" height="30%">
                   </div>
                   <div class="row align-items-start" style ="padding-top: 10px;">
                     <div class="col-12 text-center">
-                      <h4 class="textChange"><b>Liam</b></h4>
+                      <h4 class="textChange"><b>Florida</b></h4>
                       <h6 class="textChange"><b>Agility:</b> Low</h6>
                       <h6 class="textChange"><b>Strength:</b> High</h6>
                       <h6 class="textChange"><b>Charm:</b> High</h6>
@@ -3761,11 +4027,15 @@ textarea{
                 <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
                 <div class="card-body">
                   <div class="row align-items-start">
-                      <img src="https://ipfs.io/ipfs/QmYRJGgnPnuSGd4ZiuhLE1QjJRS2NHSkc5ufkvNTxm5KPG?filename=Sarah.png" alt="jewels" width="30%" height="30%">
+                      <img src="https://ipfs.io/ipfs/QmRajorfwuFupWq6RoasUdQtxcWsoVta8NH12EVHeHi5Wn?filename=Alaska.png" alt="jewels" width="30%" height="30%">
                   </div>
                   <div class="row align-items-start" style ="padding-top: 10px;">
                     <div class="col-12 text-center">
-                          <h4 class="textChange"><b>Sarah</b></h4>
+                      <h4 class="textChange"><b>Alaska</b></h4>
+                      <h6 class="textChange"><b>Agility:</b> Low</h6>
+                      <h6 class="textChange"><b>Strength:</b> High</h6>
+                      <h6 class="textChange"><b>Charm:</b> High</h6>
+                      <h6 class="textChange"><b>Sneak:</b> Low</h6>
                     </div>
                   </div>
                   <div class="row align-items-start" style ="padding-top: 10px;">
@@ -3892,7 +4162,7 @@ textarea{
 
 
 
-
+</div>
 
           </div>
       </div>
