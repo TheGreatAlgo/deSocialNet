@@ -7,14 +7,33 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
 
-contract NFTMint is ERC721, VRFConsumerBase, Ownable, ERC721URIStorage{
+contract NFTMint is ERC721, VRFConsumerBase, Ownable, KeeperCompatibleInterface{
 
     bytes32 internal keyHash;
     uint256 internal fee;
 
+    uint256 public mintFee = 0.002*10**18;
     uint256 public randomResult;
+
+
+    uint256 public lastCheckIn = block.timestamp;
+    uint256 public checkInTimeInterval = 864000; //default to six months
+    address public nextOwner;
+
+    address kovanKeeperRegistryAddress = 0x4Cb093f226983713164A62138C3F718A5b595F73;
+    address gameAddress = 0x252d2f2293098AF088623a641546c98687DeB884;
+
+    modifier onlyGame() {
+        require(msg.sender == gameAddress);
+        _;
+    }
+
+    modifier onlyKeeper() {
+        require(msg.sender == kovanKeeperRegistryAddress);
+        _;
+    }
 
     /**
      * Constructor inherits VRFConsumerBase
@@ -36,11 +55,13 @@ contract NFTMint is ERC721, VRFConsumerBase, Ownable, ERC721URIStorage{
     }
     struct NFTCharacter {
         string name;
+        uint256 born;
         uint256 health;
         uint256 agility;
         uint256 strength;
         uint256 sneak;
         uint256 charm;
+        uint256 characterID;
     }
     struct mintableNFTCharacter {
         uint256 health;
@@ -48,76 +69,95 @@ contract NFTMint is ERC721, VRFConsumerBase, Ownable, ERC721URIStorage{
         uint256 strength;
         uint256 sneak;
         uint256 charm;
+        string imageURI;
+        string name;
+        string description;
     }
-    mintableNFTCharacter[] public mintableCharacters = [
-        NFTCharacter( // initialize with Virginia
-        100,
-        750,
-        250,
-        750,
-        400
-        ),
-        NFTCharacter( // initialize with Florida
-        100,
-        500,
-        400,
-        500,
-        600
-        ),
-        NFTCharacter( // initialize with Alaska
-        100,
-        250,
-        750,
-        250,
-        500
-        )
+    uint256 public totalMintableCharacters;
 
-        ];
-
-    mapping(bytes32 => NFTCharacter) NFTCharacterStruct; // mapping useraddress to user profile
-    mapping(bytes32 => address) requestToSender; // mapping useraddress to user profile
+    mapping(uint256 => mintableNFTCharacter) public mintableNFTCharacterStruct; //
+    mapping(bytes32 => NFTCharacter) NFTCharacterStruct; //
+    mapping(bytes32 => address) requestToSender; //
     NFTCharacter[] public characters;
+    //anyone can add characters that they want to mint so long as it fits a predefined scheme
+    function addCharacterOne(uint256 health, string memory imageURI, string memory name, string memory description) public {
+        uint256 characterID = totalMintableCharacters;
+        mintableNFTCharacterStruct[characterID].health = health;
+        mintableNFTCharacterStruct[characterID].agility = 250;
+        mintableNFTCharacterStruct[characterID].strength = 250;
+        mintableNFTCharacterStruct[characterID].sneak = 500;
+        mintableNFTCharacterStruct[characterID].charm = 250;
+        mintableNFTCharacterStruct[characterID].imageURI = imageURI;
+        mintableNFTCharacterStruct[characterID].name = name;
+        mintableNFTCharacterStruct[characterID].description = description;
+        totalMintableCharacters += 1;
+    }
+    function addCharacterTwo(uint256 health,  string memory imageURI, string memory name, string memory description) public {
+        uint256 characterID = totalMintableCharacters;
+        mintableNFTCharacterStruct[characterID].health = health;
+        mintableNFTCharacterStruct[characterID].agility = 250;
+        mintableNFTCharacterStruct[characterID].strength = 250;
+        mintableNFTCharacterStruct[characterID].sneak = 250;
+        mintableNFTCharacterStruct[characterID].charm = 500;
+        mintableNFTCharacterStruct[characterID].imageURI = imageURI;
+        mintableNFTCharacterStruct[characterID].name = name;
+        mintableNFTCharacterStruct[characterID].description = description;
+        totalMintableCharacters += 1;
+    }
+    function addCharacterThree(uint256 health, string memory imageURI, string memory name, string memory description) public {
+        uint256 characterID = totalMintableCharacters;
+        mintableNFTCharacterStruct[characterID].health = health;
+        mintableNFTCharacterStruct[characterID].agility = 250;
+        mintableNFTCharacterStruct[characterID].strength = 500;
+        mintableNFTCharacterStruct[characterID].sneak = 250;
+        mintableNFTCharacterStruct[characterID].charm = 250;
+        mintableNFTCharacterStruct[characterID].imageURI = imageURI;
+        mintableNFTCharacterStruct[characterID].name = name;
+        mintableNFTCharacterStruct[characterID].description = description;
+        totalMintableCharacters += 1;
+    }
 
-    function mintAlaska(string memory name) public returns (bytes32) {
+    function getNFTAttributes(uint256 NFTID) external view returns(uint256 agility, uint256 strength, uint256 charm, uint256 sneak, uint256 health){ //don't need the name
+        return(characters[NFTID].agility, characters[NFTID].strength,characters[NFTID].charm,characters[NFTID].sneak,characters[NFTID].health);
+    }
+
+    function changeDescription(uint256 characterID, string memory description) public onlyOwner returns(bool){ //So I can fill in the character description later. Wouldn't be in mainnet
+        mintableNFTCharacterStruct[characterID].description = description;
+        return true;
+    }
+    function changeImageURI(uint256 characterID, string memory imageURI) public onlyOwner returns(bool){ //Just in case the image changes. Wouldn't be in mainnet
+        mintableNFTCharacterStruct[characterID].imageURI = imageURI;
+        return true;
+    }
+
+    function mintAnyCharacter(string memory name, uint256 characterID) public payable returns (bytes32) { // allows owner of contract to create new characters as the game progresses
         require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK - fill contract with faucet");
+        require(characterID < totalMintableCharacters, "No Character With That ID");
+        require(msg.value == mintFee, "Send 0.002 Ether to mint New Character"); //someone gotta pay for the vrf fee and to prevent spamming of new characters
         bytes32 requestID = requestRandomness(keyHash, fee);
         requestToSender[requestID] = msg.sender;
         NFTCharacterStruct[requestID].name = name;
-        NFTCharacterStruct[requestID].health = 100;
-        NFTCharacterStruct[requestID].agility = 250; // max will be 500
-        NFTCharacterStruct[requestID].strength = 750; // max will be 1000
-        NFTCharacterStruct[requestID].sneak = 250; // max will be 500
-        NFTCharacterStruct[requestID].charm = 500; // max will be 50
+        NFTCharacterStruct[requestID].health = mintableNFTCharacterStruct[characterID].health;
+        NFTCharacterStruct[requestID].agility = mintableNFTCharacterStruct[characterID].agility;
+        NFTCharacterStruct[requestID].strength = mintableNFTCharacterStruct[characterID].strength;
+        NFTCharacterStruct[requestID].sneak = mintableNFTCharacterStruct[characterID].sneak;
+        NFTCharacterStruct[requestID].charm = mintableNFTCharacterStruct[characterID].charm;
+        NFTCharacterStruct[requestID].characterID = characterID;
         return requestID;
     }
-    function mintAnyCharacter(string memory name, uint256 characterID) public returns (bytes32) { // allows owner of contract to create new characters as the game progresses
-        require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK - fill contract with faucet");
-        require(characterID < mintableCharacters.length, "No Character With That ID");
-        bytes32 requestID = requestRandomness(keyHash, fee);
-        requestToSender[requestID] = msg.sender;
-        NFTCharacterStruct[requestID].name = name;
-        NFTCharacterStruct[requestID].health = mintableCharacters[characterID].health;
-        NFTCharacterStruct[requestID].agility = mintableCharacters[characterID].agility;
-        NFTCharacterStruct[requestID].strength = mintableCharacters[characterID].strength;
-        NFTCharacterStruct[requestID].sneak = mintableCharacters[characterID].sneak;
-        NFTCharacterStruct[requestID].charm = mintableCharacters[characterID].charm;
-        return requestID;
+    function changeNFTAttributes(uint256 NFTID, uint256 health, uint256 agility, uint256 strength, uint256 sneak, uint256 charm) external onlyGame returns (bool) { // allows owner of contract to create new characters as the game progresses
+        characters[NFTID].health = health;
+        characters[NFTID].agility = agility;
+        characters[NFTID].strength = strength;
+        characters[NFTID].sneak = sneak;
+        characters[NFTID].charm = charm;
+        return true;
     }
     /**
      * Requests randomness
      */
 
-    function mintVirginia() public returns (bytes32 requestId) {
-        require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK - fill contract with faucet");
-        return requestRandomness(keyHash, fee);
-    }
-    function mintFlorida() public returns (bytes32 requestId) {
-        require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK - fill contract with faucet");
-        return requestRandomness(keyHash, fee);
-    }
-
-
-    function getRandomNumber() public returns (bytes32 requestId) {
+    function getRandomNumber() internal returns (bytes32 requestId) { // internal to prevent blank characters being mintend by someone calling this function publicly
         require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK - fill contract with faucet");
         return requestRandomness(keyHash, fee);
     }
@@ -131,24 +171,66 @@ contract NFTMint is ERC721, VRFConsumerBase, Ownable, ERC721URIStorage{
         uint256 strength = NFTCharacterStruct[requestId].strength + ((randomness % 123456) % 250); // max will be 1000
         uint256 sneak = NFTCharacterStruct[requestId].sneak + ((randomness % 654321) % 250); // max will be 500
         uint256 charm = NFTCharacterStruct[requestId].charm + ((randomness % 33576) % 250); // max will be 50
+        uint256 born = block.timestamp;
         characters.push(
             NFTCharacter(
                 NFTCharacterStruct[requestId].name,
+                born,
                 NFTCharacterStruct[requestId].health,
                 agility,
                 strength,
                 sneak,
-                charm
+                charm,
+                NFTCharacterStruct[requestId].characterID
                 )
             );
-
         _safeMint(requestToSender[requestId], newID);
-        _setTokenURI(newID, _tokenURI);
-
     }
-    function setTokenURI(uint256 tokenId, string memory _tokenURI) public {
-        require(_isApprovedOrOwner(_msgSender(),tokenId), "ERC721: transfer caller is not owner nor approved");
-        _setTokenURI(tokenId, _tokenURI);
+
+    function changeMintFee(uint256 newMintFee) public onlyOwner {
+        mintFee = newMintFee;
+        lastCheckIn = block.timestamp;
+    }
+    function changeGameAddress(address newGameAddress) public onlyOwner onlyGame { //this function can only be called once since onlyGame was initiated to owner
+        gameAddress = newGameAddress;
+    }
+
+    function changeInheritance(address newInheritor) public onlyOwner {
+        nextOwner = newInheritor;
+        lastCheckIn = block.timestamp;
+    }
+    function ownerCheckIn() public onlyOwner {
+        lastCheckIn = block.timestamp;
+    }
+    function changeCheckInTime(uint256 newCheckInTimeInterval) public onlyOwner {
+        checkInTimeInterval = newCheckInTimeInterval; // let owner change check in case he know he will be away for a while.
+        lastCheckIn = block.timestamp;
+    }
+
+    function passDownInheritance() internal {
+        transferOwnership( nextOwner);
+    }
+
+    function checkUpkeep(bytes calldata /* checkData */) external view override returns (bool upkeepNeeded, bytes memory /* performData */) {
+        return (block.timestamp > (lastCheckIn + checkInTimeInterval), bytes("")); // make sure to check in at least once every 6 months
+    }
+
+    function performUpkeep(bytes calldata /* performData */) onlyKeeper external override {
+        passDownInheritance();
+    }
+
+    function withdraw(uint amount) public onlyOwner returns(bool) {
+        require(amount <= address(this).balance);
+        payable(msg.sender).transfer(amount); //if the owner send to sender
+        return true;
+    }
+
+    function withdrawErc20(IERC20 token) public onlyOwner{
+      require(token.transfer(msg.sender, token.balanceOf(address(this))), "Transfer failed");
+    }
+
+    receive() external payable {
+        // nothing to do but accept money
     }
 
 }
