@@ -8,7 +8,14 @@ import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
 
 contract onlineStore is KeeperCompatibleInterface, Ownable {
 
-    IERC20 deSocialNetToken = IERC20(0x25fE2b4d03dF8144D12F09Be547732e57752C29C);   //adress of desocialNet token
+    address kovanKeeperRegistryAddress = 0x4Cb093f226983713164A62138C3F718A5b595F73;
+    IERC20 deSocialNetToken = IERC20(0xAe0f650F39B943F738a790519C3556bf6f8C92F1);   //adress of desocialNet token
+
+    modifier onlyKeeper() {
+        require(msg.sender == kovanKeeperRegistryAddress);
+        _;
+    }
+
 
     uint256 public lastCheckIn = block.timestamp;
     uint256 public checkInTimeInterval = 864000; //default to six months
@@ -23,23 +30,23 @@ contract onlineStore is KeeperCompatibleInterface, Ownable {
 
     function buyMassiveTokens() public payable{ // how many tokens they want to purchase
         require(deSocialNetToken.balanceOf(address(this)) >= 1000000*10**10,"Not Enought Tokens in Contract"); // require this contract to have at least 1,000,000 tokens before executing
-        require(msg.value == massivePurchaseTokenPrice,"Send the right amount of eth"); // require this contract to have at least 1,000,000 tokens before executing
+        require(msg.value >= massivePurchaseTokenPrice,"Send the right amount of eth"); // there is a bug when calling the contract through moralis that the msg.value did not equal required even though msg.value was correct.
          deSocialNetToken.transfer(msg.sender, 1000000*10**18); // send a million tokens.
     }
 
     function buyLargeTokens() public payable{ // how many tokens they want to purchase
         require(deSocialNetToken.balanceOf(address(this)) >= 100000*10**10,"Not Enought Tokens in Contract"); // require this contract to have at least 1,000,000 tokens before executing
-        require(msg.value == largePurchaseTokenPrice,"Send the right amount of eth"); // require this contract to have at least 1,000,000 tokens before executing
+        require(msg.value >= largePurchaseTokenPrice,"Send the right amount of eth"); // require this contract to have at least 1,000,000 tokens before executing
         deSocialNetToken.transfer(msg.sender, 100000*10**18); // send 100,0000 tokens.
     }
     function buyMediumTokens() public payable{ // how many tokens they want to purchase
         require(deSocialNetToken.balanceOf(address(this)) >= 20000*10**10,"Not Enought Tokens in Contract"); // require this contract to have at least 1,000,000 tokens before executing
-        require(msg.value == mediumPurchaseTokenPrice,"Send the right amount of eth"); // require this contract to have at least 1,000,000 tokens before executing
+        require(msg.value >= mediumPurchaseTokenPrice,"Send the right amount of eth"); // require this contract to have at least 1,000,000 tokens before executing
         deSocialNetToken.transfer(msg.sender, 20000*10**18); // send 20,0000 tokens.
     }
     function buySmallTokens() public payable{ // how many tokens they want to purchase
         require(deSocialNetToken.balanceOf(address(this)) >= 10000*10**10,"Not Enought Tokens in Contract"); // require this contract to have at least 1,000,000 tokens before executing
-        require(msg.value == smallPurchaseTokenPrice,"Send the right amount of eth"); // require this contract to have at least 1,000,000 tokens before executing
+        require(msg.value >= smallPurchaseTokenPrice,"Send the right amount of eth"); // require this contract to have at least 1,000,000 tokens before executing
         deSocialNetToken.transfer(msg.sender, 10000*10**18); // send 10,0000 tokens.
 
     }
@@ -97,7 +104,7 @@ contract onlineStore is KeeperCompatibleInterface, Ownable {
     return (block.timestamp > (lastCheckIn + checkInTimeInterval), bytes("")); // make sure to check in at least once every 6 months
     }
 
-    function performUpkeep(bytes calldata /* performData */) external override {
+    function performUpkeep(bytes calldata /* performData */) external onlyKeeper override {
        passDownInheritance();
     }
 
