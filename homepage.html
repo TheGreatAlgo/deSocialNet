@@ -21,7 +21,8 @@ __________         ___.      __   .__             __________        .__ .__     
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
         crossorigin="anonymous">
 </script>
-<title>Hello, world!</title>
+<title>deSocialNet | Home</title>
+<link rel="icon" type="image/x-icon" href="https://ipfs.io/ipfs/QmQoPRH54jyjV2nzGBV5PRvoSkKMpnZHWCYaWSrM3rHrYc?filename=favicon.png">
 </head>
 <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 <script src="https://npmcdn.com/moralis@latest/dist/moralis.js"></script>
@@ -54,11 +55,13 @@ var gif;
 var link;
 var following;
 var savedPosts;
-var mode
-var recipientAddress // global recipientAddress for donations
-var recipientNickname // global recipient nickname for donations
+var mode;
+var recipientAddress; // global recipientAddress for donations
+var recipientNickname; // global recipient nickname for donations
+var userProfileImage;
+var darkMode = true;
 const kovanWETHTokenAddress ="0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
-const kovanContract = "0xd5e0120Cf859AFA5ca8c07A337705Cc6D826aa6E";
+const kovanContract = "0xD327d2b9765C69D3dF9ad2d49C3d78FB8821c38B";
 const ABI =
 [
 	{
@@ -286,6 +289,172 @@ const ABI =
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "userAddress",
+				"type": "address"
+			}
+		],
+		"name": "followUser",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "userAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "postKey",
+				"type": "uint256"
+			}
+		],
+		"name": "likePost",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "newProfileBio",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "nickName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "profileImageUrl",
+				"type": "string"
+			}
+		],
+		"name": "newProfile",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "ownerCheckIn",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "performUpkeep",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "recipientAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "message",
+				"type": "string"
+			}
+		],
+		"name": "sendMessage",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdraw",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "token",
+				"type": "address"
+			}
+		],
+		"name": "withdrawErc20",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "checkInTimeInterval",
 		"outputs": [
@@ -320,25 +489,6 @@ const ABI =
 			}
 		],
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "userAddress",
-				"type": "address"
-			}
-		],
-		"name": "followUser",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "success",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -547,54 +697,6 @@ const ABI =
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "userAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "postKey",
-				"type": "uint256"
-			}
-		],
-		"name": "likePost",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "success",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "newProfileBio",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "nickName",
-				"type": "string"
-			}
-		],
-		"name": "newProfile",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "success",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"inputs": [],
 		"name": "nextOwner",
 		"outputs": [
@@ -619,100 +721,6 @@ const ABI =
 		],
 		"stateMutability": "view",
 		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "ownerCheckIn",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes",
-				"name": "",
-				"type": "bytes"
-			}
-		],
-		"name": "performUpkeep",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "renounceOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "recipientAddress",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "message",
-				"type": "string"
-			}
-		],
-		"name": "sendMessage",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"name": "withdraw",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "contract IERC20",
-				"name": "token",
-				"type": "address"
-			}
-		],
-		"name": "withdrawErc20",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"stateMutability": "payable",
-		"type": "receive"
 	}
 ]
 const serverUrl = "https://h1fpcthpxdrt.usemoralis.com:2053/server";
@@ -721,14 +729,15 @@ Moralis.start({ serverUrl, appId });
 onFirstLoad();
 
 // MORALIS CONTRACT FUNCTIONS
-async function contractNewProfile(_profileBio,_nickName) {
+async function contractNewProfile(_profileBio,_nickName,_profileImageUrl) {
   const options = {
     contractAddress: kovanContract,
     functionName: "newProfile",
     abi: ABI,
     params: {
       newProfileBio: _profileBio,
-      nickName: _NickName
+      nickName: _nickName,
+      profileImageUrl: _profileImageUrl
     },
   };
   const receipt = await Moralis.executeFunction(options);
@@ -846,7 +855,7 @@ async function contractChangeFeaturedPost(_postNumber) {
     functionName: "changeFeaturedPost",
     abi: ABI,
     params: {
-      post: _postNumber
+      postNumber: _postNumber
     },
   };
   const receipt = await Moralis.executeFunction(options);
@@ -938,13 +947,13 @@ async function uploadFileandPostToBlockChain() {
             IPFSURL = moralisFile.hash()
           }
           if (image) {
-            const moralisFile = new Moralis.File(data.name, image)
+            const moralisFile = new Moralis.File(image.name, image)
             const receipt = await moralisFile.saveIPFS();
             let fileHash = "Img:";
             IPFSURL = fileHash.concat(moralisFile.hash());
           }
           if (gif){
-            let gifSource = document.getElementById("attachment").src;
+            let gifSource = document.getElementById("gifSource").src;
             gifSource = gifSource.replace('https://media.giphy.com/media/', '');
             IPFSURL = gifSource.replace('/giphy.gif', '');
           }
@@ -980,12 +989,12 @@ async function uploadFileandPostToBlockChain() {
   if (data) {
     const moralisFile = new Moralis.File(data.name, data)
     const receipt = await moralisFile.saveIPFS();
-    contractAddPost(message,moralisFile.hash()) //Save to BlockChain
+    let result = contractAddPost(message,moralisFile.hash()) //Save to BlockChain
     var textArea = document.getElementById("textArea");
     textArea.removeChild(textArea.lastElementChild);
   }
-  if (image) {
-    const moralisFile = new Moralis.File(data.name, image)
+  else if (image) {
+    const moralisFile = new Moralis.File(image.name, image)
     const receipt = await moralisFile.saveIPFS();
     let fileHash = "Img:";
     fileHash = fileHash.concat(moralisFile.hash());
@@ -994,15 +1003,15 @@ async function uploadFileandPostToBlockChain() {
     var textArea = document.getElementById("textArea");
     textArea.removeChild(textArea.lastElementChild);
   }
-  if (gif){
-    let gifSource = document.getElementById("attachment").src;
+  else if (gif){
+    let gifSource = document.getElementById("gifSource").src;
     gifSource = gifSource.replace('https://media.giphy.com/media/', '');
     gifSource = gifSource.replace('/giphy.gif', '');
-    contractAddPost(message,gifSource) //Save to BlockChain
+    let result = contractAddPost(message,gifSource) //Save to BlockChain
     var textArea = document.getElementById("textArea");
     textArea.removeChild(textArea.lastElementChild);
   }
-  if (share){
+  else if (share){
     let address = document.getElementById("attachment").getAttribute("address");
     let postID = document.getElementById("attachment").getAttribute("postID");
     let url = "Post:";
@@ -1017,13 +1026,72 @@ async function uploadFileandPostToBlockChain() {
   else{
     contractAddPost(message," ") //Save to BlockChain.
   }
-  console.log(message);
   document.getElementById("messageToPost").value = ""; // reset text Box
   file = false; // file or gif no longer exists
   gif = false;
   share = false;
   image = false;
   return true;
+}
+async function createUserProfile() {
+  const newProfileBio = document.getElementById("newProfileBio").value;
+  const newUsername = document.getElementById("newUsername").value;
+  if (userProfileImage) {
+    const moralisFile = new Moralis.File(userProfileImage.name, userProfileImage)
+    const receipt = await moralisFile.saveIPFS();
+    let userProfileImageHash = moralisFile.hash()
+    console.log(userProfileImageHash);
+    console.log(userProfileImage.name);
+    console.log(newProfileBio);
+    console.log(newUsername);
+    let result = await contractNewProfile(newProfileBio,newUsername,userProfileImageHash); //Save to BlockChain
+    console.log(result);
+  }
+  else{
+    console.log(newProfileBio);
+    console.log(newUsername);
+    let result = contractNewProfile(newProfileBio,newUsername, " ")
+    console.log(result);
+  }
+  let result = await renderUserProfileTopRight();
+  document.getElementById("loginForm").style.display = "none";
+  document.getElementById("newAccount").style.display = "none";
+  document.getElementById("mainPage").style.display = "block";
+  getUserPreferences() // user Preferences are then assigned to global variables
+  userProfileImage = false;
+  file = false; // file or gif no longer exists
+  gif = false;
+  share = false;
+  image = false;
+  return true;
+}
+
+async function changeUserProfileNickname(){
+  const newUsername = document.getElementById("newUsernameSettings").value;
+  let result = await contractChangeUserNickname(newUsername)
+  console.log(result);
+  document.getElementById("newUsernameSettings").value = "";
+  renderUserProfileTopRight()
+}
+async function changeUserProfileBio(){
+  const newProfileBio = document.getElementById("newProfileBioSettings").value;
+  let result = await contractChangeUserBio(newProfileBio);
+  console.log(result);
+  document.getElementById("newProfileBioSettings").value = "";
+}
+async function changeUserProfilePicture(){
+  if (userProfileImage) {
+    const moralisFile = new Moralis.File(userProfileImage.name, userProfileImage)
+    const receipt = await moralisFile.saveIPFS();
+    let userProfileImageHash = moralisFile.hash()
+    console.log(userProfileImageHash);
+    console.log(userProfileImage.name);
+    console.log(newProfileBio);
+    console.log(newUsername);
+    let result = await ontractChangeUserBio(userProfileImageHash); //Save to BlockChain
+    console.log(result);
+    userProfileImage = false;
+  }
 }
 
 async function donateEthereum() { //_recieverAddress, _amount
@@ -1045,15 +1113,33 @@ async function donateEthereum() { //_recieverAddress, _amount
 }
 async function login() {
   console.log("login attempted");
-  let user = Moralis.User.current();
+  let user = await Moralis.User.current();
   if (!user) {
     user = await Moralis.authenticate();
-    document.getElementById("loginForm").style.display = "none";
-    document.getElementById("mainPage").style.display = "block";
+    address = user.get("accounts");
+    address = address[0];
+    userProfile = await contractGetUserProfile(address);
+    if (userProfile.joinDate == "0"){
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("newAccount").style.display = "block";
+      document.getElementById("mainPage").style.display = "none";
+    }
+    else{
+      let result = await renderUserProfileTopRight();
+      result = await renderSocialFeedPage();
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("newAccount").style.display = "none";
+      document.getElementById("mainPage").style.display = "block";
+      getUserPreferences() // user Preferences are then assigned to global variables
+    }
    }
   else{
+    let result = await renderUserProfileTopRight();
+    result = await renderSocialFeedPage();
     document.getElementById("loginForm").style.display = "none";
+    document.getElementById("newAccount").style.display = "none";
     document.getElementById("mainPage").style.display = "block";
+    getUserPreferences() // user Preferences are then assigned to global variables
   }
   console.log("logged in user:", user);
 }
@@ -1066,23 +1152,53 @@ async function logOut() {
   }
   document.getElementById("loginForm").style.display = "block";
   document.getElementById("mainPage").style.display = "none";
+  document.getElementById("newAccount").style.display = "none";
   console.log("logged out");
 }
 async function onFirstLoad() {
   const web3 = await Moralis.enableWeb3();
-  let user = Moralis.User.current();
-  let result = await renderUserProfileTopRight();
+  let user = await Moralis.User.current();
   if (!user) {
     document.getElementById("loginForm").style.display = "block";
     document.getElementById("mainPage").style.display = "none";
+    document.getElementById("newAccount").style.display = "none";
     user = await Moralis.authenticate();
-    document.getElementById("loginForm").style.display = "none";
-    document.getElementById("mainPage").style.display = "block";
+    address = user.get("accounts");
+    address = address[0];
+    userProfile = await contractGetUserProfile(address);
+    if (userProfile.joinDate == "0"){ // user hasn't create profile yet
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("newAccount").style.display = "block";
+      document.getElementById("mainPage").style.display = "none";
+    }
+    else{
+      let result = await renderUserProfileTopRight();
+      result = await renderSocialFeedPage();
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("newAccount").style.display = "none";
+      document.getElementById("mainPage").style.display = "block";
+      getUserPreferences() // user Preferences are then assigned to global variables
+    }
+
    }
   else{
-    document.getElementById("loginForm").style.display = "none";
-    document.getElementById("mainPage").style.display = "block";
-    getUserPreferences() // user Preferences are then assigned to global variables
+    address = user.get("accounts");
+    address = address[0];
+    userProfile = await contractGetUserProfile(address);
+    if (userProfile.joinDate == "0"){ // user hasn't create profile yet
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("newAccount").style.display = "block";
+      document.getElementById("mainPage").style.display = "none";
+    }
+    else{
+      let result = await renderUserProfileTopRight();
+      result = await renderSocialFeedPage();
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("newAccount").style.display = "none";
+      document.getElementById("mainPage").style.display = "block";
+      getUserPreferences() // user Preferences are then assigned to global variables
+    }
+
   }
   console.log("logged in user:", user);
 }
@@ -1222,79 +1338,417 @@ async function getBellColor() { // only time this should be called is on a page 
 }
 
 function toggleLightMode() {
-  const style = document.createElement('style');
-  document.getElementById("logoSideBar").src="https://ipfs.io/ipfs/Qmdfd7qFcfdUrFqwdzxuaFxXGy2GbC1rdCYsLn2ByW1wg8?filename=logoLightMode.png";
-  document.getElementById("loginLogo").src="https://ipfs.io/ipfs/Qmdfd7qFcfdUrFqwdzxuaFxXGy2GbC1rdCYsLn2ByW1wg8?filename=logoLightMode.png";
-  style.innerHTML = `
-    .textChange {
+  if (darkMode == true){
+    const style = document.createElement('style');
+    document.getElementById("logoSideBar").src="https://ipfs.io/ipfs/Qmdfd7qFcfdUrFqwdzxuaFxXGy2GbC1rdCYsLn2ByW1wg8?filename=logoLightMode.png";
+    document.getElementById("loginLogo").src="https://ipfs.io/ipfs/Qmdfd7qFcfdUrFqwdzxuaFxXGy2GbC1rdCYsLn2ByW1wg8?filename=logoLightMode.png";
+    document.getElementById("supportUsLogo").src="https://ipfs.io/ipfs/Qmdfd7qFcfdUrFqwdzxuaFxXGy2GbC1rdCYsLn2ByW1wg8?filename=logoLightMode.png";
+    style.innerHTML = `
+      .textChange {
+          color: black;
+      }
+      .boxesColor {
+        background-color:#FCFCFC;
+      }
+      .boxesShadow {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+      }
+      .boxesLine {
+        border-top: 1px solid #535353
+      }
+      .boxesLineTop {
+        border-bottom: 1px solid #535353
+      }
+      .textAreaTheme {
+        border: solid 1px #FCFCFC;
+        background-color:#FCFCFC; color:white;
+      }
+      .backgroundColor{
+        background-color:#F1F4F5;
+      }
+      .backgroundColorSideBar{
+        background-color:#D7D7D7;
+        box-shadow: 0 0px 0px 0px rgba(0, 0, 0, 0);
+      }
+      .backgroundColorNavBar{
+        background-color:#fff;
+      }
+      .iconColor{
+        color:#3E3E3E;
+      }
+      .iconColor{
+        color:#3E3E3E;
+      }
+      .changeButtonColor{
+        background-color: #112F46;
+        border-color: #112F46;
+      }
+      .changeButtonTextColor{
+        color: #fff;
+      }
+      .changeButtonTextColor:hover{
+        color: #fff;
+      }
+      .changeButtonColor:hover{
+        background-color: #112F46;
+        border-color:  #112F46;
+      }
+      .btn:focus{
+        background-color: #112F46;
+        border-color: #112F46;
+        box-shadow: none!important;
+        outline: 0;
+      }
+      .textBox{
+        border: solid 1px #535353;
+        background-color: #fff;
         color: black;
-    }
-    .boxesColor {
-      background-color:#FCFCFC;
-    }
-    .boxesShadow {
-      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    }
-    .boxesLine {
-      border-top: 1px solid #535353
-    }
-    .boxesLineTop {
-      border-bottom: 1px solid #535353
-    }
-    .textAreaTheme {
-      border: solid 1px #FCFCFC;
-      background-color:#FCFCFC; color:white;
-    }
-    .backgroundColor{
-      background-color:#F1F4F5;
-    }
-    .backgroundColorSideBar{
-      background-color:#D7D7D7;
-      box-shadow: 0 0px 0px 0px rgba(0, 0, 0, 0);
-    }
-    .backgroundColorNavBar{
-      background-color:#fff;
-    }
-    .iconColor{
-      color:#3E3E3E;
-    }
-    .iconColor{
-      color:#3E3E3E;
-    }
-    .changeButtonColor{
-      background-color: #112F46;
-      border-color: #112F46;
-    }
-    .changeButtonTextColor{
-      color: #fff;
-    }
-    .changeButtonTextColor:hover{
-      color: #fff;
-    }
-    .changeButtonColor:hover{
-      background-color: #112F46;
-      border-color:  #112F46;
-    }
-    .textBox{
-      border: solid 1px #535353;
-      background-color: #fff;
-      color: black;
-      font-size: 18px;
-    }
-    .textBox:focus{
-      border: solid 1px #535353;
-      background-color: #fff;
-      color: black;
-      font-size: 18px;
-    }
-    .boxesBioColor{
-      background-color:#D7D7D7 ;
-    }
-    .boxesCommentColor{
-      background-color:#F0F0F0 ;
-    }
-`;
-  document.head.appendChild(style);
+        font-size: 18px;
+      }
+      .textBox:focus{
+        border: solid 1px #535353;
+        background-color: #fff;
+        color: black;
+        font-size: 18px;
+      }
+      .boxesBioColor{
+        background-color:#D7D7D7 ;
+      }
+      .boxesCommentColor{
+        background-color:#F0F0F0 ;
+      }
+  `;
+    document.head.appendChild(style);
+    darkMode = false;
+  }
+
+  else{
+
+    const style = document.createElement('style');
+    document.getElementById("logoSideBar").src="https://ipfs.io/ipfs/QmQnBt2MLdPYUqYxqNEptmgLmerpTpuAQxfc79nyZxUEc6?filename=logoDarkMode.png";
+    document.getElementById("loginLogo").src="https://ipfs.io/ipfs/QmQnBt2MLdPYUqYxqNEptmgLmerpTpuAQxfc79nyZxUEc6?filename=logoDarkMode.png";
+    document.getElementById("supportUsLogo").src="https://ipfs.io/ipfs/QmQnBt2MLdPYUqYxqNEptmgLmerpTpuAQxfc79nyZxUEc6?filename=logoDarkMode.png";
+    style.innerHTML =
+        `
+        .fa-thumbtack:hover {
+          color: #4599A8;
+          cursor: pointer;
+        }
+        .fa-reply:hover {
+          color: #13B0E5;
+          cursor: pointer;
+        }
+        .fa-user-friends:hover {
+          color: #ED2828;
+          cursor: pointer;
+        }
+        .fa-star:hover {
+          color: #E0D836;
+          cursor: pointer;
+        }
+        .starFilledIn {
+          color: #E0D836;
+          cursor: pointer;
+        }
+        .heartFilledIn {
+          color: #ED2828;
+          cursor: pointer;
+        }
+        .fa-heart:hover {
+          color: #ED2828;
+          cursor: pointer;
+        }
+
+        .fa-comments:hover {
+          color: grey;
+          cursor: pointer;
+        }
+        .fa-share-square:hover {
+          color: #3652E0;
+          cursor: pointer;
+        }
+        .fa-ethereum:hover {
+          color: green;
+          cursor: pointer;
+        }
+        .fa-trash-alt:hover {
+          color: #ED2828;
+          cursor: pointer;
+        }
+        .fa-plus:hover {
+          color: #4599A8;
+          cursor: pointer;
+        }
+
+        .fa-images:hover {
+          color: #4599A8;
+          cursor: pointer;
+        }
+        .fa-file-alt:hover {
+          color: #4599A8;
+          cursor: pointer;
+        }
+        .fa-film:hover {
+          color: #4599A8;
+          cursor: pointer;
+        }
+        .fa-smile:hover {
+          color: #4599A8;
+          cursor: pointer;
+        }
+        #socialFeedHover:hover .fa-home{
+          color: #4599A8 !important;
+          cursor: pointer;
+        }
+        #socialFeedHover:hover .textChange{
+          color: #4599A8 !important;
+          cursor: pointer;
+        }
+        #explorePageHover:hover .fa-eye{
+          color: #3652E0 !important;
+          cursor: pointer;
+        }
+        #explorePageHover:hover .textChange{
+          color: #3652E0 !important;
+          cursor: pointer;
+        }
+
+        #settingsPageHover:hover .fa-sliders-h{
+          color:#576EEB !important;
+          cursor: pointer;
+        }
+        #settingsPageHover:hover .textChange{
+          color:#576EEB !important;
+          cursor: pointer;
+        }
+
+        #shopPageHover:hover .fa-gem{
+          color:#ED2828 !important;
+          cursor: pointer;
+        }
+        #shopPageHover:hover .textChange{
+          color:#ED2828 !important;
+          cursor: pointer;
+        }
+        #playPageHover:hover .fa-gamepad{
+          color:green !important;
+          cursor: pointer;
+        }
+        #playPageHover:hover .textChange{
+          color:green !important;
+          cursor: pointer;
+        }
+        #walletPageHover:hover .fa-wallet{
+          color:#C02EAE !important;
+          cursor: pointer;
+        }
+        #walletPageHover:hover .textChange{
+          color:#C02EAE !important;
+          cursor: pointer;
+        }
+
+        .form-control:focus {
+          outline: none !important;
+          border:1px solid red;
+          box-shadow: 0 0 10px #719ECE;
+        }
+        .neonAnimated {
+          outline: none !important;
+          box-shadow: 0 0 10px #719ECE;
+          animation-name: neonGlow;
+          animation-duration: 4s;
+          animation-iteration-count: infinite;
+        }
+        @keyframes neonGlow {
+          0% {box-shadow: 0 0 10px #719ECE;}
+          12% {box-shadow: 0 0 20px  #719ECE;}
+          25% {box-shadow: 0 0 10px #719ECE;}
+        }
+        .neon {
+          outline: none !important;
+          box-shadow: 0 0 10px #719ECE;
+        }
+        .neonStrong {
+          outline: none !important;
+          box-shadow: 0 0 20px #FAF41E;
+        }
+        .neon-white {
+          outline: none !important;
+          box-shadow: 0 0 10px #fff;
+        }
+        .textChange {
+
+          color: #D6D6D6;
+        }
+        .iconColor {
+          color: #D6D6D6;
+        }
+        .btn:hover {
+          outline: none !important;
+          box-shadow: 0 0 10px rgb(129,143,225);
+        }
+        .btn:focus{
+          background-color: #535353;
+          border-color: #535353;
+          box-shadow: none!important;
+          outline: 0;
+        }
+        .boxesColor {
+          background-color:#313334;
+        }
+        .boxesBioColor{
+          background-color:#535353;
+        }
+        .boxesCommentColor{
+          background-color:#535353;
+        }
+        .boxesLine {
+          border-top: 1px solid #535353
+        }
+        .boxesLineTop {
+          border-bottom: 1px solid #535353
+        }
+        .textAreaTheme {
+          border: solid 1px #535353;
+          background-color:#535353; color:white;
+        }
+        .changeSushiButtonTextColor{
+          color: #D6D6D6;
+        }
+        .changeButtonColor{
+          background-color: #535353;
+          border-color: #535353;
+        }
+        .changeButtonColor:hover{
+          background-color: #535353;
+          border-color: #535353;
+        }
+        .changeButtonTextColor{
+          color: rgb(129,143,225)
+        }
+        .changeButtonTextColor:hover{
+          color: rgb(129,143,225)
+        }
+        .boxesShadow {
+          box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+        .backgroundColor{
+          background-color: #1D1D1F
+        }
+
+        .backgroundColorSideBar{
+          background-color: #313334;
+          box-shadow: 0 0px 0px -5px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+        .backgroundColorNavBar{
+          background-color: #112F46;
+        }
+        .textBox{
+          border: solid 1px #535353;
+          background-color:#535353;
+          color:white;
+          font-size: 18px;
+        }
+        .textBox:focus{
+          border: solid 1px #535353;
+          background-color:#535353;
+          color:white;
+          font-size: 18px;
+        }
+        div.sticky {
+          position: -webkit-sticky; /* Safari */
+          position: sticky;
+          top: 0;
+        }
+
+
+        .middle {
+          position: absolute;
+          top: 50%;
+          left: 51%;
+          color: white;
+          font-size: 25px;
+        }
+
+        .btn-close{
+        filter: invert(24%) sepia(89%) saturate(6838%) hue-rotate(356deg) brightness(103%) contrast(96%);
+        }
+        a {
+          text-decoration: none;
+          color: black;
+        }
+        a:hover {
+          color: #D6D6D6;
+        }
+        p {
+          color: white;
+        }
+        h6 {
+          color: white;
+        }
+        textarea{
+          overflow-y: hidden;
+        }
+
+        :root {
+          /* Set neon color */
+          --neon-text-color: #f40;
+          --neon-border-color: #08f;
+        }
+        .neonSign{
+          font-family: 'Exo 2', sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 2vh;
+          font-size: 4rem;
+          font-weight: 200;
+          font-style: italic;
+          color: #fff;
+          padding: 2rem 6rem 2rem;
+          border: 0.4rem solid #fff;
+          border-radius: 2rem;
+          text-transform: uppercase;
+          animation: flicker 1.5s infinite alternate;
+        }
+
+        /* Animate neon flicker */
+        @keyframes flicker {
+
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+
+                text-shadow:
+                    -0.2rem -0.2rem 1rem #fff,
+                    0.2rem 0.2rem 1rem #fff,
+                    0 0 2rem var(--neon-text-color),
+                    0 0 4rem var(--neon-text-color),
+                    0 0 6rem var(--neon-text-color),
+                    0 0 8rem var(--neon-text-color),
+                    0 0 10rem var(--neon-text-color);
+
+                box-shadow:
+                    0 0 .5rem #fff,
+                    inset 0 0 .5rem #fff,
+                    0 0 2rem var(--neon-border-color),
+                    inset 0 0 2rem var(--neon-border-color),
+                    0 0 4rem var(--neon-border-color),
+                    inset 0 0 4rem var(--neon-border-color);
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+                box-shadow: none;
+            }
+        }
+        pre {
+            white-space: pre-wrap;       /* Since CSS 2.1 */
+            white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+  `;
+    document.head.appendChild(style);
+    darkMode = true;
+  }
 }
 function toggleNitroGas(){
   if (enableNitro == true){
@@ -1381,7 +1835,7 @@ async function handleUserShare(address, postID) {
 
   const userProfile = await contractGetUserProfile(address); // get userProfile
   let profileImageURl;
-  if (userProfile.profileImageUrl){
+  if (userProfile.profileImageUrl && (userProfile.profileImageUrl != " ")){
   profileImageURl  =
   `
   <img src="https://ipfs.moralis.io:2053/ipfs/${userProfile.profileImageUrl}" style="border-radius:50px; margin-top:2px; margin-left:0px" width="40" height="40">
@@ -1454,9 +1908,16 @@ function handleUserGif() {
   const message = document.getElementById("messageToPost").value; // adding of file below deletes the value in the text area. this saves it and adds it back in after.
   document.getElementById("textArea").innerHTML +=
     `
-    <div style="background-color: black; border-radius:20px">
-    <img id="attachment" src="${gifLink}" style="display: block; margin:20px auto; padding:0px 0px 0px 0px" width="50%">
-    </div>`; // Profile Overview in the Modal
+    <div id="attachment" class="row align-items-start">
+      <div class="col-11">
+        <div style="background-color: black; border-radius:20px">
+        <img id="gifSource" src="${gifLink}" style="display: block; margin:20px auto; padding:0px 0px 0px 0px" width="50%">
+        </div>
+        </div>
+    <div class="col-1" style="margin: 10px 0px 0px">
+        <button type="button" class="btn-close" onclick="deleteFile()" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    `; // Profile Overview in the Modal
   document.getElementById("messageToPost").value = message;
 }
 async function returnLinksGifsHTML(url) { //rendering for the users links and gifs
@@ -1479,7 +1940,7 @@ async function returnLinksGifsHTML(url) { //rendering for the users links and gi
 
     const userProfile = await contractGetUserProfile(address); // get userProfile
     let profileImageURl;
-    if (userProfile.profileImageUrl){
+    if (userProfile.profileImageUrl && (userProfile.profileImageUrl != " ")){
     profileImageURl  =
     `
     <img src="https://ipfs.moralis.io:2053/ipfs/${userProfile.profileImageUrl}" style="border-radius:50px; margin-top:2px; margin-left:0px" width="40" height="40">
@@ -1568,6 +2029,34 @@ function deleteFile(){
   gif = false;
   share = false;
 }
+function handleNewUserProfileImage(_input) {
+  let attachment = document.getElementById("defaultNewUserIcon");
+  if (attachment){
+    document.getElementById("defaultNewUserIcon").remove();
+  }
+  userProfileImage = _input.files[0]; //input.files[0];
+  preRender =  URL.createObjectURL(userProfileImage);
+  console.log(userProfileImage);
+  document.getElementById("newProfileImageArea").innerHTML +=
+    `
+    <img id="defaultNewUserIcon" src="${preRender}" style="border-radius:50px; margin-bottom:10px;" width="100" height="100">
+    `; // Profile Overview in the Modal
+
+}
+function handleNewUserProfileImageSettings(_input) {
+  let attachment = document.getElementById("defaultNewUserIconSettings");
+  if (attachment){
+    document.getElementById("defaultNewUserIconSettings").remove();
+  }
+  userProfileImage = _input.files[0]; //input.files[0];
+  preRender =  URL.createObjectURL(userProfileImage);
+  console.log(userProfileImage);
+  document.getElementById("newProfileImageAreaSettings").innerHTML +=
+    `
+    <img id="defaultNewUserIconSettings" src="${preRender}" style="border-radius:50px; margin-bottom:10px;" width="100" height="100">
+    `; // Profile Overview in the Modal
+
+}
   // function getUserPreferences(){
   //   const userPreferences = Moralis.User.current();
   //   console.log(userPreferences.fetch())
@@ -1601,7 +2090,8 @@ function loadExplorePage(){
   document.getElementById("walletPage").style.display="none";
   document.getElementById("playPage").style.display="none";
   renderExplorePage();
-  document.getElementById("explorePostsPage").style.display="";  //wierd glitch where if i put inline it shows lower
+  document.getElementById("explorePostsPage").style.display="";
+    document.getElementById("settingsPage").style.display="none"; //wierd glitch where if i put inline it shows lower
 }
 function loadSocialFeedPage(){
   window.scrollTo(0, 0);
@@ -1611,6 +2101,7 @@ function loadSocialFeedPage(){
   document.getElementById("playPage").style.display="none";
   renderSocialFeedPage();
   document.getElementById("socialFeedPage").style.display="";
+    document.getElementById("settingsPage").style.display="none";
 }
 function loadShopPage(){
   window.scrollTo(0, 0);
@@ -1619,6 +2110,7 @@ function loadShopPage(){
   document.getElementById("walletPage").style.display="none";
   document.getElementById("playPage").style.display="none";
   document.getElementById("shopPage").style.display="";
+  document.getElementById("settingsPage").style.display="none";
 }
 function loadWalletPage(){
   window.scrollTo(0, 0);
@@ -1627,6 +2119,7 @@ function loadWalletPage(){
   document.getElementById("shopPage").style.display="none";
   document.getElementById("playPage").style.display="none";
   document.getElementById("walletPage").style.display="";
+  document.getElementById("settingsPage").style.display="none";
 }
 function loadPlayPage(){
   window.scrollTo(0, 0);
@@ -1635,6 +2128,7 @@ function loadPlayPage(){
   document.getElementById("walletPage").style.display="none";
   document.getElementById("shopPage").style.display="none";
   document.getElementById("playPage").style.display="";
+  document.getElementById("settingsPage").style.display="none";
 }
 function loadSettingsPage(){
   window.scrollTo(0, 0);
@@ -1705,7 +2199,9 @@ async function renderUserProfileTopRight() { //savedArray
     profile = await contractGetUserProfile(address);
     bellHTMl = await getBellColor();
     let profileImageURl
-    if (profile.profileImageUrl){
+    console.log(profile.profileImageUrl)
+
+    if (profile.profileImageUrl && (profile.profileImageUrl != " ")){
     profileImageURl  =
     `
     <img src="https://ipfs.moralis.io:2053/ipfs/${profile.profileImageUrl}" style="border-radius:50px; margin-top:5px" width="40" height="40">
@@ -1721,6 +2217,12 @@ async function renderUserProfileTopRight() { //savedArray
           <i type="button" class="fas fa-user-secret" ></i>
       </span>
       `;
+    postSomethingImageURl  =
+    `
+    <span class="iconColor" style="font-size: 2em;">
+        <i class="fas fa-user-secret"></i>
+    </span>
+    `
     }
     //id="userIconPost"
     let userIconPost = document.getElementById("userIconPost"); //delete already generated postID from any other sources.
@@ -1773,7 +2275,7 @@ async function renderCommentArea(postAddress, postID) { //savedArray
     address = address[0];
     const userProfile = await contractGetUserProfile(address); // get userProfile
     let profileImageURl;
-    if (userProfile.profileImageUrl){
+    if (userProfile.profileImageUrl && (userProfile.profileImageUrl != " ")){
     userCommentImage  =
     `
     <img src="https://ipfs.moralis.io:2053/ipfs/${userProfile.profileImageUrl}" style="border-radius:50px; margin-top:2px; margin-left:0px" width="40" height="40">
@@ -1816,7 +2318,7 @@ async function renderCommentArea(postAddress, postID) { //savedArray
 
       const userProfile = await contractGetUserProfile(address); // get userProfile
       let profileImageURl;
-      if (userProfile.profileImageUrl){
+      if (userProfile.profileImageUrl && (profile.profileImageUrl != " ")){
       profileImageURl  =
       `
       <img src="https://ipfs.moralis.io:2053/ipfs/${userProfile.profileImageUrl}" style="border-radius:50px; margin-top:2px; margin-left:0px" width="40" height="40">
@@ -1892,7 +2394,7 @@ async function renderCommentArea(postAddress, postID) { //savedArray
           <textarea id="${userCommentTextInput}" class="form-control textBox" placeholder="Comment Here" style="border-radius:20px; font-size:0.9em;" rows="1"></textarea>
         </div>
         <div class="col-2 text-center"  style=" padding-top:4px">
-          <button type="button" class="btn btn-primary changeButtonColor changeButtonTextColor" onclick="addComment('${postAddress}','${postID}')" style="float:right; font-size:0.9em">Comment</button>
+          <button type="button" class="btn changeButtonColor changeButtonTextColor" onclick="addComment('${postAddress}','${postID}')" style="float:right; font-size:0.9em">Comment</button>
         </div>
       </div>
       `;
@@ -1991,7 +2493,7 @@ async function renderModalCommentArea(postAddress, postID) {
           <textarea id="${userCommentTextInput}" class="form-control textBox" placeholder="Comment Here" style="border-radius:20px; font-size:0.9em;" rows="1"></textarea>
         </div>
         <div class="col-2 text-center"  style=" padding-top:4px">
-          <button type="button" class="btn btn-primary changeButtonColor changeButtonTextColor" onclick="addModalComment('${postAddress}','${postID}')" style="float:right; font-size:0.9em">Comment</button>
+          <button type="button" class="btn changeButtonColor changeButtonTextColor" onclick="addModalComment('${postAddress}','${postID}')" style="float:right; font-size:0.9em">Comment</button>
         </div>
       </div>
       `;
@@ -2002,7 +2504,7 @@ async function renderSavedModal(address,postID) { //nickName,address,postID
 
     const userProfile = await contractGetUserProfile(address); // get userProfile
     let profileImageURL;
-    if (userProfile.profileImageUrl){
+    if (userProfile.profileImageUrl && (profile.profileImageUrl != " ")){
     profileImageURL  =
     `
     <img src="https://ipfs.moralis.io:2053/ipfs/${userProfile.profileImageUrl}" style="border-radius:50px; margin-top:5px; margin-left:0px" width="40" height="40">
@@ -2146,7 +2648,7 @@ async function renderUserAccountPosts(address,totalPosts) { //nickName,address,p
 
     const userProfile = await contractGetUserProfile(address); // get userProfile
     let profileImageURl;
-    if (userProfile.profileImageUrl){
+    if (userProfile.profileImageUrl && (profile.profileImageUrl != " ")){
     profileImageURl  =
     `
     <img src="https://ipfs.moralis.io:2053/ipfs/${userProfile.profileImageUrl}" style="border-radius:50px; margin-top:3px; margin-left:0px" width="40" height="40">
@@ -2170,6 +2672,20 @@ async function renderUserAccountPosts(address,totalPosts) { //nickName,address,p
       let postIDHTML = address.concat(postID); //this creates the unqiueID in which we reference when rendering the comments
       postIDHTML = postIDHTML.concat("modal"); //this creates the unqiueID in which we reference the html.
       const postInformation = await contractGetUserPost(address, postID); // get post information
+      userAddress = currentUser.get("accounts");
+      userAddress = userAddress[0];
+       console.log(postID);
+      if (userAddress == address){
+        pinHTML =    `
+            <span class="iconColor" style="font-size: 1.5em;">
+                <i onclick="contractChangeFeaturedPost('${postID}')" class="fas fa-thumbtack"></i>
+            </span>`
+      }
+      else{
+        pinHTML =``
+      }
+
+
       let IPFSresponse = "";
       if (postInformation.message.slice(0,5) == "IPFS:"){
       ipfsHash = postInformation.message.replace('IPFS:', '');
@@ -2203,13 +2719,16 @@ async function renderUserAccountPosts(address,totalPosts) { //nickName,address,p
                 <div class="col-1">
                   ${profileImageURl}
                 </div>
-                <div class="col-10">
+                <div class="col-9">
                   <div class="row align-items-start">
                     <h6 class="textChange" style="margin-bottom:0px;">${nickName} @ ${addressShort} posted</h6>
                   </div>
                   <div class="row align-items-start text-left">
                     <p class="textChange" >${timeStamp}</p>
                   </div>
+                </div>
+                <div class="col-1 text-left">
+                  ${pinHTML}
                 </div>
                 <div class="col-1 text-left">
                   <span class="iconColor" style="font-size: 1.5em;">
@@ -2290,7 +2809,7 @@ async function renderFeaturedPost(address,postID) { //nickName,address,postID
 
     const userProfile = await contractGetUserProfile(address); // get userProfile
     let profileImageURl;
-    if (userProfile.profileImageUrl){
+    if (userProfile.profileImageUrl && (profile.profileImageUrl != " ")){
     profileImageURl  =
     `
     <img src="https://ipfs.moralis.io:2053/ipfs/${userProfile.profileImageUrl}" style="border-radius:50px; margin-top:3px; margin-left:0px" width="40" height="40">
@@ -2305,6 +2824,19 @@ async function renderFeaturedPost(address,postID) { //nickName,address,postID
     }
 
     const featuredPost = await contractGetUserPost(address, postID);
+
+    userAddress = currentUser.get("accounts");
+    userAddress = userAddress[0];
+    if (userAddress == address){
+      pinHTML =    `
+          <span style="font-size: 1.5em; color: #4599A8 !important">
+              <i class="fas fa-thumbtack"></i>
+          </span>`
+    }
+    else{
+      pinHTML =``
+    }
+
     let IPFSresponse = "";
     if (featuredPost.message.slice(0,5) == "IPFS:"){
     ipfsHash = featuredPost.message.replace('IPFS:', '');
@@ -2326,7 +2858,7 @@ async function renderFeaturedPost(address,postID) { //nickName,address,postID
     }
     else{
       document.getElementById("featuredPostContainer").innerHTML +=
-        `
+      `
         <div class="col-12">
           <div class="card mb-3 boxesColor neon" >
           <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
@@ -2334,13 +2866,16 @@ async function renderFeaturedPost(address,postID) { //nickName,address,postID
               <div class="col-1">
                 ${profileImageURl}
               </div>
-              <div class="col-10">
+              <div class="col-9">
                 <div class="row align-items-start">
                   <h6 class="textChange" style="margin-bottom:0px;">${nickName} @ ${addressShort} posted</h6>
                 </div>
                 <div class="row align-items-start text-left">
                   <p class="textChange" >${featuredTimeStamp}</p>
                 </div>
+              </div>
+              <div class="col-1 text-left">
+                ${pinHTML}
               </div>
               <div class="col-1 text-left">
                 <span class="iconColor" style="font-size: 1.5em;">
@@ -2355,58 +2890,7 @@ async function renderFeaturedPost(address,postID) { //nickName,address,postID
               <p class="textChange">${featuredMessage}</p>${featuredGifLinkHTML}
               </div>
             </div>
-            <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
-              <div class="col-3 text-center">
-                <div class="row align-items-start">
-                  <div class="col-4 text-center">
-                  </div>
-                  <div class="col-2 text-center" style="padding:0px">
-                    <a class="iconColor" style="font-size: 1.5em;">
-                      <i onclick="contractLikePost('${address}','${postID}')"  class="far fa-heart"></i>
-                    </a>
-                  </div>
-                  <div class="col-4 text-center">
-                    <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">${featuredNumberOfLikes}</h6>
-                  </div>
-                  <div class="col-2 text-center">
-                  </div>
-                  </div>
-              </div>
-              <div class="col-3 text-center">
-                <div class="row align-items-start">
-                  <div class="col-4 text-center">
-                  </div>
-                  <div class="col-2 text-center" style="padding:0px">
-                    <a class="iconColor" style="font-size: 1.5em;">
-                      <i class="far fa-comments" onclick="renderModalCommentArea('${address}','${postID}')"></i>
-                    </a>
-                  </div>
-                  <div class="col-5 text-center">
-                    <h6 class="textChange" style="margin:8px 0px 0px 4px; padding:0px">${totalComments}</h6>
-                  </div>
-                  <div class="col-1 text-center">
-                  </div>
-                  </div>
-              </div>
-              <div class="col-3 text-center">
-                <div class="row align-items-start">
-                  <div class="col-5 text-center">
-                  </div>
-                  <div class="col-2 text-center" style="padding:0px">
-                    <a class="iconColor" style="font-size: 1.5em;">
-                      <i class="far fa-share-square"></i>
-                    </a>
-                  </div>
-                  <div class="col-5 text-center">
-                  </div>
-                  </div>
-              </div>
-              <div class="col-3 text-center">
-                <a class="iconColor" style="font-size: 1.5em;">
-                  <i data-bs-toggle="modal" data-bs-target="#donationModal" onclick="donationAddress('${address}','${nickName}')" class="fab fa-ethereum"></i>
-                </a>
-              </div>
-            </div>
+
           </div>
         </div>
         </div>
@@ -2429,7 +2913,7 @@ async function renderUserAccountMessages(address) { //nickName,address,postID
       const userProfile = await contractGetUserProfile(senderAddress);
 
       let profileImageURl;
-      if (userProfile.profileImageUrl){
+      if (userProfile.profileImageUrl && (userProfile.profileImageUrl != " ")){
       profileImageURl  =
       `
       <img src="https://ipfs.moralis.io:2053/ipfs/${userProfile.profileImageUrl}" style="border-radius:50px; margin-top:2px; margin-left:0px" width="40" height="40">
@@ -2461,7 +2945,7 @@ async function renderUserAccountMessages(address) { //nickName,address,postID
               </div>
               <div class="col-10">
                 <div class="row align-items-start">
-                  <h6 class="textChange" style="margin-bottom:0px;">${nickName} @ ${addressShort}</h6>
+                  <h6 class="textChange" type="button" data-bs-toggle="modal" onclick="renderUserAccount('${senderAddress}')" data-bs-target="#userAccountModal" style="margin-bottom:0px;">${nickName} @ ${addressShort}</h6>
                 </div>
                 <div class="row align-items-start text-left">
                   <p class="textChange" >${timeStamp}</p>
@@ -2512,7 +2996,7 @@ async function renderSocialFeedPage() { //nickName,address,postID
     for (let i=0; i<followersToSearch.length; i++){
           const userProfile = await contractGetUserProfile(followersToSearch[i]); // get userProfile
           let profileImageURl;
-          if (userProfile.profileImageUrl){
+          if (userProfile.profileImageUrl && (userProfile.profileImageUrl != " ")){
           profileImageURl  =
           `
           <img src="https://ipfs.moralis.io:2053/ipfs/${userProfile.profileImageUrl}" style="border-radius:50px; margin-top:5px; margin-left:0px" width="40" height="40">
@@ -2675,11 +3159,14 @@ async function renderSocialFeedPage() { //nickName,address,postID
   expandText()
   }
 async function renderUserAccount(address) { //nickName,address,postID
+    $('#savedPostModal').modal('hide'); //hide other modal
+    $('#inboxModal').modal('hide'); //hide other modal
     let savedHTML = document.getElementById("userAccountModalContent"); //prepare to wipe prior profile
     const userProfile = await contractGetUserProfile(address);
     var addressShort = address.slice(0, 10);
     addressShort = addressShort.concat("...");
     console.log("rendering Modal");
+
     let userProfileBio = userProfile.profileBio;
     let joinDate = getLocalDate(userProfile.joinDate);
     let followerCount = userProfile.followerCount;
@@ -2687,7 +3174,7 @@ async function renderUserAccount(address) { //nickName,address,postID
     let featuredPostID = userProfile.featuredPost;
     let nickName = userProfile.userNickname;
     let profileImageURl;
-    if (userProfile.profileImageUrl){
+    if (userProfile.profileImageUrl && (userProfile.profileImageUrl != " ")){
     profileImageURl  =
     `
     <img src="https://ipfs.moralis.io:2053/ipfs/${userProfile.profileImageUrl}" style="border-radius:50px; margin-top:5px; margin-left:20px" width="100" height="100">
@@ -2778,7 +3265,7 @@ async function renderUserAccount(address) { //nickName,address,postID
             </div>
           </div>
           `; //Solve this later to load up a modal
-          renderFeaturedPost(address,featuredPostID)
+          await renderFeaturedPost(address,featuredPostID)
           renderUserAccountPosts(address,totalPosts)
     }
 
@@ -2805,7 +3292,7 @@ async function renderExplorePage() { //nickName,address,postID
       postInformation.url = IPFSresponse.url;
       }
       postInformation.postID = postID; // add post ID
-      postInformation.address = address; // add address
+      postInformation.address = senderAddress; // add address
       allPostArray.push(postInformation); // save Post Information in array for later handling
     }
     // now all the posts should be in a nice array of objects
@@ -2825,7 +3312,7 @@ async function renderExplorePage() { //nickName,address,postID
 
       const userProfile = await contractGetUserProfile(address); // get userProfile
       let profileImageURl;
-      if (userProfile.profileImageUrl){
+      if (userProfile.profileImageUrl && (userProfile.profileImageUrl != " ")){
       profileImageURl  =
       `
       <img src="https://ipfs.moralis.io:2053/ipfs/${userProfile.profileImageUrl}" style="border-radius:50px; margin-top:5px; margin-left:0px" width="40" height="40">
@@ -2958,6 +3445,11 @@ async function renderExplorePage() { //nickName,address,postID
 <!-- =========================================== STYLE-================================================================================= STYLE---------------------------------------------->
 <style>
 
+
+.fa-thumbtack:hover {
+  color: #4599A8;
+  cursor: pointer;
+}
 .fa-reply:hover {
   color: #13B0E5;
   cursor: pointer;
@@ -3111,6 +3603,13 @@ async function renderExplorePage() { //nickName,address,postID
   outline: none !important;
   box-shadow: 0 0 10px rgb(129,143,225);
 }
+.btn:focus{
+  background-color: #535353;
+  border-color: #535353;
+  box-shadow: none!important;
+  outline: 0;
+}
+
 .boxesColor {
   background-color:#313334;
 }
@@ -3141,6 +3640,7 @@ async function renderExplorePage() { //nickName,address,postID
   background-color: #535353;
   border-color: #535353;
 }
+
 .changeButtonTextColor{
   color: rgb(129,143,225)
 }
@@ -3266,6 +3766,74 @@ pre {
 }
 </style>
   <body class="backgroundColor" > <!-- 313334 -->
+    <section id="newAccount" class="vh-100 backgroundColor" style="display: none"> <!--  #3C719D-->
+      <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+            <div class="modal-content boxesColor">
+              <div class="modal-header boxesLineTop text-center">
+                <h5 class="modal-title textChange text-center" id="userAccountLabel">New Account Creation</h5>
+              </div>
+              <div class="modal-body">
+                <div class="row align-items-start" >
+                  <div class="col-4">
+                  </div>
+                  <div id="newProfileImageArea" class="col-4 text-center">
+                    <span id="defaultNewUserIcon" class="iconColor" style="font-size: 4.5em;">
+                        <i class="fas fa-user-secret"></i>
+                    </span>
+                  </div>
+                  <div class="col-4">
+                  </div>
+                </div>
+                <div class="row align-items-start" >
+                  <div class="col-2">
+                  </div>
+                  <div class="col-8 text-center">
+                    <h6 class="textChange" style="border-radius: 20px;" >Select a User Profile Image (Optional)</h6>
+                    <span class="iconColor" style="font-size: 1.5em;">
+                      <label for='newProfileImage'>
+                        <i class="fas fa-images"></i>
+                      </label>
+                      <input id='newProfileImage' accept="image/png, image/gif, image/jpeg" type='file' onchange="handleNewUserProfileImage(this)" onclick="this.value = null" name="MAX_FILE_SIZE" value="10485760" style="display: none">
+                    </span>
+                  </div>
+                  <div class="col-2">
+                  </div>
+                </div>
+                <div class="row align-items-start" style="margin:20px 0px 20px">
+                <div class="col-12">
+                  <div class="row align-items-start">
+                    <h6 class="textChange" style="padding:0px 0px 0px 0px;" >Pick a Username (Required)</h6>
+                      <textarea id="newUsername" class="form-control textBox" placeholder="Username" rows="1" ></textarea>
+                  </div>
+                </div>
+                </div>
+                <div class="row align-items-start" style="margin:20px 0px 20px">
+                <div class="col-12">
+                  <div class="row align-items-start">
+                    <h6 class="textChange" style="padding:0px 0px 0px 0px;" >Write a User Profile Bio (Optional)</h6>
+                      <textarea id="newProfileBio" class="form-control textBox" placeholder="Bio" rows="1" ></textarea>
+                  </div>
+                </div>
+                </div>
+                <div class="row align-items-start" style="margin:20px 0px 20px">
+                <div class="col-9">
+                  <h6 class="textChange" style="padding:0px 0px 0px 0px; margin-top:7px" >This will be permanently on the Blockchain</h6>
+                </div>
+                <div class="col-3 text-center">
+                  <button type="button" onclick="createUserProfile()" class="btn changeButtonColor changeButtonTextColor">
+                    Submit
+                  </button>
+                </div>
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="loginForm" class="vh-100 backgroundColor" style="display: none"> <!--  #3C719D-->
       <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
@@ -3273,12 +3841,12 @@ pre {
             <div class="card shadow-2-strong neonAnimated" style="border-radius: 1rem;" style="background-color: #313334"> <!--  #F5F0F2-->
               <div class="card-body p-5 text-center boxesColor" >
                 <div class="row align-items-start">
-                <img src="https://ipfs.io/ipfs/QmQnBt2MLdPYUqYxqNEptmgLmerpTpuAQxfc79nyZxUEc6?filename=logoDarkMode.png" id="loginLogo" alt="Logo-01" border="0" style="display: block; margin:auto; padding:0px 0px 60px 0px; max-width: 60%" >
+                <img  src="https://ipfs.io/ipfs/QmQnBt2MLdPYUqYxqNEptmgLmerpTpuAQxfc79nyZxUEc6?filename=logoDarkMode.png" id="loginLogo" alt="Logo-01" border="0" style="display: block; margin:auto; padding:0px 0px 60px 0px; max-width: 60%" >
                 </div>
 
 
                 <div class="row align-items-start">
-                <button class="btn btn-primary btn-lg btn-block neon-white changeButtonColor changeButtonTextColor" type="submit" onClick="login();"><b>Login with Metamask</b></button>
+                <button class="btn btn-lg btn-block neon-white changeButtonColor changeButtonTextColor" type="submit" onClick="login();"><b>Login with Metamask</b></button>
                 </div>
               </div>
             </div>
@@ -3293,14 +3861,14 @@ pre {
       <div class="modal-content boxesColor">
         <div class="modal-header boxesLineTop">
           <h5 class="modal-title" id="exampleModalLabel" style = "color: red;">DISCLAIMER!</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close " data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <h5 class="mb-5 textChange" style="margin-bottom: 10px!important">This will be permanently on the blockchain and associated to your public account. You cannot remove it once the action is complete. Are you sure you want to continue?</h5>
         </div>
         <div class="modal-footer boxesLine">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button id="confirmToBlockchain" type="button" class="btn btn-primary" data-bs-dismiss="modal" onClick="uploadFileandPostToBlockChain();">Confirm</button>
+          <button type="button" class="btn changeButtonColor changeButtonTextColor" data-bs-dismiss="modal">Cancel</button>
+          <button id="confirmToBlockchain" type="button" class="btn changeButtonColor changeButtonTextColor" data-bs-dismiss="modal" onClick="uploadFileandPostToBlockChain();">Confirm</button>
         </div>
       </div>
     </div>
@@ -3665,7 +4233,7 @@ pre {
           <h6 class="textChange"  style="padding:10px 0px 5px"><b>Disclaimer:</b> Anything you send will be permanently on the blockchain!</h6>
           </div>
           <div class="col-2">
-          <button type="button" class="btn btn-primary changeButtonColor changeButtonTextColor" onclick="sendMessage()" style="float:right;">Send</button>
+          <button type="button" class="btn changeButtonColor changeButtonTextColor" onclick="sendMessage()" style="float:right;">Send</button>
           </div>
           </div>
           <h5 class="modal-title textChange boxesLine boxesLineTop" id="userAccountLabel" style="margin: 00px 0px 10px; padding:10px 0px 10px">Your Inbox</h5>
@@ -3778,7 +4346,7 @@ pre {
           <div class="row align-baseline" style = "padding-top: 10px">
             <div class="col-5" style = "padding-right: 0px">
               <div class="form-check form-switch text-center">
-                <input class="form-check-input" style = "transform: scale(1.2); float:right; margin:4px 2px 0px 0px; padding:10px 0px 0px;"  onClick="toggleDarkMode()" type="checkbox" id="flexSwitchCheckChecked" checked/>
+                <input class="form-check-input" style = "transform: scale(1.2); float:right; margin:4px 2px 0px 0px; padding:10px 0px 0px;"  onClick="toggleLightMode()" type="checkbox" id="flexSwitchCheckChecked" checked/>
               </div>
             </div>
             <div class="col-5 text-left">
@@ -3856,7 +4424,7 @@ pre {
 
                     </div>
                     <div class="col-5 text-end">
-                      <button type="button" class="btn btn-primary changeButtonColor changeButtonTextColor" data-bs-toggle="modal" data-bs-target="#postModal">
+                      <button type="button" class="btn changeButtonColor changeButtonTextColor" data-bs-toggle="modal" data-bs-target="#postModal">
                         Submit
                       </button>
 
@@ -3864,124 +4432,7 @@ pre {
                   </div>
                 </div>
           </div>
-          <div class="card mb-3 boxesColor boxesShadow" style="border-radius: 20px;">
-          <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
-            <div class="row align-items-start">
-              <div class="col-1">
-                <span class="iconColor" style="font-size: 2em;">
-                    <i class="fas fa-user-secret"></i>
-                </span>
-              </div>
-              <div class="col-10">
-                <div class="row align-items-start">
-                  <h6 class="textChange" style="margin-bottom:0px;">John @ 0x4783GW783T74838 posted</h6>
-                </div>
-                <div class="row align-items-start text-left">
-                  <p class="textChange" >18th Oct 5:23 PM</p>
-                </div>
-              </div>
-              <div class="col-1 text-left">
-                <span class="iconColor" style="font-size: 1.5em;">
-                    <i class="far fa-star"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="card-body" id="0x570" style ="border-top: 1px solid #535353">
-            <div class="row align-items-start">
-              <div id="messageContent" class="col-12">
-              <p class="textChange">Nullam quis risuse magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula. d nibh ultricies vehicula d nibh ultricies.</p>
-              </div>
-            </div>
-            <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
-              <div class="col-3 text-center">
-                <div class="row align-items-start">
-                  <div class="col-4 text-center">
-                  </div>
-                  <div class="col-2 text-center" style="padding:0px">
-                    <a class="iconColor" style="font-size: 1.5em;">
-                      <i class="far fa-heart"></i>
-                    </a>
-                  </div>
-                  <div class="col-3 text-center">
-                    <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">0</h6>
-                  </div>
-                  <div class="col-5 text-center">
-                  </div>
-                  </div>
-              </div>
-              <div class="col-3 text-center">
-                <div class="row align-items-start">
-                  <div class="col-4 text-center">
-                  </div>
-                  <div class="col-2 text-center" style="padding:0px">
-                    <a class="iconColor" style="font-size: 1.5em;">
-                      <i class="far fa-comments" onclick="renderCommentArea('0x57','0')"></i>
-                    </a>
-                  </div>
-                  <div class="col-3 text-center">
-                    <h6 class="textChange" style="margin:8px 0px 0px; padding:0px">0</h6>
-                  </div>
-                  <div class="col-5 text-center">
-                  </div>
-                  </div>
-              </div>
-              <div class="col-3 text-center">
-                <div class="row align-items-start">
-                  <div class="col-5 text-center">
-                  </div>
-                  <div class="col-2 text-center" style="padding:0px">
-                    <a class="iconColor" style="font-size: 1.5em;">
-                      <i class="far fa-share-square"></i>
-                    </a>
-                  </div>
-                  <div class="col-5 text-center">
-                  </div>
-                </div>
-              </div>
-              <div class="col-3 text-center">
-                <a class="iconColor" style="font-size: 1.5em;">
-                  <i data-bs-toggle="modal" data-bs-target="#donationModal" onclick="donationAddress('0x67847587394ijij7','BobtheBuilder')" class="fab fa-ethereum"></i>
-                </a>
-              </div>
-            </div>
-            <div class="row align-items-start" id="0x570allCommentContainer" style ="margin-top: 10px; padding:20px 0px 10px; border-top: 1px solid #535353">
-              <div class="col-12 text-left">
-                <div class="row align-items-start">
-                  <div class="col-1 text-center">
-                    <a class="iconColor" style="font-size: 1.75em;">
-                      <i class="fas fa-user-secret"></i>
-                    </a>
-                  </div>
-                  <div class="col-11 text-left boxesCommentColor boxesShadow" style=" padding-top:4px; border-radius: 20px;">
-                    <div class="row align-items-start">
-                      <p class="textChange" style="font-size:1em; margin-bottom:0px"><b>John @ 0x5873826</b></p>
-                      </div>
-                      <div class="row align-items-start">
-                        <p class="textChange" style="font-size:0.75em;margin-bottom:2px">18th 0ct 5.23</p>
-                        </div>
-                      <div class="row align-items-start">
-                        <h6 class="textChange" style="font-size:0.75em">Nullam quis risuse magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula. d nibh ultricies vehicula d nibh ultricies.</h6>
-                      </div>
-                  </div>
-              </div>
-            </div>
-            </div>
-            <div class="row align-items-start" id="0x570userCommentContainer" style ="margin-top: 10px; padding-top:20px; border-top: 1px solid #535353">
-              <div class="col-1 text-center">
-                <a class="iconColor" style="font-size: 1.75em;">
-                  <i class="fas fa-user-secret"></i>
-                </a>
-              </div>
-              <div class="col-9 text-center" style=" padding-top:4px">
-                <textarea id="0x570userCommentTextInput" class="form-control textBox" placeholder="Comment Here" style="border-radius:20px; font-size:0.9em;" rows="1"></textarea>
-              </div>
-              <div class="col-2 text-center"  style=" padding-top:4px">
-                <button type="button" class="btn btn-primary changeButtonColor changeButtonTextColor" onclick="comment('0x57','0')" style="float:right; font-size:0.9em">Comment</button>
-              </div>
-            </div>
-          </div>
-        </div>
+
           </div>
           <div class="col-3" style ="padding-top: 20px;">
             <div class="card mb-3 boxesColor boxesShadow" style="max-width: 30rem; border-radius: 20px;">
@@ -4017,7 +4468,7 @@ pre {
         <div class="card mb-3 boxesColor boxesShadow" style="max-width: 30rem; border-radius: 20px; ">
         <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b>Support Us!</b></div>
         <div class="card-body" style ="border-top: 1px solid #535353">
-          <img alt="" src="https://ipfs.io/ipfs/QmQnBt2MLdPYUqYxqNEptmgLmerpTpuAQxfc79nyZxUEc6?filename=logoDarkMode.png" style="display: block; margin-right: auto;margin-left: auto" align="middle" width="150px !important" height="150px"  >
+          <img alt="" id="supportUsLogo" src="https://ipfs.io/ipfs/QmQnBt2MLdPYUqYxqNEptmgLmerpTpuAQxfc79nyZxUEc6?filename=logoDarkMode.png" style="display: block; margin-right: auto;margin-left: auto" align="middle" width="150px !important" height="150px"  >
           <div class="row align-items-start" style ="padding-top: 10px;">
             <div class="col-12 text-center">
                 <button type="button" class="btn btn-secondary changeButtonColor changeButtonTextColor" data-bs-toggle="modal" data-bs-target="#donationModal" onclick="donationAddress('0x252d2f2293098AF088623a641546c98687DeB884','Founder')" style="border-radius: .375rem!important; justify-content: center!important; ">
@@ -4049,7 +4500,7 @@ pre {
                 <div class="card mb-3 boxesColor neon" style="max-width: 30rem; border-radius: 20px; margin: 0px 20px 0px;">
                 <div class="card-body">
                   <div class="row align-items-start">
-                      <img src="jewels.png" alt="jewels" width="30%" height="30%">
+                      <img src="https://ipfs.io/ipfs/QmV6sSBxnNt9HDd5NjPyFBSG7K92ezLf2EJ7q1AETcAeyY?filename=smallJewels.png" alt="jewels" width="100%" height="100%">
                   </div>
                   <div class="row align-items-start" style ="padding-top: 10px;">
                     <div class="col-12 text-center">
@@ -4069,7 +4520,7 @@ pre {
                   <div class="card mb-3 boxesColor neonStrong" style="max-width: 30rem; border-radius: 20px; margin: 0px 20px 0px;">
                   <div class="card-body">
                     <div class="row align-items-start">
-                        <img src="jewels.png" alt="jewels" width="30%" height="30%">
+                        <img src="https://ipfs.io/ipfs/QmZhjzrn7QBiwzVT3PZ8XtgtaVBZs84fkLH8uoWGkvpEmC?filename=MediumJewels.png" alt="jewels" width="50%" height="50%">
                     </div>
                     <div class="row align-items-start" style ="padding-top: 10px;">
                       <div class="col-12 text-center">
@@ -4089,7 +4540,7 @@ pre {
                   <div class="card mb-3 boxesColor neon" style="max-width: 30rem; border-radius: 20px; margin: 0px 20px 0px;">
                   <div class="card-body">
                     <div class="row align-items-start">
-                        <img src="jewels.png" alt="jewels" width="30%" height="30%">
+                        <img src="https://ipfs.io/ipfs/QmWqDhWkktKTHTGjzBETcEeKsmMnKUsNvNtcV1Eb5AbjLh?filename=LargeJewels.png" alt="jewels" width="50%" height="50%">
                     </div>
                     <div class="row align-items-start" style ="padding-top: 10px;">
                       <div class="col-12 text-center">
@@ -4110,77 +4561,85 @@ pre {
               <div class="col-1" >
               </div>
           </div>
+          <div class="row align-items-start" style ="padding-top: 40px;">
+          <div class="col-4" >
+            <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+            <div class="card-body">
+              <div class="row align-items-start">
+                  <img src="https://ipfs.io/ipfs/QmVNi1MrwAbrBEjSoQNYRyEnJAP7FUQq9pS5htYH2KMEqc?filename=Virginia.png" alt="jewels" width="30%" height="30%">
+              </div>
+              <div class="row align-items-start" style ="padding-top: 10px;">
+                <div class="col-12 text-center">
+                      <h4 class="textChange"><b>Virginia</b></h4>
+                      <h6 class="textChange"><b>Agility:</b> Average</h6>
+                      <h6 class="textChange"><b>Strength:</b> Average</h6>
+                      <h6 class="textChange"><b>Charm:</b> Average</h6>
+                      <h6 class="textChange"><b>Sneak:</b> High</h6>
+                      <h6 class="textChange">0.002 Ether</h6>
+                </div>
+              </div>
+              <div class="row align-items-start" style ="padding-top: 10px;">
+                <div class="col-12 text-center">
+                    <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+          <div class="col-4" >
+            <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+            <div class="card-body">
+              <div class="row align-items-start">
+                  <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="30%" height="30%">
+              </div>
+              <div class="row align-items-start" style ="padding-top: 10px;">
+                <div class="col-12 text-center">
+                  <h4 class="textChange"><b>Florida</b></h4>
+                  <h6 class="textChange"><b>Agility:</b> Average</h6>
+                  <h6 class="textChange"><b>Strength:</b> Average</h6>
+                  <h6 class="textChange"><b>Charm:</b> High</h6>
+                  <h6 class="textChange"><b>Sneak:</b> Average</h6>
+                  <h6 class="textChange">0.002 Ether</h6>
+                </div>
+              </div>
+              <div class="row align-items-start" style ="padding-top: 10px;">
+                <div class="col-12 text-center">
+                    <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+          <div class="col-4" >
+            <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+            <div class="card-body">
+              <div class="row align-items-start">
+                  <img src="https://ipfs.io/ipfs/QmRajorfwuFupWq6RoasUdQtxcWsoVta8NH12EVHeHi5Wn?filename=Alaska.png" alt="jewels" width="30%" height="30%">
+              </div>
+              <div class="row align-items-start" style ="padding-top: 10px;">
+                <div class="col-12 text-center">
+                  <h4 class="textChange"><b>Alaska</b></h4>
+                  <h6 class="textChange"><b>Agility:</b> Average</h6>
+                  <h6 class="textChange"><b>Strength:</b> High</h6>
+                  <h6 class="textChange"><b>Charm:</b> Average</h6>
+                  <h6 class="textChange"><b>Sneak:</b> Average</h6>
+                  <h6 class="textChange">0.002 Ether</h6>
+                </div>
+              </div>
+              <div class="row align-items-start" style ="padding-top: 10px;">
+                <div class="col-12 text-center">
+                    <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
           <div class="row align-items-start" style ="padding-top: 10px;">
             <div class="col-1" >
                 </div>
             <div class="col-10" >
             <div class="row align-items-start" style ="padding-top: 40px;">
-          <div class="col-4" >
-            <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
-            <div class="card-body">
-              <div class="row align-items-start">
-                  <img src="jewels.png" alt="jewels" width="30%" height="30%">
-              </div>
-              <div class="row align-items-start" style ="padding-top: 10px;">
-                <div class="col-12 text-center">
-                      <h4 class="textChange"><b>Lockpick</b></h4>
-                      <h6 class="textChange">Chance of Entry: +1</h6>
-                      <h6 class="textChange">Chance of Detection: -1</h6>
-                      <h6 class="textChange">Protection: 0</h6>
-                </div>
-              </div>
-              <div class="row align-items-start" style ="padding-top: 10px;">
-                <div class="col-12 text-center">
-                    <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          </div>
-          <div class="col-4" >
-            <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
-            <div class="card-body">
-              <div class="row align-items-start">
-                  <img src="jewels.png" alt="jewels" width="30%" height="30%">
-              </div>
-              <div class="row align-items-start" style ="padding-top: 10px;">
-                <div class="col-12 text-center">
-                      <h4 class="textChange"><b>Crowbar</b></h4>
-                      <h6 class="textChange">Chance of Entry: +3</h6>
-                      <h6 class="textChange">Chance of Detection: +5</h6>
-                      <h6 class="textChange">Protection: +2</h6>
-                </div>
-              </div>
-              <div class="row align-items-start" style ="padding-top: 10px;">
-                <div class="col-12 text-center">
-                    <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          </div>
-          <div class="col-4" >
-            <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
-            <div class="card-body">
-              <div class="row align-items-start">
-                  <img src="jewels.png" alt="jewels" width="30%" height="30%">
-              </div>
-              <div class="row align-items-start" style ="padding-top: 10px;">
-                <div class="col-12 text-center">
-                      <h4 class="textChange"><b>Blueprints</b></h4>
-                      <h6 class="textChange">Chance of Entry: +10</h6>
-                      <h6 class="textChange">Chance of Detection: -5</h6>
-                      <h6 class="textChange">Protection: 0</h6>
-                </div>
-              </div>
-              <div class="row align-items-start" style ="padding-top: 10px;">
-                <div class="col-12 text-center">
-                    <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          </div>
                     </div>
           </div>
           <div class="col-1" >
@@ -4262,9 +4721,9 @@ pre {
                   <div class="row align-items-start" style ="padding-top: 10px;">
                     <div class="col-12 text-center">
                           <h4 class="textChange"><b>Virginia</b></h4>
-                          <h6 class="textChange"><b>Agility:</b> High</h6>
-                          <h6 class="textChange"><b>Strength:</b> Low</h6>
-                          <h6 class="textChange"><b>Charm:</b> Medium</h6>
+                          <h6 class="textChange"><b>Agility:</b> Average</h6>
+                          <h6 class="textChange"><b>Strength:</b> Average</h6>
+                          <h6 class="textChange"><b>Charm:</b> Average</h6>
                           <h6 class="textChange"><b>Sneak:</b> High</h6>
                     </div>
                   </div>
@@ -4285,10 +4744,10 @@ pre {
                   <div class="row align-items-start" style ="padding-top: 10px;">
                     <div class="col-12 text-center">
                       <h4 class="textChange"><b>Florida</b></h4>
-                      <h6 class="textChange"><b>Agility:</b> Low</h6>
-                      <h6 class="textChange"><b>Strength:</b> High</h6>
+                      <h6 class="textChange"><b>Agility:</b> Average</h6>
+                      <h6 class="textChange"><b>Strength:</b> Average</h6>
                       <h6 class="textChange"><b>Charm:</b> High</h6>
-                      <h6 class="textChange"><b>Sneak:</b> Low</h6>
+                      <h6 class="textChange"><b>Sneak:</b> Average</h6>
                     </div>
                   </div>
                   <div class="row align-items-start" style ="padding-top: 10px;">
@@ -4308,10 +4767,10 @@ pre {
                   <div class="row align-items-start" style ="padding-top: 10px;">
                     <div class="col-12 text-center">
                       <h4 class="textChange"><b>Alaska</b></h4>
-                      <h6 class="textChange"><b>Agility:</b> Low</h6>
+                      <h6 class="textChange"><b>Agility:</b> Average</h6>
                       <h6 class="textChange"><b>Strength:</b> High</h6>
-                      <h6 class="textChange"><b>Charm:</b> High</h6>
-                      <h6 class="textChange"><b>Sneak:</b> Low</h6>
+                      <h6 class="textChange"><b>Charm:</b> Average</h6>
+                      <h6 class="textChange"><b>Sneak:</b> Average</h6>
                     </div>
                   </div>
                   <div class="row align-items-start" style ="padding-top: 10px;">
@@ -4415,26 +4874,136 @@ pre {
           </div>
 
           <div id="settingsPage" class="row align-items-start" style="display:none;">
-            <div class="row align-items-start">
-              <div class="col-12" style="margin-top:40px;">
+              <div class="col-9" style="margin-top:20px;">
                 <div class="card mb-3 boxesColor boxesShadow" style="max-width: 30rem; border-radius: 20px;">
-                <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b>Saved Posts</b></div>
+                <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b> deSocialNet Account Settings</b></div>
                 <div class="card-body" style ="border-top: 1px solid #535353">
                   <div class="row align-items-start">
                     <div id="savedList" class="col-12">
                     </div>
                   </div>
+                  <div class="row align-items-start" >
+                    <div class="col-4">
+                    </div>
+                    <div id="newProfileImageAreaSettings" class="col-4 text-center">
+                      <span id="defaultNewUserIconSettings" class="iconColor" style="font-size: 4.5em;">
+                          <i class="fas fa-user-secret"></i>
+                      </span>
+                    </div>
+                    <div class="col-4">
+                    </div>
+                  </div>
+                  <div class="row align-items-start" >
+                    <div class="col-2">
+                    </div>
+                    <div class="col-8 text-center">
+                      <h6 class="textChange" style="border-radius: 20px;" >Select a New User Profile Image</h6>
+                      <span class="iconColor" style="font-size: 1.5em;">
+                        <label for='newProfileImageSettings'>
+                          <i class="fas fa-images"></i>
+                        </label>
+                        <input id='newProfileImageSettings' accept="image/png, image/gif, image/jpeg" type='file' onchange="handleNewUserProfileImageSettings(this)" onclick="this.value = null" name="MAX_FILE_SIZE" value="10485760" style="display: none">
+                      </span>
+                    </div>
+                    <div class="col-2">
+                    </div>
+                  </div>
+                  <div class="row align-items-start" style="margin:20px 0px 20px">
+                  <div class="col-9">
+                    <h6 class="textChange" style="padding:0px 0px 0px 0px; margin-top:7px" >Change Profile Picture?</h6>
+                  </div>
+                  <div class="col-3 text-center">
+                    <button type="button" onclick="changeUserProfilePicture()" class="btn changeButtonColor changeButtonTextColor">
+                      Submit
+                    </button>
+                  </div>
+                </div>
+                  <div class="row align-items-start" style="margin:20px 0px 20px">
+                  <div class="col-12">
+                    <div class="row align-items-start">
+                      <h6 class="textChange" style="padding:0px 0px 0px 0px;" >Pick a New Username</h6>
+                        <textarea id="newUsernameSettings" class="form-control textBox" placeholder="New Username" rows="1" ></textarea>
+                    </div>
+                  </div>
+                  </div>
+                  <div class="row align-items-start" style="margin:20px 0px 20px">
+                  <div class="col-9">
+                    <h6 class="textChange" style="padding:0px 0px 0px 0px; margin-top:7px" >Change Username?</h6>
+                  </div>
+                  <div class="col-3 text-center">
+                    <button type="button" onclick="changeUserProfileNickname()" class="btn changeButtonColor changeButtonTextColor">
+                      Submit
+                    </button>
+                  </div>
+                </div>
+                  <div class="row align-items-start" style="margin:20px 0px 20px">
+                  <div class="col-12">
+                    <div class="row align-items-start">
+                      <h6 class="textChange" style="padding:0px 0px 0px 0px;" >Write a New User Profile Bio</h6>
+                        <textarea id="newProfileBioSettings" class="form-control textBox" placeholder="New Bio" rows="1" ></textarea>
+                    </div>
+                  </div>
+                  </div>
+
+                  <div class="row align-items-start" style="margin:20px 0px 20px">
+                  <div class="col-9">
+                    <h6 class="textChange" style="padding:0px 0px 0px 0px; margin-top:7px" >Change User Profile Bio?</h6>
+                  </div>
+                  <div class="col-3 text-center">
+                    <button type="button" onclick="changeUserProfileBio()" class="btn changeButtonColor changeButtonTextColor">
+                      Submit
+                    </button>
+                  </div>
+                </div>
+
+                </div>
+              </div>
+              </div>
+              <div class="col-3 sticky" style="margin-top:20px;">
+                <div class="card mb-3 boxesColor boxesShadow"  style="max-width: 30rem; border-radius: 20px;">
+                <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b>Token Swap</b></div>
+                <div class="card-body" style ="border-top: 1px solid #535353">
+                  <img alt="" src="https://raw.githubusercontent.com/sushiswap/sushi-content/master/products/chopsticks.png" style="display: block; margin-right: auto;margin-left: auto" align="middle" width="64px !important" height="81px"  >
                   <div class="row align-items-start" style ="padding-top: 10px;">
                     <div class="col-12 text-center">
+                        <h6 class="textChange" style="margin:0px 0px 10px; font-size: 1.25em;">Sushiswap</h6>
+                        <button type="button" class="btn btn-secondary changeSushiButtonTextColor" style="border-radius: .375rem!important; justify-content: center!important; background-image: linear-gradient(to right, rgb(1, 110, 218), rgb(217, 0, 192))">
+                        <a href="https://app.sushi.com/swap" data-bs-toggle="modal" data-bs-target="#iFrameModal" target="_blank" class="changeSushiButtonTextColor">
+                        Enter Exchange</a></button>
                     </div>
                   </div>
                 </div>
               </div>
+              <div class="card mb-3 boxesColor boxesShadow" style="max-width: 30rem; border-radius: 20px; ">
+              <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b>Flight Insurance</b></div>
+              <div class="card-body" style ="border-top: 1px solid #535353">
+                <img alt="" src="https://etherisc.com/assets/flight-delay-icon.97de55.svg" style="display: block; margin-right: auto;margin-left: auto" align="middle" width="80px !important" height="100px"  >
+                <div class="row align-items-start" style ="padding-top: 10px;">
+                  <div class="col-12 text-center">
+                      <h6 class="textChange" style="margin:0px 0px 10px; font-size: 1.25em;">Etherisc</h6>
+                      <button type="button" class="btn btn-secondary changeButtonColor changeButtonTextColor" style="border-radius: .375rem!important; justify-content: center!important; ">
+                      <a href="https://fdd.etherisc.com/#/" target="_blank" class="changeButtonTextColor">
+                      Enter App</a></button>
+                  </div>
+                </div>
               </div>
-
-            <div id="settingsContainer" class="col-12" style="margin-top:30px">
+            </div>
+            <div class="card mb-3 boxesColor boxesShadow" style="max-width: 30rem; border-radius: 20px;">
+            <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b>dAPP Building</b></div>
+            <div class="card-body" style ="border-top: 1px solid #535353">
+              <img alt="" src="https://moralis.io/wp-content/uploads/2021/07/bigicon_hero2.svg" style="display: block; margin-right: auto;margin-left: auto" align="middle" width="80px !important" height="100px"  >
+              <div class="row align-items-start" style ="padding-top: 10px;">
+                <div class="col-12 text-center">
+                    <h6 class="textChange" style="margin:0px 0px 10px; font-size: 1.25em;">Moralis</h6>
+                    <button type="button" class="btn btn-secondary changeButtonColor" style="border-radius: .375rem!important; justify-content: center!important; ">
+                    <a href="https://moralis.io/" target="_blank" class="changeButtonTextColor">
+                    Visit Site</a></button>
+                </div>
+              </div>
             </div>
           </div>
+              </div>
+
 
 
 
