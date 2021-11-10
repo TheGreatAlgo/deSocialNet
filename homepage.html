@@ -62,6 +62,8 @@ var userProfileImage;
 var darkMode = true;
 const kovanWETHTokenAddress ="0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
 const kovanContract = "0xD327d2b9765C69D3dF9ad2d49C3d78FB8821c38B";
+const onlineStoreContract = "0x9920C927033edD403aDEe0080F855ceA4257aCEc";
+const minterContract = "0x045806a2F15FA26eE7e52c4dab62497e98fa5de4";
 const ABI =
 [
 	{
@@ -723,10 +725,1390 @@ const ABI =
 		"type": "function"
 	}
 ]
+const onlineStoreABI =
+[
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "buyLargeTokens",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "buyMassiveTokens",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "buyMediumTokens",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "buySmallTokens",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "newCheckInTimeInterval",
+				"type": "uint256"
+			}
+		],
+		"name": "changeCheckInTime",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newInheritor",
+				"type": "address"
+			}
+		],
+		"name": "changeInheritance",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "checkUpkeep",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "upkeepNeeded",
+				"type": "bool"
+			},
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "ownerCheckIn",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "performUpkeep",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "newPrice",
+				"type": "uint256"
+			}
+		],
+		"name": "setLargeStorePrice",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "newPrice",
+				"type": "uint256"
+			}
+		],
+		"name": "setMassiveStorePrice",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "newPrice",
+				"type": "uint256"
+			}
+		],
+		"name": "setMediumStorePrice",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "newPrice",
+				"type": "uint256"
+			}
+		],
+		"name": "setsmallStorePrice",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdraw",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "token",
+				"type": "address"
+			}
+		],
+		"name": "withdrawErc20",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "checkInTimeInterval",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "largePurchaseTokenPrice",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "lastCheckIn",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "massivePurchaseTokenPrice",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "mediumPurchaseTokenPrice",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "nextOwner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "smallPurchaseTokenPrice",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+const minterABI =
+[
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "approved",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "Approval",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "approved",
+				"type": "bool"
+			}
+		],
+		"name": "ApprovalForAll",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "health",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "imageURI",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			}
+		],
+		"name": "addCharacterOne",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "health",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "imageURI",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			}
+		],
+		"name": "addCharacterThree",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "health",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "imageURI",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			}
+		],
+		"name": "addCharacterTwo",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "approve",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "newCheckInTimeInterval",
+				"type": "uint256"
+			}
+		],
+		"name": "changeCheckInTime",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "characterID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			}
+		],
+		"name": "changeDescription",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newGameAddress",
+				"type": "address"
+			}
+		],
+		"name": "changeGameAddress",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "characterID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "imageURI",
+				"type": "string"
+			}
+		],
+		"name": "changeImageURI",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newInheritor",
+				"type": "address"
+			}
+		],
+		"name": "changeInheritance",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "newMintFee",
+				"type": "uint256"
+			}
+		],
+		"name": "changeMintFee",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "NFTID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "health",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "agility",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "strength",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "sneak",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "charm",
+				"type": "uint256"
+			}
+		],
+		"name": "changeNFTAttributes",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "characterID",
+				"type": "uint256"
+			}
+		],
+		"name": "mintAnyCharacter",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "ownerCheckIn",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "performUpkeep",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "requestId",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "uint256",
+				"name": "randomness",
+				"type": "uint256"
+			}
+		],
+		"name": "rawFulfillRandomness",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "safeTransferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "_data",
+				"type": "bytes"
+			}
+		],
+		"name": "safeTransferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			},
+			{
+				"internalType": "bool",
+				"name": "approved",
+				"type": "bool"
+			}
+		],
+		"name": "setApprovalForAll",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "transferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdraw",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "token",
+				"type": "address"
+			}
+		],
+		"name": "withdrawErc20",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "characters",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "born",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "health",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "agility",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "strength",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "sneak",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "charm",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "characterID",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "checkInTimeInterval",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "checkUpkeep",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "upkeepNeeded",
+				"type": "bool"
+			},
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "getApproved",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "NFTID",
+				"type": "uint256"
+			}
+		],
+		"name": "getNFTAttributes",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "agility",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "strength",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "charm",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "sneak",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "health",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			}
+		],
+		"name": "isApprovedForAll",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "lastCheckIn",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "mintableNFTCharacterStruct",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "health",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "agility",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "strength",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "sneak",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "charm",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "imageURI",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "mintFee",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "nextOwner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "ownerOf",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "randomResult",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes4",
+				"name": "interfaceId",
+				"type": "bytes4"
+			}
+		],
+		"name": "supportsInterface",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "tokenURI",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalMintableCharacters",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
 const serverUrl = "https://h1fpcthpxdrt.usemoralis.com:2053/server";
 const appId = "xNLGUQH5eITa3ybsmQ7Zp2ZbekxAtVRa6umAJ1LZ";
 Moralis.start({ serverUrl, appId });
 onFirstLoad();
+
+
+
+//MINTER FUNCTIONS
+async function contractMintAnyCharacter(_name,_characterID) {
+  transferAmount = Moralis.Units.ETH("0.002");
+  const options = {
+    contractAddress: minterContract,
+    functionName: "mintAnyCharacter",
+    abi:  minterABI,
+    params: {
+      name: _name,
+      characterID: _characterID
+    },
+    msgValue: transferAmount
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+  return receipt;
+}
+async function contractGetCharacterData(_characterID) {
+
+  let options = {
+    contractAddress: minterContract,
+    functionName: "characters",
+    abi:  minterABI,
+    params: {
+      "": _characterID
+    },
+  };
+  let receipt = await Moralis.executeFunction(options);
+  console.log(receipt);
+  console.log(receipt.characterID);
+   options = {
+    contractAddress: minterContract,
+    functionName: "mintableNFTCharacterStruct",
+    abi:  minterABI,
+    params: {
+      "": receipt.characterID
+    },
+  };
+  let characterDetails = await Moralis.executeFunction(options);
+  console.log(characterDetails);
+  receipt.imageURI = characterDetails.imageURI;
+  receipt.description= characterDetails.description;
+  console.log(receipt)
+  return receipt;
+}
+
+// ONLINE STORE functions
+async function contractBuySmallTokens() {
+  transferAmount = Moralis.Units.ETH("0.000025");
+  const options = {
+    contractAddress: onlineStoreContract,
+    functionName: "buySmallTokens",
+    abi: onlineStoreABI,
+    msgValue: transferAmount
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+  return receipt;
+}
+async function contractBuyMediumTokens() {
+  transferAmount = Moralis.Units.ETH("0.00004");
+  console.log(transferAmount)
+  const options = {
+    contractAddress: onlineStoreContract,
+    functionName: "buySmallTokens",
+    abi: onlineStoreABI,
+    msgValue: transferAmount
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+  return receipt;
+}
+async function contractBuyLargeTokens() {
+  transferAmount = Moralis.Units.ETH("0.00015");
+  const options = {
+    contractAddress: onlineStoreContract,
+    functionName: "buySmallTokens",
+    abi: onlineStoreABI,
+    msgValue: transferAmount
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+  return receipt;
+}
 
 // MORALIS CONTRACT FUNCTIONS
 async function contractNewProfile(_profileBio,_nickName,_profileImageUrl) {
@@ -924,7 +2306,13 @@ async function moralisGetMessages(_userAddress) {
   console.log(receipt)
   return receipt;
 }
-
+async function moralisGetNFTs(){
+  userAddress = await currentUser.get("accounts");
+  userAddress = userAddress[0];
+  const options = { chain: 'kovan', address: userAddress, token_address: minterContract };
+  const ethereumNFTs = await Moralis.Web3API.account.getNFTsForContract(options);
+  return ethereumNFTs.result;
+}
 async function moralisGetPosts() {
   const posts = Moralis.Object.extend("Posts");
   const query = new Moralis.Query(posts);
@@ -1092,6 +2480,11 @@ async function changeUserProfilePicture(){
     console.log(result);
     userProfileImage = false;
   }
+}
+
+async function mintAnyCharacter(_name,_characterID){
+  let result = contractMintAnyCharacter(_name,_characterID);
+  console.log(result);
 }
 
 async function donateEthereum() { //_recieverAddress, _amount
@@ -2120,6 +3513,7 @@ function loadWalletPage(){
   document.getElementById("playPage").style.display="none";
   document.getElementById("walletPage").style.display="";
   document.getElementById("settingsPage").style.display="none";
+  renderNFTWallet();
 }
 function loadPlayPage(){
   window.scrollTo(0, 0);
@@ -2138,6 +3532,40 @@ function loadSettingsPage(){
   document.getElementById("shopPage").style.display="none";
   document.getElementById("playPage").style.display="none";
   document.getElementById("settingsPage").style.display="";
+}
+
+async function renderNFTWallet(){
+  let NFTs = await moralisGetNFTs();
+  for (i = 0; i< NFTs.length; i++){
+    let characterDetails = await contractGetCharacterData(NFTs[i].token_id);
+    document.getElementById("walletContainer").innerHTML +=
+    `
+    <div class="col-4" >
+      <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:10px 10px 0px">
+      <div class="card-body">
+        <div class="row align-items-start">
+            <img src="${characterDetails.imageURI}" alt="jewels" width="30%" height="30%">
+        </div>
+        <div class="row align-items-start" style ="padding-top: 10px;">
+          <div class="col-12 text-center">
+            <h4 class="textChange"><b>${characterDetails.name}</b></h4>
+            <h6 class="textChange"><b>Health: </b> ${characterDetails.health}</h6>
+            <h6 class="textChange"><b>Agility: </b> ${characterDetails.agility}</h6>
+            <h6 class="textChange"><b>Strength: </b> ${characterDetails.strength}</h6>
+            <h6 class="textChange"><b>Charm: </b> ${characterDetails.charm}</h6>
+            <h6 class="textChange"><b>Sneak: </b> ${characterDetails.sneak}</h6>
+          </div>
+        </div>
+        <div class="row align-items-start" style ="padding-top: 10px;">
+          <div class="col-12 text-center">
+              <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Exchange</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    `
+  }
 }
 async function renderFollowing(followingArray) { //followingArray
   var followerHTML = document.getElementById("followerList");
@@ -4505,12 +5933,12 @@ pre {
                   <div class="row align-items-start" style ="padding-top: 10px;">
                     <div class="col-12 text-center">
                         <h4 class="textChange">10,000 DSN</h4>
-                        <h6 class="textChange">0.025 Ether</h6>
+                        <h6 class="textChange">0.000025 Ether</h6>
                     </div>
                   </div>
                   <div class="row align-items-start" style ="padding-top: 10px;">
                     <div class="col-12 text-center">
-                        <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Exchange</button>
+                        <button type="button" onclick="contractBuySmallTokens()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Exchange</button>
                     </div>
                   </div>
                 </div>
@@ -4525,12 +5953,12 @@ pre {
                     <div class="row align-items-start" style ="padding-top: 10px;">
                       <div class="col-12 text-center">
                           <h4 class="textChange">20,000 DSN</h4>
-                          <h6 class="textChange">0.04 Ether</h6>
+                          <h6 class="textChange">0.00004 Ether</h6>
                       </div>
                     </div>
                     <div class="row align-items-start" style ="padding-top: 10px;">
                       <div class="col-12 text-center">
-                          <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Exchange</button>
+                          <button type="button" onclick="contractBuyMediumTokens()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Exchange</button>
                       </div>
                     </div>
                   </div>
@@ -4545,12 +5973,12 @@ pre {
                     <div class="row align-items-start" style ="padding-top: 10px;">
                       <div class="col-12 text-center">
                           <h4 class="textChange">100,000 DSN</4>
-                          <h6 class="textChange">0.15 Ether</h6>
+                          <h6 class="textChange">0.00015 Ether</h6>
                       </div>
                     </div>
                     <div class="row align-items-start" style ="padding-top: 10px;">
                       <div class="col-12 text-center">
-                          <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Exchange</button>
+                          <button type="button" onclick="contractBuyLargeTokens()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Exchange</button>
                       </div>
                     </div>
                   </div>
@@ -4570,17 +5998,17 @@ pre {
               </div>
               <div class="row align-items-start" style ="padding-top: 10px;">
                 <div class="col-12 text-center">
-                      <h4 class="textChange"><b>Virginia</b></h4>
-                      <h6 class="textChange"><b>Agility:</b> Average</h6>
-                      <h6 class="textChange"><b>Strength:</b> Average</h6>
-                      <h6 class="textChange"><b>Charm:</b> Average</h6>
-                      <h6 class="textChange"><b>Sneak:</b> High</h6>
+                      <h4 class="textChange" data-bs-toggle="tooltip" data-bs-placement="bottom" title="? = 0-100 Randomly Generated by Chainlink VRF"><b>Virginia</b></h4>
+                      <h6 class="textChange" data-bs-toggle="tooltip" data-bs-placement="bottom" title="? = 0-100 Randomly Generated by Chainlink VRF"><b>Agility:</b> 250 + ?</h6>
+                      <h6 class="textChange" data-bs-toggle="tooltip" data-bs-placement="bottom" title="? = 0-100 Randomly Generated by Chainlink VRF"><b>Strength:</b> 250 + ?</h6>
+                      <h6 class="textChange" data-bs-toggle="tooltip" data-bs-placement="bottom" title="? = 0-100 Randomly Generated by Chainlink VRF"><b>Charm:</b> 250 + ?</h6>
+                      <h6 class="textChange" data-bs-toggle="tooltip" data-bs-placement="bottom" title="? = 0-100 Randomly Generated by Chainlink VRF"><b>Sneak:</b> 500 + ?</h6>
                       <h6 class="textChange">0.002 Ether</h6>
                 </div>
               </div>
               <div class="row align-items-start" style ="padding-top: 10px;">
                 <div class="col-12 text-center">
-                    <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
+                    <button type="button" onclick="mintAnyCharacter('Virginia','0')" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
                 </div>
               </div>
             </div>
@@ -4595,16 +6023,16 @@ pre {
               <div class="row align-items-start" style ="padding-top: 10px;">
                 <div class="col-12 text-center">
                   <h4 class="textChange"><b>Florida</b></h4>
-                  <h6 class="textChange"><b>Agility:</b> Average</h6>
-                  <h6 class="textChange"><b>Strength:</b> Average</h6>
-                  <h6 class="textChange"><b>Charm:</b> High</h6>
-                  <h6 class="textChange"><b>Sneak:</b> Average</h6>
+                  <h6 class="textChange" data-bs-toggle="tooltip" data-bs-placement="bottom" title="? = 0-100 Randomly Generated by Chainlink VRF"><b>Agility:</b> 250 + ?</h6>
+                  <h6 class="textChange" data-bs-toggle="tooltip" data-bs-placement="bottom" title="? = 0-100 Randomly Generated by Chainlink VRF"><b>Strength:</b> 250 + ?</h6>
+                  <h6 class="textChange" data-bs-toggle="tooltip" data-bs-placement="bottom" title="? = 0-100 Randomly Generated by Chainlink VRF"><b>Charm:</b> 500 + ?</h6>
+                  <h6 class="textChange" data-bs-toggle="tooltip" data-bs-placement="bottom" title="? = 0-100 Randomly Generated by Chainlink VRF"><b>Sneak:</b> 250 + ?</h6>
                   <h6 class="textChange">0.002 Ether</h6>
                 </div>
               </div>
               <div class="row align-items-start" style ="padding-top: 10px;">
                 <div class="col-12 text-center">
-                    <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
+                    <button type="button" onclick="mintAnyCharacter('Florida','1')" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
                 </div>
               </div>
             </div>
@@ -4618,17 +6046,17 @@ pre {
               </div>
               <div class="row align-items-start" style ="padding-top: 10px;">
                 <div class="col-12 text-center">
-                  <h4 class="textChange"><b>Alaska</b></h4>
-                  <h6 class="textChange"><b>Agility:</b> Average</h6>
-                  <h6 class="textChange"><b>Strength:</b> High</h6>
-                  <h6 class="textChange"><b>Charm:</b> Average</h6>
-                  <h6 class="textChange"><b>Sneak:</b> Average</h6>
+                  <h4 class="textChange" data-bs-toggle="tooltip" data-bs-placement="bottom" title="? = 0-100 Randomly Generated by Chainlink VRF"><b>Alaska</b></h4>
+                  <h6 class="textChange" data-bs-toggle="tooltip" data-bs-placement="bottom" title="? = 0-100 Randomly Generated by Chainlink VRF"><b>Agility:</b> 250 + ?</h6>
+                  <h6 class="textChange" data-bs-toggle="tooltip" data-bs-placement="bottom" title="? = 0-100 Randomly Generated by Chainlink VRF"><b>Strength:</b> 500 + ?</h6>
+                  <h6 class="textChange" data-bs-toggle="tooltip" data-bs-placement="bottom" title="? = 0-100 Randomly Generated by Chainlink VRF"><b>Charm:</b> 250 + ?</h6>
+                  <h6 class="textChange" data-bs-toggle="tooltip" data-bs-placement="bottom" title="? = 0-100 Randomly Generated by Chainlink VRF"><b>Sneak:</b> 250 + ?</h6>
                   <h6 class="textChange">0.002 Ether</h6>
                 </div>
               </div>
               <div class="row align-items-start" style ="padding-top: 10px;">
                 <div class="col-12 text-center">
-                    <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
+                    <button type="button" onclick="mintAnyCharacter('Alaska','2')" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
                 </div>
               </div>
             </div>
@@ -4710,77 +6138,9 @@ pre {
 
               </div>
             </div>
-            <div id="walletContainer" class="col-12" style="margin-top:30px">
-              <div class="row align-items-start" style ="padding-top: 40px;">
-              <div class="col-4" >
-                <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
-                <div class="card-body">
-                  <div class="row align-items-start">
-                      <img src="https://ipfs.io/ipfs/QmVNi1MrwAbrBEjSoQNYRyEnJAP7FUQq9pS5htYH2KMEqc?filename=Virginia.png" alt="jewels" width="30%" height="30%">
-                  </div>
-                  <div class="row align-items-start" style ="padding-top: 10px;">
-                    <div class="col-12 text-center">
-                          <h4 class="textChange"><b>Virginia</b></h4>
-                          <h6 class="textChange"><b>Agility:</b> Average</h6>
-                          <h6 class="textChange"><b>Strength:</b> Average</h6>
-                          <h6 class="textChange"><b>Charm:</b> Average</h6>
-                          <h6 class="textChange"><b>Sneak:</b> High</h6>
-                    </div>
-                  </div>
-                  <div class="row align-items-start" style ="padding-top: 10px;">
-                    <div class="col-12 text-center">
-                        <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              </div>
-              <div class="col-4" >
-                <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
-                <div class="card-body">
-                  <div class="row align-items-start">
-                      <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="30%" height="30%">
-                  </div>
-                  <div class="row align-items-start" style ="padding-top: 10px;">
-                    <div class="col-12 text-center">
-                      <h4 class="textChange"><b>Florida</b></h4>
-                      <h6 class="textChange"><b>Agility:</b> Average</h6>
-                      <h6 class="textChange"><b>Strength:</b> Average</h6>
-                      <h6 class="textChange"><b>Charm:</b> High</h6>
-                      <h6 class="textChange"><b>Sneak:</b> Average</h6>
-                    </div>
-                  </div>
-                  <div class="row align-items-start" style ="padding-top: 10px;">
-                    <div class="col-12 text-center">
-                        <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              </div>
-              <div class="col-4" >
-                <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
-                <div class="card-body">
-                  <div class="row align-items-start">
-                      <img src="https://ipfs.io/ipfs/QmRajorfwuFupWq6RoasUdQtxcWsoVta8NH12EVHeHi5Wn?filename=Alaska.png" alt="jewels" width="30%" height="30%">
-                  </div>
-                  <div class="row align-items-start" style ="padding-top: 10px;">
-                    <div class="col-12 text-center">
-                      <h4 class="textChange"><b>Alaska</b></h4>
-                      <h6 class="textChange"><b>Agility:</b> Average</h6>
-                      <h6 class="textChange"><b>Strength:</b> High</h6>
-                      <h6 class="textChange"><b>Charm:</b> Average</h6>
-                      <h6 class="textChange"><b>Sneak:</b> Average</h6>
-                    </div>
-                  </div>
-                  <div class="row align-items-start" style ="padding-top: 10px;">
-                    <div class="col-12 text-center">
-                        <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Mint</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              </div>
+            <div class="col-12" style="margin-top:30px">
+              <div id="walletContainer" class="row align-items-start" style ="padding-top: 40px;">
+
             </div>
 
           </div>
