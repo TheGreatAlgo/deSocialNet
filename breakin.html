@@ -1,0 +1,3149 @@
+<!--
+__________         ___.      __   .__             __________        .__ .__       .___
+\______   \  ____  \_ |__  _/  |_ |  |__    ____  \______   \ __ __ |__||  |    __| _/  ____  _______
+ |    |  _/ /  _ \  | __ \ \   __\|  |  \ _/ __ \  |    |  _/|  |  \|  ||  |   / __ | _/ __ \ \_  __ \
+ |    |   \(  <_> ) | \_\ \ |  |  |   Y  \\  ___/  |    |   \|  |  /|  ||  |__/ /_/ | \  ___/  |  | \/
+ |______  / \____/  |___  / |__|  |___|  / \___  > |______  /|____/ |__||____/\____ |  \___  > |__|
+        \/              \/             \/      \/         \/                       \/      \/
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap CSS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<script src="https://kit.fontawesome.com/0af91b369f.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous">
+</script>
+<title>Hello, world!</title>
+</head>
+<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+<script src="https://npmcdn.com/moralis@latest/dist/moralis.js"></script>
+<script>
+expandText()
+
+function expandText(){
+  $(function() {
+    $('textarea').on('input keyup paste', function() {
+      var $el = $(this),
+          offset = $el.innerHeight() - $el.height();
+
+      if ($el.innerHeight() < this.scrollHeight) {
+        // Grow the field if scroll height is smaller
+        $el.height(this.scrollHeight - offset);
+      } else {
+        // Shrink the field and then re-set it to the scroll height in case it needs to shrink
+        $el.height(1);
+        $el.height(this.scrollHeight - offset);
+      }
+    });
+  });
+}
+// Global Variables -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------Global Variables-------------------------------
+let enableNitro = false;
+var file;
+var image;
+var share;
+var gif;
+var link;
+var following;
+var savedPosts;
+var mode
+var recipientAddress // global recipientAddress for donations
+var recipientNickname // global recipient nickname for donations
+const kovanWETHTokenAddress ="0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
+const gameKovanContract = "0x0C89d06a6c726f1BAc813A7bd1A875c2114419b7";
+const deSocialNetTokenAddress = "0xAe0f650F39B943F738a790519C3556bf6f8C92F1";
+const minterContract = "0x045806a2F15FA26eE7e52c4dab62497e98fa5de4";
+const gameABI =
+[
+ {
+   "inputs": [],
+   "stateMutability": "nonpayable",
+   "type": "constructor"
+ },
+ {
+   "anonymous": false,
+   "inputs": [
+     {
+       "indexed": true,
+       "internalType": "address",
+       "name": "previousOwner",
+       "type": "address"
+     },
+     {
+       "indexed": true,
+       "internalType": "address",
+       "name": "newOwner",
+       "type": "address"
+     }
+   ],
+   "name": "OwnershipTransferred",
+   "type": "event"
+ },
+ {
+   "anonymous": false,
+   "inputs": [
+     {
+       "indexed": false,
+       "internalType": "bytes32",
+       "name": "requestID",
+       "type": "bytes32"
+     },
+     {
+       "indexed": false,
+       "internalType": "address",
+       "name": "player",
+       "type": "address"
+     },
+     {
+       "indexed": false,
+       "internalType": "uint256",
+       "name": "code",
+       "type": "uint256"
+     }
+   ],
+   "name": "gameCode",
+   "type": "event"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "address",
+       "name": "",
+       "type": "address"
+     }
+   ],
+   "name": "NFTCharacterDepositLedger",
+   "outputs": [
+     {
+       "internalType": "uint256",
+       "name": "NFTID",
+       "type": "uint256"
+     },
+     {
+       "internalType": "bool",
+       "name": "isDeposited",
+       "type": "bool"
+     },
+     {
+       "internalType": "bool",
+       "name": "arrested",
+       "type": "bool"
+     },
+     {
+       "internalType": "uint256",
+       "name": "freetoPlayAgain",
+       "type": "uint256"
+     },
+     {
+       "internalType": "bool",
+       "name": "playingPVP",
+       "type": "bool"
+     },
+     {
+       "internalType": "uint256",
+       "name": "canStopPlayingPVP",
+       "type": "uint256"
+     },
+     {
+       "internalType": "uint256",
+       "name": "lootingTimeout",
+       "type": "uint256"
+     },
+     {
+       "internalType": "uint256",
+       "name": "health",
+       "type": "uint256"
+     },
+     {
+       "internalType": "uint256",
+       "name": "agility",
+       "type": "uint256"
+     },
+     {
+       "internalType": "uint256",
+       "name": "strength",
+       "type": "uint256"
+     },
+     {
+       "internalType": "uint256",
+       "name": "sneak",
+       "type": "uint256"
+     },
+     {
+       "internalType": "uint256",
+       "name": "charm",
+       "type": "uint256"
+     }
+   ],
+   "stateMutability": "view",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "string",
+       "name": "name",
+       "type": "string"
+     },
+     {
+       "internalType": "uint16",
+       "name": "riskBaseDifficulty",
+       "type": "uint16"
+     },
+     {
+       "internalType": "uint256",
+       "name": "payoutAmountBase",
+       "type": "uint256"
+     }
+   ],
+   "name": "addScenario",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "uint256",
+       "name": "newCheckInTimeInterval",
+       "type": "uint256"
+     }
+   ],
+   "name": "changeCheckInTime",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "uint256",
+       "name": "newHospitalBill",
+       "type": "uint256"
+     }
+   ],
+   "name": "changeHospitalBill",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "address",
+       "name": "newInheritor",
+       "type": "address"
+     }
+   ],
+   "name": "changeInheritance",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [],
+   "name": "checkInTimeInterval",
+   "outputs": [
+     {
+       "internalType": "uint256",
+       "name": "",
+       "type": "uint256"
+     }
+   ],
+   "stateMutability": "view",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "bytes",
+       "name": "",
+       "type": "bytes"
+     }
+   ],
+   "name": "checkUpkeep",
+   "outputs": [
+     {
+       "internalType": "bool",
+       "name": "upkeepNeeded",
+       "type": "bool"
+     },
+     {
+       "internalType": "bytes",
+       "name": "",
+       "type": "bytes"
+     }
+   ],
+   "stateMutability": "view",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "uint256",
+       "name": "amountToDeposit",
+       "type": "uint256"
+     }
+   ],
+   "name": "depositJewels",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "uint256",
+       "name": "NFTID",
+       "type": "uint256"
+     }
+   ],
+   "name": "depositNFT",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "uint256",
+       "name": "",
+       "type": "uint256"
+     }
+   ],
+   "name": "gameScenarios",
+   "outputs": [
+     {
+       "internalType": "string",
+       "name": "name",
+       "type": "string"
+     },
+     {
+       "internalType": "uint256",
+       "name": "riskBaseDifficulty",
+       "type": "uint256"
+     },
+     {
+       "internalType": "uint256",
+       "name": "payoutAmountBase",
+       "type": "uint256"
+     }
+   ],
+   "stateMutability": "view",
+   "type": "function"
+ },
+ {
+   "inputs": [],
+   "name": "hospitalVisit",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "address",
+       "name": "",
+       "type": "address"
+     }
+   ],
+   "name": "jewelDepositLedger",
+   "outputs": [
+     {
+       "internalType": "uint256",
+       "name": "",
+       "type": "uint256"
+     }
+   ],
+   "stateMutability": "view",
+   "type": "function"
+ },
+ {
+   "inputs": [],
+   "name": "lastCheckIn",
+   "outputs": [
+     {
+       "internalType": "uint256",
+       "name": "",
+       "type": "uint256"
+     }
+   ],
+   "stateMutability": "view",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "uint256",
+       "name": "scenarioNumber",
+       "type": "uint256"
+     },
+     {
+       "internalType": "string",
+       "name": "name",
+       "type": "string"
+     },
+     {
+       "internalType": "uint16",
+       "name": "riskBaseDifficulty",
+       "type": "uint16"
+     },
+     {
+       "internalType": "uint16",
+       "name": "payoutAmountBase",
+       "type": "uint16"
+     }
+   ],
+   "name": "modifyScenario",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [],
+   "name": "nextOwner",
+   "outputs": [
+     {
+       "internalType": "address",
+       "name": "",
+       "type": "address"
+     }
+   ],
+   "stateMutability": "view",
+   "type": "function"
+ },
+ {
+   "inputs": [],
+   "name": "owner",
+   "outputs": [
+     {
+       "internalType": "address",
+       "name": "",
+       "type": "address"
+     }
+   ],
+   "stateMutability": "view",
+   "type": "function"
+ },
+ {
+   "inputs": [],
+   "name": "ownerCheckIn",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "bytes",
+       "name": "",
+       "type": "bytes"
+     }
+   ],
+   "name": "performUpkeep",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "uint256",
+       "name": "breakInStyle",
+       "type": "uint256"
+     },
+     {
+       "internalType": "address",
+       "name": "targetPlayer",
+       "type": "address"
+     }
+   ],
+   "name": "playBreakOut",
+   "outputs": [
+     {
+       "internalType": "bytes32",
+       "name": "",
+       "type": "bytes32"
+     }
+   ],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "uint256",
+       "name": "difficultyLevel",
+       "type": "uint256"
+     },
+     {
+       "internalType": "uint256",
+       "name": "breakInStyle",
+       "type": "uint256"
+     },
+     {
+       "internalType": "uint256",
+       "name": "scenario",
+       "type": "uint256"
+     }
+   ],
+   "name": "playGame",
+   "outputs": [
+     {
+       "internalType": "bytes32",
+       "name": "",
+       "type": "bytes32"
+     }
+   ],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "uint256",
+       "name": "breakInStyle",
+       "type": "uint256"
+     },
+     {
+       "internalType": "address",
+       "name": "targetPlayer",
+       "type": "address"
+     }
+   ],
+   "name": "playPVP",
+   "outputs": [
+     {
+       "internalType": "bytes32",
+       "name": "",
+       "type": "bytes32"
+     }
+   ],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [],
+   "name": "randomResult",
+   "outputs": [
+     {
+       "internalType": "uint256",
+       "name": "",
+       "type": "uint256"
+     }
+   ],
+   "stateMutability": "view",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "bytes32",
+       "name": "requestId",
+       "type": "bytes32"
+     },
+     {
+       "internalType": "uint256",
+       "name": "randomness",
+       "type": "uint256"
+     }
+   ],
+   "name": "rawFulfillRandomness",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [],
+   "name": "renounceOwnership",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [],
+   "name": "startPlayPVP",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [],
+   "name": "stopPlayPVP",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "address",
+       "name": "newOwner",
+       "type": "address"
+     }
+   ],
+   "name": "transferOwnership",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "uint256",
+       "name": "amount",
+       "type": "uint256"
+     }
+   ],
+   "name": "withdraw",
+   "outputs": [
+     {
+       "internalType": "bool",
+       "name": "",
+       "type": "bool"
+     }
+   ],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "contract IERC20",
+       "name": "token",
+       "type": "address"
+     }
+   ],
+   "name": "withdrawErc20",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [
+     {
+       "internalType": "uint256",
+       "name": "amountToWithdraw",
+       "type": "uint256"
+     }
+   ],
+   "name": "withdrawJewels",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "inputs": [],
+   "name": "withdrawNFT",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+ },
+ {
+   "stateMutability": "payable",
+   "type": "receive"
+ }
+]
+const deSocialNetABI =
+[
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "name_",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "symbol_",
+				"type": "string"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "Approval",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			}
+		],
+		"name": "allowance",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "approve",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "decimals",
+		"outputs": [
+			{
+				"internalType": "uint8",
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "subtractedValue",
+				"type": "uint256"
+			}
+		],
+		"name": "decreaseAllowance",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "addedValue",
+				"type": "uint256"
+			}
+		],
+		"name": "increaseAllowance",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalSupply",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "recipient",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "transfer",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "recipient",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "transferFrom",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]
+const minterABI =
+[
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "approved",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "Approval",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "approved",
+				"type": "bool"
+			}
+		],
+		"name": "ApprovalForAll",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "health",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "imageURI",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			}
+		],
+		"name": "addCharacterOne",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "health",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "imageURI",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			}
+		],
+		"name": "addCharacterThree",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "health",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "imageURI",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			}
+		],
+		"name": "addCharacterTwo",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "approve",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "newCheckInTimeInterval",
+				"type": "uint256"
+			}
+		],
+		"name": "changeCheckInTime",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "characterID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			}
+		],
+		"name": "changeDescription",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newGameAddress",
+				"type": "address"
+			}
+		],
+		"name": "changeGameAddress",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "characterID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "imageURI",
+				"type": "string"
+			}
+		],
+		"name": "changeImageURI",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newInheritor",
+				"type": "address"
+			}
+		],
+		"name": "changeInheritance",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "newMintFee",
+				"type": "uint256"
+			}
+		],
+		"name": "changeMintFee",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "NFTID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "health",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "agility",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "strength",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "sneak",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "charm",
+				"type": "uint256"
+			}
+		],
+		"name": "changeNFTAttributes",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "characterID",
+				"type": "uint256"
+			}
+		],
+		"name": "mintAnyCharacter",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "ownerCheckIn",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "performUpkeep",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "requestId",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "uint256",
+				"name": "randomness",
+				"type": "uint256"
+			}
+		],
+		"name": "rawFulfillRandomness",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "safeTransferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "_data",
+				"type": "bytes"
+			}
+		],
+		"name": "safeTransferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			},
+			{
+				"internalType": "bool",
+				"name": "approved",
+				"type": "bool"
+			}
+		],
+		"name": "setApprovalForAll",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "transferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdraw",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "token",
+				"type": "address"
+			}
+		],
+		"name": "withdrawErc20",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "characters",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "born",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "health",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "agility",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "strength",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "sneak",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "charm",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "characterID",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "checkInTimeInterval",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "checkUpkeep",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "upkeepNeeded",
+				"type": "bool"
+			},
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "getApproved",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "NFTID",
+				"type": "uint256"
+			}
+		],
+		"name": "getNFTAttributes",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "agility",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "strength",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "charm",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "sneak",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "health",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			}
+		],
+		"name": "isApprovedForAll",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "lastCheckIn",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "mintableNFTCharacterStruct",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "health",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "agility",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "strength",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "sneak",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "charm",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "imageURI",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "mintFee",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "nextOwner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "ownerOf",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "randomResult",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes4",
+				"name": "interfaceId",
+				"type": "bytes4"
+			}
+		],
+		"name": "supportsInterface",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "tokenURI",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalMintableCharacters",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+const serverUrl = "https://h1fpcthpxdrt.usemoralis.com:2053/server";
+const appId = "xNLGUQH5eITa3ybsmQ7Zp2ZbekxAtVRa6umAJ1LZ";
+Moralis.start({ serverUrl, appId });
+
+
+// MORALIS CONTRACT FUNCTIONS
+async function contractApproveJewels() {
+  const options = {
+    contractAddress: deSocialNetTokenAddress,
+    functionName: "approve",
+    abi: deSocialNetABI,
+    params: {
+      spender: gameKovanContract,
+      amount: Moralis.Units.ETH("10000000") // approve for a billion so they don't need to keep approving
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+}
+async function contractApproveNFTs() {
+  const options = {
+    contractAddress: minterContract,
+    functionName: "setApprovalForAll",
+    abi: minterABI,
+    params: {
+      operator: gameKovanContract,
+      approved: true // approve for a billion so they don't need to keep approving
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+}
+async function contractDepositNFT(_NFTID) {
+  const options = {
+    contractAddress: gameKovanContract,
+    functionName: "depositNFT",
+    abi: gameABI,
+    params: {
+      NFTID: _NFTID
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+}
+async function withdrawNFT() {
+  const options = {
+    contractAddress: gameKovanContract,
+    functionName: "withdrawNFT",
+    abi: gameABI,
+    params: {
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+}
+
+async function contractHospitalVisit() {
+  const options = {
+    contractAddress: gameKovanContract,
+    functionName: "hospitalVisit",
+    abi: gameABI,
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+}
+async function contractDepositJewels(_amountToDeposit) {
+  const options = {
+    contractAddress: gameKovanContract,
+    functionName: "depositJewels",
+    abi: gameABI,
+    params: {
+      amountToDeposit: Moralis.Units.ETH(_amountToDeposit)
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+}
+async function contractWithdrawJewels(_amountToWithdraw) {
+  const options = {
+    contractAddress: gameKovanContract,
+    functionName: "withdrawJewels",
+    abi: gameABI,
+    params: {
+      amountToDeposit: _amountToDeposit
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+}
+async function contractGetJewelBalance(userAddress) {
+  const options = {
+    contractAddress: gameKovanContract,
+    functionName: "jewelDepositLedger",
+    abi: gameABI,
+    params: {
+      "": userAddress
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  return receipt;
+}
+async function contractGetNFTCharacter(address) {
+  let options = { // get character deposited in NFT Game
+    contractAddress: gameKovanContract,
+    functionName: "NFTCharacterDepositLedger",
+    abi: gameABI,
+    params: {
+      "": address
+    },
+  };
+  let receipt = await Moralis.executeFunction(options);
+  // here we should have the stats and NFTID
+  options = {
+    contractAddress: minterContract,
+    functionName: "characters",
+    abi:  minterABI,
+    params: {
+      "": receipt.NFTID // requesting the CharacterID
+    },
+  };
+  characterMinterAddress = await Moralis.executeFunction(options);
+  console.log(characterMinterAddress.characterID);
+   options = {
+    contractAddress: minterContract,
+    functionName: "mintableNFTCharacterStruct",
+    abi:  minterABI,
+    params: {
+      "": characterMinterAddress.characterID // use the general characterID to get the image source location
+    },
+  };
+  let characterDetails = await Moralis.executeFunction(options);
+  console.log(characterDetails);
+  receipt.imageURI = characterDetails.imageURI;
+  receipt.description= characterDetails.description;
+  receipt.name = characterMinterAddress.name;
+  console.log(receipt)
+  return receipt;
+}
+async function contractGetCharacterData(_characterID) {
+
+  let options = {
+    contractAddress: minterContract,
+    functionName: "characters",
+    abi:  minterABI,
+    params: {
+      "": _characterID
+    },
+  };
+  let receipt = await Moralis.executeFunction(options);
+
+   options = {
+    contractAddress: minterContract,
+    functionName: "mintableNFTCharacterStruct",
+    abi:  minterABI,
+    params: {
+      "": receipt.characterID
+    },
+  };
+  let characterDetails = await Moralis.executeFunction(options);
+
+  receipt.imageURI = characterDetails.imageURI;
+  receipt.description= characterDetails.description;
+
+  return receipt;
+}
+async function playGame(_difficultyLevel,_breakInStyle,_scenario) {
+  const options = {
+    contractAddress: gameKovanContract,
+    functionName: "withdrawJewels",
+    abi: ABI,
+    params: {
+      difficultyLevel: _difficultyLevel,
+      breakInStyle: _breakInStyle,
+      scenario: _scenario,
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+}
+
+async function moralisGetGameEvents(_userAddress) {
+  const Messaging = Moralis.Object.extend("GameEvents");
+  const query = new Moralis.Query(Messaging);
+
+  query.equalTo("player", _userAddress);
+  const receipt = await query.find();
+  console.log(receipt)
+  return receipt;
+}
+
+onFirstLoad()
+async function login() {
+  console.log("login attempted");
+  let user = await Moralis.User.current();
+  if (!user) {
+    user = await Moralis.authenticate();
+    let address = user.get("accounts");
+    address = address[0];
+    userProfile = await contractGetUserProfile(address);
+      let result = await renderUserProfileTopRight();
+      result = await renderSocialFeedPage();
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("mainPage").style.display = "";
+      getUserPreferences() // user Preferences are then assigned to global variables
+
+   }
+  else{
+    let result = await renderUserProfileTopRight();
+    result = await renderSocialFeedPage();
+    document.getElementById("loginForm").style.display = "none";
+    document.getElementById("mainPage").style.display = "";
+    getUserPreferences() // user Preferences are then assigned to global variables
+  }
+  console.log("logged in user:", user);
+}
+async function logOut() {
+  try{
+      let result = await Moralis.User.logOut();
+  }
+  catch{
+    //in case they already got autologgedoff
+  }
+  document.getElementById("loginForm").style.display = "block";
+  document.getElementById("mainPage").style.display = "none";
+
+  console.log("logged out");
+}
+async function onFirstLoad() {
+  const web3 = await Moralis.enableWeb3();
+  let user = await Moralis.User.current();
+  if (!user) {
+    document.getElementById("loginForm").style.display = "";
+    document.getElementById("mainPage").style.display = "none";
+    user = await Moralis.authenticate();
+    let address = user.get("accounts");
+    address = address[0];
+    document.getElementById("loginForm").style.display = "none";
+    document.getElementById("mainPage").style.display = "";
+    //getUserPreferences() // user Preferences are then assigned to global variables
+
+   }
+   else{
+      let address = user.get("accounts");
+      address = address[0];
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("mainPage").style.display = "";
+    //getUserPreferences() // user Preferences are then assigned to global variables
+  }
+  console.log("logged in user:", user);
+}
+async function moralisGetNFTs(){
+  let currentUser = await Moralis.User.current();
+  let userAddress = await currentUser.get("accounts");
+  userAddress = userAddress[0];
+  const options = { chain: 'kovan', address: userAddress, token_address: minterContract };
+  const ethereumNFTs = await Moralis.Web3API.account.getNFTsForContract(options);
+  console.log(ethereumNFTs);
+  return ethereumNFTs.result;
+}
+async function depositJewels(){
+   let balance = document.getElementById("balanceInput").value;
+  let result = await contractDepositJewels(balance)
+  getJewelBalance();
+}
+async function withdrawJewels(){
+   let balance = document.getElementById("balanceInput").value;
+   console.log(balance);
+  let result = await contractWithdrawJewels(balance)
+}
+async function getJewelBalance(){
+    let user = await Moralis.User.current();
+  let address = user.get("accounts");
+   address = address[0];
+   let amount = await contractGetJewelBalance(address);
+      console.log(amount);
+   amount = Moralis.Units.FromWei(amount, 18);
+   amount = Math.trunc(amount);
+   document.getElementById("currentBalance").innerHTML = amount + " Jewels";
+   console.log(amount);
+}
+async function renderNFTCharacter(){
+    let user = await Moralis.User.current();
+  let address = user.get("accounts");
+   address = address[0];
+   let result = await contractGetNFTCharacter(address);
+  console.log(result);
+  document.getElementById("nameAttribute").innerHTML = result.name;
+  document.getElementById('imageAttribute').src = result.imageURI;
+  document.getElementById("healthAttribute").innerHTML = "Health: " + result.health;
+  document.getElementById("agilityAttribute").innerHTML = "Agility: " + result.agility;
+  document.getElementById("strengthAttribute").innerHTML = "Strength: " + result.strength;
+  document.getElementById("charmAttribute").innerHTML = "Charm: " + result.charm;
+  document.getElementById("sneakAttribute").innerHTML = "Sneak: " + result.sneak;
+  if (result.arrested == true){
+    document.getElementById("arrestedAttribute").innerHTML = "Arrested: Yes";
+  }
+  else{
+    document.getElementById("arrestedAttribute").innerHTML = "Arrested: No";
+  }
+  if (result.playingPVP == true){
+    document.getElementById("playingPVPAttribute").innerHTML = "Playing PVP: Yes";
+  }
+  else{
+    document.getElementById("playingPVPAttribute").innerHTML = "Playing PVP: No";
+  }
+  if (result.canStopPlayingPVP <= Math.floor(Date.now() / 1000) ){
+    document.getElementById("stopPlayingPVPAttribute").innerHTML = "Can Stop Playing PVP: Yes";
+  }
+  else{
+    document.getElementById("stopPlayingPVPAttribute").innerHTML = "Can Stop Playing PVP: No";
+  }
+}
+async function depositNFT(NFTID){
+    console.log(NFTID);
+  let result = await contractDepositNFT(NFTID);
+  console.log(result);
+}
+
+async function renderNFTWallet(){
+  let NFTs = await moralisGetNFTs();
+  var walletContainer = document.getElementById("walletContainer");
+  while (walletContainer.hasChildNodes()) { // This removes all of them and re-renders it
+    walletContainer.removeChild(walletContainer.firstChild);
+    }
+  for (i = 0; i< NFTs.length; i++){
+    let characterDetails = await contractGetCharacterData(NFTs[i].token_id);
+    document.getElementById("walletContainer").innerHTML +=
+    `
+    <div class="col-6" >
+      <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:10px 10px 0px">
+      <div class="card-body">
+        <div class="row align-items-start">
+            <img src="${characterDetails.imageURI}" alt="jewels" width="30%" height="30%">
+        </div>
+        <div class="row align-items-start" style ="padding-top: 10px;">
+          <div class="col-12 text-center">
+            <h4 class="textChange"><b>${characterDetails.name}</b></h4>
+            <h6 class="textChange"><b>Health: </b> ${characterDetails.health}</h6>
+            <h6 class="textChange"><b>Agility: </b> ${characterDetails.agility}</h6>
+            <h6 class="textChange"><b>Strength: </b> ${characterDetails.strength}</h6>
+            <h6 class="textChange"><b>Charm: </b> ${characterDetails.charm}</h6>
+            <h6 class="textChange"><b>Sneak: </b> ${characterDetails.sneak}</h6>
+          </div>
+        </div>
+        <div class="row align-items-start" style ="padding-top: 10px;">
+          <div class="col-12 text-center">
+              <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor" onclick="depositNFT('${NFTs[i].token_id}')" >Deposit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    `
+  }
+}
+
+function updateUserPreferences(_data, _action){
+  const userPreferences = Moralis.User.current();
+  console.log("sending to moralis",_data)
+  switch(_action){
+    case "unfollow":
+        userPreferences.remove("following",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
+        break;
+    case "follow":
+        userPreferences.addUnique("following",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
+        console.log("Moralis followed uploaded");
+        break;
+    case "login":
+        userPreferences.set("lastLogin",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
+        console.log("Moralis last login updated");
+        break;
+    case "modeChange":
+        userPreferences.set("mode",_data); //Either "Light" or "dark"
+        break;
+    case "savePost":
+        userPreferences.addUnique("savedPosts",_data); //Array of Addresses with Post ID. Example [[0x578783,4],[0x57846,5]]
+        break;
+    case "unSavePost":
+        userPreferences.remove("savedPosts",_data); //Array of Addresses with Post ID. Example [[0x578783,4],[0x57846,5]]
+        $('#savedPostModal').modal('hide'); //hide other modal
+        break;
+    default:
+      //do nothing
+  }
+  userPreferences.save()
+  .then((userPreferences) => {
+  getUserPreferences() //refreshUserPreferences
+   }, (error) => {
+
+  alert('Failed to create new object, with error code: ' + error.message);
+});
+}
+async function getUserPreferences() { // only time this should be called is on a page refresh or on change of userPreferences
+  userPreferences = await Moralis.User.current();
+  following = await userPreferences.get("following");
+  savedPosts = await userPreferences.get("savedPosts");
+  console.log(savedPosts);
+  mode = await userPreferences.get("mode");
+  let result = await renderSaved(savedPosts); // replace with "savedPosts" on launch;
+  result = await renderFollowing(following);
+  if (mode=="light"){
+    //toggleLightMode();
+  }
+  else{
+    //toggleDarkMode();
+  }
+}
+
+
+
+// HANDLING FILES/LINKS -----------------------------------------------------------------------------------------------------------------------------------------------------------HANDLING FILES/LINKS-------------------------------
+
+function getLocalTime(unixTimeStamp){
+  unixTimeStamp = unixTimeStamp*1000;
+  var date = new Date(unixTimeStamp).toLocaleDateString("en-US");
+  var time = new Date(unixTimeStamp).toLocaleTimeString("en-US");
+  return (date + " " + time)
+}
+function getLocalDate(unixTimeStamp){
+  unixTimeStamp = unixTimeStamp*1000;
+  var date = new Date(unixTimeStamp).toLocaleDateString("en-US");
+  return (date)
+}
+
+function loadMainPage(){
+  window.scrollTo(0, 0);
+  document.getElementById("bankMenu").style.display="none";
+  document.getElementById("tavernMenu").style.display="none";
+  document.getElementById("robberyMenu").style.display="none";
+  document.getElementById("hospitalMenu").style.display="none";
+  document.getElementById("jailMenu").style.display="none";
+  document.getElementById("mainPage").style.display="";
+}
+function loadBankMenu(){
+  window.scrollTo(0, 0);
+  getJewelBalance();
+  renderNFTCharacter();
+  document.getElementById("bankMenu").style.display="";
+  document.getElementById("tavernMenu").style.display="none";
+  document.getElementById("robberyMenu").style.display="none";
+  document.getElementById("hospitalMenu").style.display="none";
+  document.getElementById("jailMenu").style.display="none";
+  document.getElementById("mainPage").style.display="none";
+}
+function loadTavernMenu(){
+  window.scrollTo(0, 0);
+  document.getElementById("bankMenu").style.display="none";
+  document.getElementById("tavernMenu").style.display="";
+  document.getElementById("robberyMenu").style.display="none";
+  document.getElementById("hospitalMenu").style.display="none";
+  document.getElementById("jailMenu").style.display="none";
+  document.getElementById("mainPage").style.display="none";
+}
+function loadRobberyMenu(){
+  window.scrollTo(0, 0);
+  document.getElementById("bankMenu").style.display="none";
+  document.getElementById("tavernMenu").style.display="none";
+  document.getElementById("robberyMenu").style.display="";
+  document.getElementById("hospitalMenu").style.display="none";
+  document.getElementById("jailMenu").style.display="none";
+  document.getElementById("mainPage").style.display="none";
+}
+function loadJailMenu(){
+  window.scrollTo(0, 0);
+  document.getElementById("bankMenu").style.display="none";
+  document.getElementById("tavernMenu").style.display="none";
+  document.getElementById("robberyMenu").style.display="none";
+  document.getElementById("hospitalMenu").style.display="none";
+  document.getElementById("jailMenu").style.display="";
+  document.getElementById("mainPage").style.display="none";
+}
+function loadHospitalMenu(){
+  window.scrollTo(0, 0);
+  document.getElementById("bankMenu").style.display="none";
+  document.getElementById("tavernMenu").style.display="none";
+  document.getElementById("robberyMenu").style.display="none";
+  document.getElementById("hospitalMenu").style.display="";
+  document.getElementById("jailMenu").style.display="none";
+  document.getElementById("mainPage").style.display="none";
+}
+
+</script>
+<!-- =========================================== STYLE-================================================================================= STYLE---------------------------------------------->
+<style>
+
+.backHover:hover{
+  color: #ED2828;
+  cursor: pointer;
+}
+
+.form-control:focus {
+  outline: none !important;
+  border:1px solid red;
+  box-shadow: 0 0 10px #719ECE;
+}
+.neonAnimated {
+  outline: none !important;
+  box-shadow: 0 0 10px #719ECE;
+  animation-name: neonGlow;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
+}
+@keyframes neonGlow {
+  0% {box-shadow: 0 0 10px #719ECE;}
+  12% {box-shadow: 0 0 20px  #719ECE;}
+  25% {box-shadow: 0 0 10px #719ECE;}
+}
+.neon {
+  outline: none !important;
+  box-shadow: 0 0 10px #719ECE;
+}
+.neonStrong {
+  outline: none !important;
+  box-shadow: 0 0 20px #FAF41E;
+}
+.neon-white {
+  outline: none !important;
+  box-shadow: 0 0 10px #fff;
+}
+.textChange {
+
+  color: #D6D6D6;
+}
+.iconColor {
+  color: #D6D6D6;
+}
+.btn:hover {
+  outline: none !important;
+  box-shadow: 0 0 10px rgb(129,143,225);
+}
+.boxesColor {
+  background-color:#313334;
+}
+.boxesBioColor{
+  background-color:#535353;
+}
+.boxesCommentColor{
+  background-color:#535353;
+}
+.boxesLine {
+  border-top: 1px solid #535353
+}
+.boxesLineTop {
+  border-bottom: 1px solid #535353
+}
+.textAreaTheme {
+  border: solid 1px #535353;
+  background-color:#535353; color:white;
+}
+.changeSushiButtonTextColor{
+  color: #D6D6D6;
+}
+.changeButtonColor{
+  background-color: #535353;
+  border-color: #535353;
+}
+.changeButtonColor:hover{
+  background-color: #535353;
+  border-color: #535353;
+}
+.changeButtonTextColor{
+  color: rgb(129,143,225)
+}
+.changeButtonTextColor:hover{
+  color: rgb(129,143,225)
+}
+.boxesShadow {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.backgroundColor{
+  background-color: #1D1D1F
+}
+
+.backgroundColorSideBar{
+  background-color: #313334;
+  box-shadow: 0 0px 0px -5px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.backgroundColorNavBar{
+  background-color: #112F46;
+}
+.textBox{
+  border: solid 1px #535353;
+  background-color:#535353;
+  color:white;
+  font-size: 18px;
+}
+.textBox:focus{
+  border: solid 1px #535353;
+  background-color:#535353;
+  color:white;
+  font-size: 18px;
+}
+div.sticky {
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
+}
+
+
+.middle {
+  position: absolute;
+  top: 50%;
+  left: 51%;
+  color: white;
+  font-size: 25px;
+}
+
+.btn-close{
+filter: invert(24%) sepia(89%) saturate(6838%) hue-rotate(356deg) brightness(103%) contrast(96%);
+}
+a {
+  text-decoration: none;
+  color: black;
+}
+a:hover {
+  color: #D6D6D6;
+}
+p {
+  color: white;
+}
+h6 {
+  color: white;
+}
+textarea{
+  overflow-y: hidden;
+}
+
+:root {
+  /* Set neon color */
+  --neon-text-color: #f40;
+  --neon-border-color: #08f;
+}
+.neonSign{
+  font-family: 'Exo 2', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 2vh;
+  font-size: 4rem;
+  font-weight: 200;
+  font-style: italic;
+  color: #fff;
+  padding: 2rem 6rem 2rem;
+  border: 0.4rem solid #fff;
+  border-radius: 2rem;
+  text-transform: uppercase;
+  animation: flicker 1.5s infinite alternate;
+}
+
+/* Animate neon flicker */
+@keyframes flicker {
+
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+
+        text-shadow:
+            -0.2rem -0.2rem 1rem #fff,
+            0.2rem 0.2rem 1rem #fff,
+            0 0 2rem var(--neon-text-color),
+            0 0 4rem var(--neon-text-color),
+            0 0 6rem var(--neon-text-color),
+            0 0 8rem var(--neon-text-color),
+            0 0 10rem var(--neon-text-color);
+
+        box-shadow:
+            0 0 .5rem #fff,
+            inset 0 0 .5rem #fff,
+            0 0 2rem var(--neon-border-color),
+            inset 0 0 2rem var(--neon-border-color),
+            0 0 4rem var(--neon-border-color),
+            inset 0 0 4rem var(--neon-border-color);
+    }
+    20%, 24%, 55% {
+        text-shadow: none;
+        box-shadow: none;
+    }
+}
+pre {
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+.vertical-center {
+  min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
+  min-height: 100vh; /* These two lines are counted as one :-)       */
+
+  display: flex;
+  align-items: center;
+}
+</style>
+  <body class="backgroundColor" > <!-- 313334 -->
+
+    <section id="loginForm" class="vh-100 backgroundColor" style="display: none"> <!--  #3C719D-->
+      <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+            <div class="card shadow-2-strong neonAnimated" style="border-radius: 1rem;" style="background-color: #313334"> <!--  #F5F0F2-->
+              <div class="card-body p-5 text-center boxesColor" >
+                <div class="row align-items-start">
+                <img src="https://ipfs.io/ipfs/QmQnBt2MLdPYUqYxqNEptmgLmerpTpuAQxfc79nyZxUEc6?filename=logoDarkMode.png" id="loginLogo" alt="Logo-01" border="0" style="display: block; margin:auto; padding:0px 0px 60px 0px; max-width: 60%" >
+                </div>
+
+
+                <div class="row align-items-start">
+                <button class="btn btn-primary btn-lg btn-block neon-white changeButtonColor changeButtonTextColor" type="submit" onClick="login();"><b>Login with Metamask</b></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="modal fade" id="nftWalletModal" tabindex="-1" aria-labelledby="nftWalletModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable" id="nftWalletModalContent" style="width:40%;max-width:1250px;min-width:600px; border-radius: 20px;">
+        <div class="modal-content boxesColor">
+          <div class="modal-header boxesLineTop">
+            <h5 class="modal-title textChange" id="userAccountLabel">Your NFTs</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="walletContainer" class="row align-items-start" >
+
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="mainPage" class="container-xlg vertical-center" style="background-color: #1D1D1F; margin:0px 100px 0px; display:none">
+      <div class="row align-items-start  backgroundColor"  style ="padding-top: 0px;">
+        <div class="col-2">
+          <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+          <div class="card-body">
+            <div class="row align-items-start">
+                <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="30%" height="30%">
+            </div>
+            <div class="row align-items-start" style ="padding-top: 10px;">
+              <div class="col-12 text-center">
+                <h4 class="textChange"><b>Bank</b></h4>
+
+              </div>
+            </div>
+            <div class="row align-items-start" style ="padding-top: 10px;">
+              <div class="col-12 text-center">
+                  <button type="button" onclick="loadBankMenu()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Visit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+        <div class="col-2">
+          <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+          <div class="card-body">
+            <div class="row align-items-start">
+                <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="30%" height="30%">
+            </div>
+            <div class="row align-items-start" style ="padding-top: 10px;">
+              <div class="col-12 text-center">
+                <h4 class="textChange"><b>Bar</b></h4>
+              </div>
+            </div>
+            <div class="row align-items-start" style ="padding-top: 10px;">
+              <div class="col-12 text-center">
+                  <button type="button"  onclick="loadTavernMenu()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Visit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+        <div class="col-4">
+          <div class="row align-items-start  backgroundColor"  style ="padding-top: 0px;">
+              <div class="col-2">
+              </div>
+              <div class="col-8">
+                <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+                <div class="card-body">
+                  <div class="row align-items-start">
+                      <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="00%" height="0%">
+                  </div>
+                  <div class="row align-items-start" style ="padding-top: 10px;">
+                    <div class="col-12 text-center">
+                      <h4 class="textChange"><b>Main Event</b></h4>
+                    </div>
+                  </div>
+                  <div class="row align-items-start" style ="padding-top: 10px;">
+                    <div class="col-12 text-center">
+                        <button type="button"  onclick="loadRobberyMenu()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Start Robbing</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
+              <div class="col-2">
+              </div>
+          </div>
+        </div>
+        <div class="col-2">
+          <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+          <div class="card-body">
+            <div class="row align-items-start">
+                <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="30%" height="30%">
+            </div>
+            <div class="row align-items-start" style ="padding-top: 10px;">
+              <div class="col-12 text-center">
+                <h4 class="textChange"><b>Jail</b></h4>
+              </div>
+            </div>
+            <div class="row align-items-start" style ="padding-top: 10px;">
+              <div class="col-12 text-center">
+                  <button type="button"  onclick="loadJailMenu()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Visit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+        <div class="col-2">
+          <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
+          <div class="card-body">
+            <div class="row align-items-start">
+                <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="30%" height="30%">
+            </div>
+            <div class="row align-items-start" style ="padding-top: 10px;">
+              <div class="col-12 text-center">
+                <h4 class="textChange"><b>Hospital</b></h4>
+              </div>
+            </div>
+            <div class="row align-items-start" style ="padding-top: 10px;">
+              <div class="col-12 text-center">
+                  <button type="button"  onclick="loadHospitalMenu()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Visit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+</div>
+
+<div id="robberyMenu" class="container-xlg" style="background-color: #1D1D1F; display:none" >
+  <div class="row backgroundColor align-items-start"  style ="padding: 50px 0px 0px 50px;">
+    <div class="col-12">
+    <a class="iconColor">
+        <i onclick="loadMainPage()" class="fas backHover fa-arrow-left fa-4x"></i>
+    </a>
+    </div>
+  </div>
+  <div class="row backgroundColor mx-auto align-items-start"  style ="padding-top: 5%">
+    <div class="col-12 mx-auto" style=" max-width: 1000px;">
+      <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
+
+
+          <div class="col-6  ">
+            <div class="row text-center ">
+                  <img src="https://image.freepik.com/free-vector/cartoon-retro-bank-building-courthouse-with-columns-illustration-isolated-white_166005-61.jpg" class="d-block w-60 mx-auto mt-4 alt="...">
+            </div>
+            <div class="row" style ="padding: 30px 0px;">
+              <div class="col-3 text-center">
+                <a class="iconColor">
+                    <i class="fas fa-arrow-left fa-3x"></i>
+                </a>
+
+              </div>
+              <div class="col-6 text-center">
+                <h3 class="textChange" style="margin-top:5px"><b>Bank Heist</b></h3>
+              </div>
+              <div class="col-3 text-center">
+                <a class="iconColor">
+                    <i class="fas fa-arrow-right fa-3x"></i>
+                </a>
+              </div>
+            </div>
+            </div>
+
+          <div class="col-6">
+            <div class="row " style="margin-top:25px;">
+              <h5 class="textChange">Location:</h5>
+              <p style="font-size: 1rem" class="textChange">54 Moralis Ave, Metropolis City</p>
+              <h5 class="textChange">Description:</h5>
+              <p class="textChange">You got word from your friend, Metropolis City Bank is holding a larger than normal stash of jewels and half the security team is on leave due to a strange sickness going around. He has drawn up some plans and thinks he can get you inside. You want to go for it? He has three options, each is harder than the other but you can get more jewels if you go for the hardest.</p>
+            </div>
+            <div class="row " style ="padding-top: 10px;">
+              <div class="col-12 text-center">
+                <select class="form-select textChange" style="overflow: hidden; background-color: #535353; border: solid 1px #535353;" multiple aria-label="multiple select example">
+                  <option class="text-center" selected value="1">Rob the Tills (Easy)</option>
+                  <option class="text-center" value="2">Steal from Bank Truck (Medium)</option>
+                  <option class="text-center" value="3">Break into the Fault (Hard)</option>
+                  </select>
+              </div>
+            </div>
+            <div class="row" style ="padding: 10px 0px 10px 0px;">
+              <div class="col-4 text-center">
+                <p class="textChange">Daylight Robbery</p>
+                  <button type="button" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
+              </div>
+              <div class="col-4 text-center">
+                  <p class="textChange">Act as a Janitor</p>
+                  <button type="button"  style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
+              </div>
+              <div class="col-4 text-center">
+                  <p class="textChange">Wait Until Night</p>
+                  <button type="button"  style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
+              </div>
+            </div>
+            </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<div id="bankMenu" class="container-xlg" style="background-color: #1D1D1F; display:none" >
+  <div class="row backgroundColor align-items-start"  style ="padding: 50px 0px 0px 50px;">
+    <div class="col-12">
+    <a class="iconColor">
+        <i onclick="loadMainPage()" class="fas backHover fa-arrow-left fa-4x"></i>
+    </a>
+    </div>
+  </div>
+  <div class="row backgroundColor mx-auto align-items-start"  >
+    <div class="col-12 mx-auto" style=" max-width: 1000px;">
+      <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
+
+
+          <div class="col-6 ">
+            <div class="row text-center ">
+                  <img src="https://image.freepik.com/free-vector/cartoon-retro-bank-building-courthouse-with-columns-illustration-isolated-white_166005-61.jpg" class="d-block w-60 mx-auto mt-4 alt="...">
+            </div>
+            <div class="row" style ="padding: 15px 0px 0px 0px;">
+              <div class="col-12 text-center">
+                <h3 class="textChange" style="margin-top:5px"><b>Metropolis City Bank</b></h3>
+              </div>
+            </div>
+            <div class="row" style ="padding: 0px 0px;">
+              <div class="col-12 text-center">
+                <p style="font-size: 1rem" class="textChange">54 Moralis Ave, Metropolis City</p>
+                <p style="font-size: 1rem" class="textChange">Founded in 1904, it is the central bank of Metropolis City. It is considered a dangerous place to work due to how many robberies happen there every year.</p>
+              </div>
+            </div>
+            </div>
+
+          <div class="col-6" style="border-left: 1px solid #535353">
+            <div class="row " style="margin-top:25px;">
+              <h4 class="textChange text-center">Balance</h4>
+              <h4 id="currentBalance" class="textChange text-center">45000 Jewels</h4>
+            </div>
+            <div class="row " style="margin-top:25px;">
+
+                <div class="col-12">
+                  <div class="input-group mb-3">
+                    <span class="input-group-text">DSN</span>
+                    <input id="balanceInput" type="text" class="form-control" aria-label="Amount (to the nearest dollar)">
+                    <span class="input-group-text">.00</span>
+                  </div>
+                </div>
+
+            </div>
+            <div class="row " style="margin-top:10px;">
+                <div class="col-4  text-center">
+                <button type="button"  style="width:100px" onclick="withdrawJewels()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Withdraw</button>
+                </div>
+                <div class="col-4  text-center">
+                  <button type="button"  style="width:100px" onclick="contractApproveJewels()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Approve</button>
+                </div>
+
+                <div class="col-4 text-center">
+                <button type="button"  style="width:100px" onclick="depositJewels()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Deposit</button>
+                </div>
+            </div>
+            <div class="row " style ="padding-top: 10px;">
+              <div class="col-12 text-center" style="border-top: 1px solid #535353; border-bottom: 1px solid #535353">
+              <h4 class="textChange text-center" style="margin-top:8px">NFT</h4>
+              </div>
+            </div>
+            <div class="row" style ="padding: 10px 0px 10px 0px;">
+              <div class="col-6 text-center">
+                  <h6 id="nameAttribute" class="textChange">Name</h6>
+                  <img id="imageAttribute" src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="75%" height="90%">
+              </div>
+              <div class="col-6">
+                  <h6 class="textChange">Attributes</h6>
+                  <p id="healthAttribute" class="textChange mb-2">Health:  78</p>
+                  <p id="agilityAttribute" class="textChange mb-2">Agility:  263</p>
+                  <p id="strengthAttribute" class="textChange mb-2">Strength:  286</p>
+                  <p id="charmAttribute" class="textChange mb-2">Charm:  400</p>
+                  <p id="sneakAttribute" class="textChange mb-2">Sneak:  301</p>
+                  <p id="arrestedAttribute" class="textChange mb-2">In Prison: No</p>
+                  <p id="playingPVPAttribute" class="textChange mb-2">Playing PvP: No</p>
+                  <p id="stopPlayingPVPAttribute" class="textChange mb-2">Can Leave PvP: In 3 days</p>
+              </div>
+            </div>
+            <div class="row " style="margin-bottom:20px;">
+                <div class="col-4  text-center">
+                <button type="button"  style="width:100px" onclick="withdrawNFT()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Withdraw</button>
+                </div>
+                <div class="col-4  text-center">
+                  <button type="button"  style="width:100px" onclick="contractApproveNFTs()"  class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Approve</button>
+                </div>
+                <div class="col-4 text-center">
+                <button type="button"  style="width:100px" onclick="renderNFTWallet()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor" data-bs-toggle="modal" data-bs-target="#nftWalletModal">Deposit</button>
+                </div>
+            </div>
+            </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<div id="tavernMenu" class="container-xlg" style="background-color: #1D1D1F; display:none;">
+  <div class="row backgroundColor align-items-start"  style ="padding: 50px 0px 0px 50px;">
+    <div class="col-12">
+    <a class="iconColor">
+        <i onclick="loadMainPage()" class="fas backHover fa-arrow-left fa-4x"></i>
+    </a>
+    </div>
+  </div>
+  <div class="row backgroundColor mx-auto align-items-start" >
+    <div class="col-12 mx-auto" style=" max-width: 1000px;">
+      <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
+
+
+          <div class="col-6 " style="border-right: 1px solid #535353">
+            <div class="row text-center ">
+                  <img src="https://image.freepik.com/free-vector/cartoon-retro-bank-building-courthouse-with-columns-illustration-isolated-white_166005-61.jpg" class="d-block w-60 mx-auto mt-4 alt="...">
+            </div>
+            <div class="row" style ="padding: 15px 0px 0px 0px;">
+              <div class="col-12 text-center">
+                <h3 class="textChange" style="margin-top:5px"><b>Jack's Tavern</b></h3>
+              </div>
+            </div>
+            <div class="row" style ="padding: 0px 0px;">
+              <div class="col-12 text-center">
+                <p style="font-size: 1rem" class="textChange">89 Hideaway Lane, Metropolis City</p>
+                <p style="font-size: 1rem" class="textChange">A place where the local thieves like to gather and talk about their latest exploits. If they are here that usually means you can rob their hideout if you are daring enough</p>
+                <h3 class="textChange" style="margin-top:5px"><b>PvP Registry</b></h3>
+                <div class="row " style="margin-top:20px;">
+                    <div class="col-3  text-center">
+                    </div>
+                    <div class="col-3  text-center">
+                    <button type="button"  style="width:100px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Stop PvP</button>
+                    </div>
+                    <div class="col-3 text-center">
+                    <button type="button"  style="width:100px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Play PvP</button>
+                    </div>
+                    <div class="col-3  text-center">
+                    </div>
+                </div>
+                <p style="font-size: 1rem; margin-top:10px;" class="textChange">Can't Leave Yet</p>
+              </div>
+            </div>
+            </div>
+
+          <div class="col-6" >
+            <div class="row " style="margin-top:25px;">
+              <h4 class="textChange text-center">Check if Player is Here</h4>
+            </div>
+            <div class="row " style="margin-top:10px;">
+
+                <div class="col-12">
+                  <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Player Address" aria-label="Username" aria-describedby="basic-addon1">
+                  </div>
+                </div>
+
+            </div>
+            <div class="row " style="margin-top:0px;">
+                <div class="col-4">
+                <button type="button"  style="width:100px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Check</button>
+                </div>
+                <div class="col-8  text-center">
+                </div>
+
+            </div>
+            <div class="row " style ="padding-top: 10px;">
+              <div class="col-12 text-center" style="border-top: 1px solid #535353; border-bottom: 1px solid #535353">
+              <h4 class="textChange text-center" style="margin-top:8px">Player Stats</h4>
+              </div>
+            </div>
+            <div class="row" style ="padding: 10px 0px 10px 0px;">
+              <div class="col-6 text-center">
+                  <h6 class="textChange">Name</h6>
+                  <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="75%" height="90%">
+              </div>
+              <div class="col-6">
+                  <h6 class="textChange">Attributes</h6>
+                  <p class="textChange mb-2">Health:  78</p>
+                  <p class="textChange mb-2">Agility:  263</p>
+                  <p class="textChange mb-2">Strength:  286</p>
+                  <p class="textChange mb-2">Charm:  400</p>
+                  <p class="textChange mb-2">Sneak:  301</p>
+                  <p class="textChange mb-2">Playing PvP: No</p>
+                  <p class="textChange mb-2">Stash: 607000</p>
+              </div>
+            </div>
+            <div class="row " style ="padding-top: 10px;">
+              <div class="col-12 text-center" style="border-top: 1px solid #535353; border-bottom: 1px solid #535353">
+              <h4 class="textChange text-center" style="margin-top:8px">Steal from their Stash</h4>
+              </div>
+            </div>
+            <div class="row" style ="padding: 10px 0px 10px 0px;">
+              <div class="col-4 text-center">
+                  <button type="button" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
+              </div>
+              <div class="col-4 text-center">
+                  <button type="button"  style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
+              </div>
+              <div class="col-4 text-center">
+                  <button type="button"  style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
+              </div>
+            </div>
+            </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<div id="jailMenu" class="container-xlg" style="background-color: #1D1D1F; display:none" >
+  <div class="row backgroundColor align-items-start"  style ="padding: 50px 0px 0px 50px;">
+    <div class="col-12">
+    <a class="iconColor">
+        <i  onclick="loadMainPage()" class="fas backHover fa-arrow-left fa-4x"></i>
+    </a>
+    </div>
+  </div>
+  <div class="row backgroundColor mx-auto align-items-start" >
+    <div class="col-12 mx-auto" style=" max-width: 1000px;">
+      <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
+
+
+          <div class="col-6 " style="border-right: 1px solid #535353">
+            <div class="row text-center ">
+                  <img src="https://image.freepik.com/free-vector/cartoon-retro-bank-building-courthouse-with-columns-illustration-isolated-white_166005-61.jpg" class="d-block w-60 mx-auto mt-4 alt="...">
+            </div>
+            <div class="row" style ="padding: 15px 0px 0px 0px;">
+              <div class="col-12 text-center">
+                <h3 class="textChange" style="margin-top:5px"><b>Metropolis City High Security Prison</b></h3>
+              </div>
+            </div>
+            <div class="row" style ="padding: 0px 0px;">
+              <div class="col-12 text-center">
+                <p style="font-size: 1rem" class="textChange">10032 Criminal Ave, Metropolis City</p>
+                <p style="font-size: 1rem" class="textChange">Only the most skilled criminals are held here but due to their skill, many of them continue to escape with the help of their criminal friends.</p>
+              </div>
+            </div>
+            </div>
+
+          <div class="col-6" >
+            <div class="row " style="margin-top:25px;">
+              <h4 class="textChange text-center">Help Break out a Player</h4>
+            </div>
+            <div class="row " style="margin-top:10px;">
+
+                <div class="col-12">
+                  <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Player Address" aria-label="Username" aria-describedby="basic-addon1">
+                  </div>
+                </div>
+
+            </div>
+            <div class="row" style ="padding: 10px 0px 10px 0px;">
+              <div class="col-4 text-center">
+                  <p class="textChange">Drive Car Through Wall</p>
+                  <button type="button" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
+              </div>
+              <div class="col-4 text-center">
+                  <p class="textChange">Disguse As Security Guard</p>
+                  <button type="button"  style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
+              </div>
+              <div class="col-4 text-center">
+                  <p class="textChange">Wait Until Guard Rotation</p>
+                  <button type="button"  style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
+              </div>
+            </div>
+            <div class="row " style ="padding-top: 10px;">
+              <div class="col-12 text-center" style="border-top: 1px solid #535353; border-bottom: 1px solid #535353">
+              <h4 class="textChange text-center" style="margin-top:8px">Player</h4>
+              </div>
+            </div>
+            <div class="row" style ="padding: 10px 0px 10px 0px;">
+              <div class="col-12 text-center">
+                  <h6 class="textChange">Name</h6>
+                  <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="35%" height="70%">
+                  <h6 class="textChange" style ="padding: 10px 0px 0px 0px;">Release Date:</h6>
+              </div>
+            </div>
+            </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<div id="hospitalMenu" class="container-xlg" style="background-color: #1D1D1F; display:none" >
+  <div class="row backgroundColor align-items-start"  style ="padding: 50px 0px 0px 50px;">
+    <div class="col-12">
+    <a class="iconColor">
+        <i onclick="loadMainPage()" class="fas backHover fa-arrow-left fa-4x"></i>
+    </a>
+    </div>
+  </div>
+  <div class="row backgroundColor mx-auto align-items-start" >
+    <div class="col-12 mx-auto" style=" max-width: 1000px;">
+      <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
+
+
+          <div class="col-6 " style="border-right: 1px solid #535353">
+            <div class="row text-center ">
+                  <img src="https://image.freepik.com/free-vector/cartoon-retro-bank-building-courthouse-with-columns-illustration-isolated-white_166005-61.jpg" class="d-block w-60 mx-auto mt-4 alt="...">
+            </div>
+            <div class="row" style ="padding: 15px 0px 0px 0px;">
+              <div class="col-12 text-center">
+                <h3 class="textChange" style="margin-top:5px"><b>Metropolis City Hospital</b></h3>
+              </div>
+            </div>
+            <div class="row" style ="padding: 0px 0px;">
+              <div class="col-12 text-center">
+                <p style="font-size: 1rem" class="textChange">5893 Main Street, Metropolis City</p>
+                <p style="font-size: 1rem" class="textChange">Always brimming with activity especially at night. Alot of sketchy criminals are being seen needing help with broken bones and slivers. Need Emergency Treatment? Doctor Doofenschmirtz has been known to help those who don't want to go into the system but it is expensive. </p>
+              </div>
+            </div>
+            </div>
+
+          <div class="col-6" >
+            <div class="row " style="margin-top:25px;">
+              <h4 class="textChange text-center">Get Medical Treatment</h4>
+              <p class="textChange text-center mt-3">Restores your characters health to 100</p>
+              <h5 class="textChange text-center mt-1">1000 Jewels</h5>
+            </div>
+            <div class="row " style="margin-top:10px;">
+            </div>
+            <div class="row" style ="padding: 10px 0px 10px 0px;">
+              <div class="col-12 text-center">
+                  <button type="button" style="width:120px" onclick="contractHospitalVisit()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Bribe</button>
+              </div>
+            </div>
+            </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>
