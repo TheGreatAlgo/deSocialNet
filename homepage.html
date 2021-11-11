@@ -2307,6 +2307,7 @@ async function moralisGetMessages(_userAddress) {
   return receipt;
 }
 async function moralisGetNFTs(){
+  let currentUser = await Moralis.User.current();
   userAddress = await currentUser.get("accounts");
   userAddress = userAddress[0];
   const options = { chain: 'kovan', address: userAddress, token_address: minterContract };
@@ -2737,6 +2738,32 @@ function toggleLightMode() {
     document.getElementById("loginLogo").src="https://ipfs.io/ipfs/Qmdfd7qFcfdUrFqwdzxuaFxXGy2GbC1rdCYsLn2ByW1wg8?filename=logoLightMode.png";
     document.getElementById("supportUsLogo").src="https://ipfs.io/ipfs/Qmdfd7qFcfdUrFqwdzxuaFxXGy2GbC1rdCYsLn2ByW1wg8?filename=logoLightMode.png";
     style.innerHTML = `
+      .neonSign{
+        font-family: 'Exo 2', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 2vh;
+        font-size: 4rem;
+        font-weight: 200;
+        font-style: italic;
+        color: #E02A2A;
+        padding: 2rem 6rem 2rem;
+        border: 0.4rem solid #3F54C8;
+        border-radius: 2rem;
+        text-transform: uppercase;
+        text-shadow: -0px -0px 0rem #555657;
+        box-shadow: -0px -0px 1rem #555657;
+        animation: none 1.5s infinite alternate;
+      }
+      .neon {
+        outline: none !important;
+        box-shadow: 0 0 10px #514B4B;
+      }
+      .neonStrong {
+        outline: none !important;
+        box-shadow: 0 0 20px #514B4B;
+      }
       .textChange {
           color: black;
       }
@@ -2963,7 +2990,7 @@ function toggleLightMode() {
         }
         .neonStrong {
           outline: none !important;
-          box-shadow: 0 0 20px #FAF41E;
+          box-shadow: 0 0 20px #F10808;
         }
         .neon-white {
           outline: none !important;
@@ -3536,6 +3563,10 @@ function loadSettingsPage(){
 
 async function renderNFTWallet(){
   let NFTs = await moralisGetNFTs();
+  var walletContainer = document.getElementById("walletContainer");
+  while (walletContainer.hasChildNodes()) { // This removes all of them and re-renders it
+    walletContainer.removeChild(walletContainer.firstChild);
+    }
   for (i = 0; i< NFTs.length; i++){
     let characterDetails = await contractGetCharacterData(NFTs[i].token_id);
     document.getElementById("walletContainer").innerHTML +=
@@ -5014,7 +5045,7 @@ async function renderExplorePage() { //nickName,address,postID
 }
 .neonStrong {
   outline: none !important;
-  box-shadow: 0 0 20px #FAF41E;
+  box-shadow: 0 0 20px #F10808;
 }
 .neon-white {
   outline: none !important;
@@ -5137,7 +5168,7 @@ textarea{
 }
 
 :root {
-  /* Set neon color */
+  /* Set neon color    #f40   #08f      */
   --neon-text-color: #f40;
   --neon-border-color: #08f;
 }
@@ -5913,7 +5944,7 @@ pre {
 
             </div>
             <div class="col-8" style="margin-top:40px;">
-              <h1 class="neonSign" contenteditable spellcheck="false">store</h1>
+              <h1 class="neonSign">store</h1>
             </div>
             <div class="col-2" style="margin-top:40px;">
 
@@ -6132,7 +6163,7 @@ pre {
 
               </div>
               <div class="col-8" style="margin-top:40px;">
-                <h1 class="neonSign" contenteditable spellcheck="false">NFTs</h1>
+                <h1 class="neonSign">NFTs</h1>
               </div>
               <div class="col-2" style="margin-top:40px;">
 
@@ -6151,17 +6182,35 @@ pre {
 
               </div>
               <div class="col-8" style="margin-top:40px;">
-                <h1 class="neonSign" contenteditable spellcheck="false">play</h1>
+                <h1 class="neonSign">play</h1>
               </div>
               <div class="col-2" style="margin-top:40px;">
 
               </div>
             </div>
             <div id="playPageContainer" class="col-12">
-              <img src="https://wallpapercave.com/wp/wp5565660.jpg" alt="jewels" width="100%" height="100%" style="filter: blur(10px) brightness(50%); margin-top:50px">
-              <div class="middle text-center">
-                <h1>COMING SOON</h1>
+              <div class="row align-items-start text-center">
+                <div class="col-12" style="margin-top:40px;">
+                <div class="card mb-3  boxesColor neon" style="max-width:100rem; border-radius: 20px; margin:0px 10px 0px">
+                <div class="card-body">
+                  <div class="row align-items-start">
+                      <img src="https://ipfs.io/ipfs/QmRJ3bKHTVpmgjm5Uwem77hrNvmxLkJPAjmbdxofS673M8?filename=breakInTransparent.png" alt="jewels" width="100%" height="100%" style=" margin-top:50px">
+                  </div>
+                  <div class="row align-items-start" style ="padding-top: 10px;">
+                    <div class="col-12 text-center">
+                          <h4 class="textChange"><b>Break In: The Game</b></h4>
+                    </div>
+                  </div>
+                  <div class="row align-items-start" style ="padding-top: 10px;">
+                    <div class="col-12 text-center">
+                        <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Play Now</button>
+                    </div>
+                  </div>
+                </div>
               </div>
+                </div>
+                </div>
+
               <div class="row align-items-start text-center">
                 <div class="col-12" style="margin-top:40px;">
                 <h1 class="textChange">Other Titles</h1>
