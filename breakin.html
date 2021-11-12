@@ -21,7 +21,8 @@ __________         ___.      __   .__             __________        .__ .__     
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
         crossorigin="anonymous">
 </script>
-<title>Hello, world!</title>
+<title>Break In | Home</title>
+<link rel="icon" type="image/x-icon" href="https://ipfs.io/ipfs/QmQoPRH54jyjV2nzGBV5PRvoSkKMpnZHWCYaWSrM3rHrYc?filename=favicon.png">
 </head>
 <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 <script src="https://npmcdn.com/moralis@latest/dist/moralis.js"></script>
@@ -57,6 +58,9 @@ var savedPosts;
 var mode
 var recipientAddress // global recipientAddress for donations
 var recipientNickname // global recipient nickname for donations
+var web3;
+var difficultyLevel = {zero:100,one:100,two:100};
+var currentScenario = 0;
 const kovanWETHTokenAddress ="0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
 const gameKovanContract = "0x0C89d06a6c726f1BAc813A7bd1A875c2114419b7";
 const deSocialNetTokenAddress = "0xAe0f650F39B943F738a790519C3556bf6f8C92F1";
@@ -1919,7 +1923,7 @@ async function contractApproveJewels() {
     abi: deSocialNetABI,
     params: {
       spender: gameKovanContract,
-      amount: Moralis.Units.ETH("10000000") // approve for a billion so they don't need to keep approving
+      amount: Moralis.Units.ETH("1000000000000000000000000000000") // approve for a billion so they don't need to keep approving
     },
   };
   const receipt = await Moralis.executeFunction(options);
@@ -1955,8 +1959,6 @@ async function withdrawNFT() {
     contractAddress: gameKovanContract,
     functionName: "withdrawNFT",
     abi: gameABI,
-    params: {
-    },
   };
   const receipt = await Moralis.executeFunction(options);
   console.log(receipt)
@@ -1966,6 +1968,24 @@ async function contractHospitalVisit() {
   const options = {
     contractAddress: gameKovanContract,
     functionName: "hospitalVisit",
+    abi: gameABI,
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+}
+async function contractStartPlayPVP() {
+  const options = {
+    contractAddress: gameKovanContract,
+    functionName: "startPlayPVP",
+    abi: gameABI,
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+}
+async function contractStopPlayPVP() {
+  const options = {
+    contractAddress: gameKovanContract,
+    functionName: "stopPlayPVP",
     abi: gameABI,
   };
   const receipt = await Moralis.executeFunction(options);
@@ -1984,12 +2004,13 @@ async function contractDepositJewels(_amountToDeposit) {
   console.log(receipt)
 }
 async function contractWithdrawJewels(_amountToWithdraw) {
+  _amountToWithdraw = Moralis.Units.ETH(_amountToWithdraw);
   const options = {
     contractAddress: gameKovanContract,
     functionName: "withdrawJewels",
     abi: gameABI,
     params: {
-      amountToDeposit: _amountToDeposit
+      amountToWithdraw: _amountToWithdraw
     },
   };
   const receipt = await Moralis.executeFunction(options);
@@ -2071,11 +2092,11 @@ async function contractGetCharacterData(_characterID) {
 
   return receipt;
 }
-async function playGame(_difficultyLevel,_breakInStyle,_scenario) {
+async function contractPlayGame(_difficultyLevel,_breakInStyle,_scenario) {
   const options = {
     contractAddress: gameKovanContract,
-    functionName: "withdrawJewels",
-    abi: ABI,
+    functionName: "playGame",
+    abi: gameABI,
     params: {
       difficultyLevel: _difficultyLevel,
       breakInStyle: _breakInStyle,
@@ -2085,7 +2106,32 @@ async function playGame(_difficultyLevel,_breakInStyle,_scenario) {
   const receipt = await Moralis.executeFunction(options);
   console.log(receipt)
 }
-
+async function contractPlayPVP(_breakInStyle,_targetPlayer) {
+  const options = {
+    contractAddress: gameKovanContract,
+    functionName: "playPVP",
+    abi: gameABI,
+    params: {
+      breakInStyle: _breakInStyle,
+      targetPlayer: _targetPlayer,
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+}
+async function contractPlayBreakout(_breakInStyle,_targetPlayer) {
+  const options = {
+    contractAddress: gameKovanContract,
+    functionName: "playBreakout",
+    abi: gameABI,
+    params: {
+      breakInStyle: _breakInStyle,
+      targetPlayer: _targetPlayer,
+    },
+  };
+  const receipt = await Moralis.executeFunction(options);
+  console.log(receipt)
+}
 async function moralisGetGameEvents(_userAddress) {
   const Messaging = Moralis.Object.extend("GameEvents");
   const query = new Moralis.Query(Messaging);
@@ -2134,7 +2180,7 @@ async function logOut() {
   console.log("logged out");
 }
 async function onFirstLoad() {
-  const web3 = await Moralis.enableWeb3();
+  web3 = await Moralis.enableWeb3();
   let user = await Moralis.User.current();
   if (!user) {
     document.getElementById("loginForm").style.display = "";
@@ -2170,6 +2216,21 @@ async function depositJewels(){
   let result = await contractDepositJewels(balance)
   getJewelBalance();
 }
+async function changeDifficulty(_difficultyLevel,_scenarioID){
+  console.log(_scenarioID)
+  switch(_scenarioID){
+    case "0":
+      difficultyLevel.zero = _difficultyLevel;
+      break;
+    case "1":
+      difficultyLevel.one = _difficultyLevel;
+      break;
+    case "2":
+      difficultyLevel.two = _difficultyLevel;
+      break;
+  }
+  console.log(difficultyLevel);
+}
 async function withdrawJewels(){
    let balance = document.getElementById("balanceInput").value;
    console.log(balance);
@@ -2186,38 +2247,199 @@ async function getJewelBalance(){
    document.getElementById("currentBalance").innerHTML = amount + " Jewels";
    console.log(amount);
 }
+async function playGame(_breakInStyle,_scenarioID){
+  let difficulty;
+  switch(_scenarioID){
+    case "0":
+      difficulty = difficultyLevel.zero;
+      break;
+    case "1":
+      difficulty = difficultyLevel.one;
+      break;
+    case "2":
+      difficulty = difficultyLevel.two;
+      break;
+  }
+  let result = await contractPlayGame(difficulty,_breakInStyle,_scenarioID)
+  console.log(result);
+
+}
+async function playPVP(breakInStyle){
+    let address = document.getElementById("barPlayerInput").value;
+        console.log(address, breakInStyle);
+    let result = await contractPlayPVP(breakInStyle,address);
+    console.log(result);
+}
+function showNextScenario(){
+  switch(currentScenario){
+    case 0:
+      document.getElementById("scenarioZero").style.display="none";
+      document.getElementById("scenarioOne").style.display="";
+      currentScenario = 1;
+      break;
+    case 1:
+      document.getElementById("scenarioOne").style.display="none";
+      document.getElementById("scenarioTwo").style.display="";
+      currentScenario = 2;
+      break;
+    case 2:
+      document.getElementById("scenarioTwo").style.display="none";
+      document.getElementById("scenarioZero").style.display="";
+      currentScenario = 0;
+      break;
+  }
+}
+function showPreviousScenario(){
+  switch(currentScenario){
+    case 0:
+      document.getElementById("scenarioZero").style.display="none";
+      document.getElementById("scenarioTwo").style.display="";
+      currentScenario = 2;
+      break;
+    case 1:
+      document.getElementById("scenarioOne").style.display="none";
+      document.getElementById("scenarioZero").style.display="";
+      currentScenario = 0;
+      break;
+    case 2:
+      document.getElementById("scenarioTwo").style.display="none";
+      document.getElementById("scenarioOne").style.display="";
+      currentScenario = 1;
+      break;
+  }
+}
+
+async function playBreakout(breakInStyle){
+    let address = document.getElementById("jailPlayerInput").value;
+    console.log(address, breakInStyle);
+    let result = await contractPlayPVP(breakInStyle,address);
+    console.log(result);
+}
+async function renderJailPlayer(){
+    let address = document.getElementById("jailPlayerInput").value;
+    let addressTrue = await web3.utils.isAddress(address);
+    addressTrue = true;
+    if (addressTrue){
+          let characterDetails = await contractGetNFTCharacter(address);
+          var jailContainer = document.getElementById("jailContainer");
+          while (jailContainer.hasChildNodes()) { // This removes all of them and re-renders it
+            jailContainer.removeChild(jailContainer.firstChild);
+            }
+          if (characterDetails.arrested){
+            document.getElementById("jailContainer").innerHTML +=
+            `
+            <div class="col-12 text-center">
+                <h6 class="textChange">${characterDetails.name}</h6>
+                <img src="${characterDetails.imageURI}" alt="jewels" width="35%" height="70%">
+                <h6 class="textChange" style ="padding: 10px 0px 0px 0px;">Release Date: ${getLocalTime(characterDetails.freetoPlayAgain)}</h6>
+            </div>
+            `
+          }
+          else{
+            document.getElementById("jailContainer").innerHTML +=
+            `
+            <div class="col-12 text-center">
+                <h6 class="textChange">${characterDetails.name}</h6>
+                <img src="${characterDetails.imageURI}" alt="jewels" width="35%" height="70%">
+                <h6 class="textChange" style ="padding: 10px 0px 0px 0px;">Not in Jail</h6>
+            </div>
+            `
+          }
+
+
+    }
+    else{
+
+    }
+
+}
 async function renderNFTCharacter(){
     let user = await Moralis.User.current();
   let address = user.get("accounts");
    address = address[0];
    let result = await contractGetNFTCharacter(address);
   console.log(result);
-  document.getElementById("nameAttribute").innerHTML = result.name;
-  document.getElementById('imageAttribute').src = result.imageURI;
-  document.getElementById("healthAttribute").innerHTML = "Health: " + result.health;
-  document.getElementById("agilityAttribute").innerHTML = "Agility: " + result.agility;
-  document.getElementById("strengthAttribute").innerHTML = "Strength: " + result.strength;
-  document.getElementById("charmAttribute").innerHTML = "Charm: " + result.charm;
-  document.getElementById("sneakAttribute").innerHTML = "Sneak: " + result.sneak;
-  if (result.arrested == true){
-    document.getElementById("arrestedAttribute").innerHTML = "Arrested: Yes";
+  if (result.isDeposited){
+    document.getElementById("nameAttribute").innerHTML = result.name;
+    document.getElementById('imageAttribute').src = result.imageURI;
+    document.getElementById("healthAttribute").innerHTML = "Health: " + result.health;
+    document.getElementById("agilityAttribute").innerHTML = "Agility: " + result.agility;
+    document.getElementById("strengthAttribute").innerHTML = "Strength: " + result.strength;
+    document.getElementById("charmAttribute").innerHTML = "Charm: " + result.charm;
+    document.getElementById("sneakAttribute").innerHTML = "Sneak: " + result.sneak;
+    if (result.arrested == true){
+      document.getElementById("arrestedAttribute").innerHTML = "Arrested: Yes";
+    }
+    else{
+      document.getElementById("arrestedAttribute").innerHTML = "Arrested: No";
+    }
+    if (result.playingPVP == true){
+      document.getElementById("playingPVPAttribute").innerHTML = "Playing PVP: Yes";
+    }
+    else{
+      document.getElementById("playingPVPAttribute").innerHTML = "Playing PVP: No";
+    }
+    if (result.canStopPlayingPVP <= Math.floor(Date.now() / 1000) ){
+      document.getElementById("stopPlayingPVPAttribute").innerHTML = "Can Stop Playing PVP: Yes";
+    }
+    else{
+      document.getElementById("stopPlayingPVPAttribute").innerHTML = "Can Stop Playing PVP: No";
+    }
   }
   else{
-    document.getElementById("arrestedAttribute").innerHTML = "Arrested: No";
+    document.getElementById("nameAttribute").innerHTML = "Name";
+    document.getElementById('imageAttribute').src = "https://ipfs.io/ipfs/QmbGbqtHY9LEPExxfxDiyf9mzvvAUxqym8dUZ7rg64BLJU?filename=blank.png";
+    document.getElementById("healthAttribute").innerHTML = "Health: ";
+    document.getElementById("agilityAttribute").innerHTML = "Agility: ";
+    document.getElementById("strengthAttribute").innerHTML = "Strength: ";
+    document.getElementById("charmAttribute").innerHTML = "Charm: ";
+    document.getElementById("sneakAttribute").innerHTML = "Sneak: ";
+    document.getElementById("arrestedAttribute").innerHTML = "Arrested:";
+    document.getElementById("playingPVPAttribute").innerHTML = "Playing PvP: ";
+    document.getElementById("stopPlayingPVPAttribute").innerHTML = "Can Stop Playing PvP: ";
+
   }
-  if (result.playingPVP == true){
-    document.getElementById("playingPVPAttribute").innerHTML = "Playing PVP: Yes";
-  }
-  else{
-    document.getElementById("playingPVPAttribute").innerHTML = "Playing PVP: No";
-  }
-  if (result.canStopPlayingPVP <= Math.floor(Date.now() / 1000) ){
-    document.getElementById("stopPlayingPVPAttribute").innerHTML = "Can Stop Playing PVP: Yes";
-  }
-  else{
-    document.getElementById("stopPlayingPVPAttribute").innerHTML = "Can Stop Playing PVP: No";
-  }
+
 }
+async function renderBarNFTCharacter(){
+  let address = document.getElementById("barPlayerInput").value;
+  let result = await contractGetNFTCharacter(address);
+  console.log(result);
+  document.getElementById("nameAttributeBar").innerHTML = result.name;
+  document.getElementById('imageAttributeBar').src = result.imageURI;
+  document.getElementById("healthAttributeBar").innerHTML = "Health: " + result.health;
+  document.getElementById("agilityAttributeBar").innerHTML = "Agility: " + result.agility;
+  document.getElementById("strengthAttributeBar").innerHTML = "Strength: " + result.strength;
+  document.getElementById("charmAttributeBar").innerHTML = "Charm: " + result.charm;
+  document.getElementById("sneakAttributeBar").innerHTML = "Sneak: " + result.sneak;
+  if (result.playingPVP == true){
+    document.getElementById("playingPVPAttributeBar").innerHTML = "Playing PVP: Yes";
+  }
+  else{
+    document.getElementById("playingPVPAttributeBar").innerHTML = "Playing PVP: No";
+  }
+  let jewelBalance = await contractGetJewelBalance(address);
+  jewelBalance = Moralis.Units.FromWei(jewelBalance, 18);
+  jewelBalance = Math.trunc(jewelBalance);
+  document.getElementById("stashAttributeBar").innerHTML = "Stash: " + jewelBalance;
+
+
+}
+
+async function renderBarScreen(){
+   let user = await Moralis.User.current();
+   let address = user.get("accounts");
+   address = address[0];
+   let result = await contractGetNFTCharacter(address);
+   if (result.canStopPlayingPVP >= Math.floor(Date.now() / 1000) ){
+     document.getElementById("canStopPlayingPVPBar").innerHTML = "Can Stop Playing PVP: Yes";
+   }
+   else{
+     document.getElementById("canStopPlayingPVPBar").innerHTML = "Wait until: " + getLocalTime(result.canStopPlayingPVP) ;
+   }
+
+}
+
 async function depositNFT(NFTID){
     console.log(NFTID);
   let result = await contractDepositNFT(NFTID);
@@ -2261,6 +2483,7 @@ async function renderNFTWallet(){
     `
   }
 }
+
 
 function updateUserPreferences(_data, _action){
   const userPreferences = Moralis.User.current();
@@ -2316,7 +2539,6 @@ async function getUserPreferences() { // only time this should be called is on a
 
 
 
-// HANDLING FILES/LINKS -----------------------------------------------------------------------------------------------------------------------------------------------------------HANDLING FILES/LINKS-------------------------------
 
 function getLocalTime(unixTimeStamp){
   unixTimeStamp = unixTimeStamp*1000;
@@ -2352,6 +2574,7 @@ function loadBankMenu(){
 }
 function loadTavernMenu(){
   window.scrollTo(0, 0);
+  renderBarScreen();
   document.getElementById("bankMenu").style.display="none";
   document.getElementById("tavernMenu").style.display="";
   document.getElementById("robberyMenu").style.display="none";
@@ -2395,6 +2618,11 @@ function loadHospitalMenu(){
   color: #ED2828;
   cursor: pointer;
 }
+.arrows:hover{
+  color: #307EBF;
+  cursor: pointer;
+}
+
 
 .form-control:focus {
   outline: none !important;
@@ -2753,7 +2981,7 @@ pre {
     </a>
     </div>
   </div>
-  <div class="row backgroundColor mx-auto align-items-start"  style ="padding-top: 5%">
+  <div id="scenarioZero" class="row backgroundColor mx-auto align-items-start"  style ="padding-top: 5%">
     <div class="col-12 mx-auto" style=" max-width: 1000px;">
       <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
 
@@ -2765,16 +2993,17 @@ pre {
             <div class="row" style ="padding: 30px 0px;">
               <div class="col-3 text-center">
                 <a class="iconColor">
-                    <i class="fas fa-arrow-left fa-3x"></i>
+                    <i onclick="showPreviousScenario()" class="fas arrows fa-arrow-left fa-3x"></i>
                 </a>
 
               </div>
               <div class="col-6 text-center">
                 <h3 class="textChange" style="margin-top:5px"><b>Bank Heist</b></h3>
+                <h5 class="textChange" style="margin-top:5px"><b>(Easy)</b></h5>
               </div>
               <div class="col-3 text-center">
                 <a class="iconColor">
-                    <i class="fas fa-arrow-right fa-3x"></i>
+                    <i onclick="showNextScenario()" class="fas arrows fa-arrow-right fa-3x"></i>
                 </a>
               </div>
             </div>
@@ -2790,24 +3019,148 @@ pre {
             <div class="row " style ="padding-top: 10px;">
               <div class="col-12 text-center">
                 <select class="form-select textChange" style="overflow: hidden; background-color: #535353; border: solid 1px #535353;" multiple aria-label="multiple select example">
-                  <option class="text-center" selected value="1">Rob the Tills (Easy)</option>
-                  <option class="text-center" value="2">Steal from Bank Truck (Medium)</option>
-                  <option class="text-center" value="3">Break into the Fault (Hard)</option>
+                  <option onclick="changeDifficulty('100','0')" class="text-center" selected value="1">Rob the Tills (Easy)</option>
+                  <option onclick="changeDifficulty('200','0')" class="text-center" value="2">Steal from Bank Truck (Medium)</option>
+                  <option onclick="changeDifficulty('300','0')" class="text-center" value="3">Break into the Fault (Hard)</option>
                   </select>
               </div>
             </div>
             <div class="row" style ="padding: 10px 0px 10px 0px;">
               <div class="col-4 text-center">
                 <p class="textChange">Daylight Robbery</p>
-                  <button type="button" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
+                  <button type="button" onclick="playGame('3','0')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
               </div>
               <div class="col-4 text-center">
                   <p class="textChange">Act as a Janitor</p>
-                  <button type="button"  style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
+                  <button type="button" onclick="playGame('2','0')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
               </div>
               <div class="col-4 text-center">
                   <p class="textChange">Wait Until Night</p>
-                  <button type="button"  style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
+                  <button type="button" onclick="playGame('1','0')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
+              </div>
+            </div>
+            </div>
+    </div>
+    </div>
+  </div>
+  <div id="scenarioOne" class="row backgroundColor mx-auto align-items-start"  style ="padding-top: 5%; display: none">
+    <div class="col-12 mx-auto" style=" max-width: 1000px;">
+      <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
+
+
+          <div class="col-6  ">
+            <div class="row text-center ">
+                  <img src="https://image.freepik.com/free-vector/cartoon-retro-bank-building-courthouse-with-columns-illustration-isolated-white_166005-61.jpg" class="d-block w-60 mx-auto mt-4 alt="...">
+            </div>
+            <div class="row" style ="padding: 30px 0px;">
+              <div class="col-3 text-center">
+                <a class="iconColor">
+                    <i onclick="showPreviousScenario()" class="fas arrows fa-arrow-left fa-3x"></i>
+                </a>
+
+              </div>
+              <div class="col-6 text-center">
+                <h3 class="textChange" style="margin-top:5px"><b>Jewelry Heist</b></h3>
+                <h5 class="textChange" style="margin-top:5px"><b>(Medium)</b></h5>
+              </div>
+              <div class="col-3 text-center">
+                <a class="iconColor">
+                    <i onclick="showNextScenario()" class="fas arrows fa-arrow-right fa-3x"></i>
+                </a>
+              </div>
+            </div>
+            </div>
+
+          <div class="col-6">
+            <div class="row " style="margin-top:25px;">
+              <h5 class="textChange">Location:</h5>
+              <p style="font-size: 1rem" class="textChange">103 Chainlink Street, Metropolis Cityy</p>
+              <h5 class="textChange">Description:</h5>
+              <p class="textChange">Adam's Jewelry store has been playing a lot of commercials lately about their extensive collection of jewels for for Valentine's day. You case out the store and find their largest jewel is protected by a top of the line security system but the others might be an easier grab.</p>
+            </div>
+            <div class="row " style ="padding-top: 10px;">
+              <div class="col-12 text-center">
+                <select class="form-select textChange" style="overflow: hidden; background-color: #535353; border: solid 1px #535353;" multiple aria-label="multiple select example">
+                  <option onclick="changeDifficulty('100','1')" class="text-center" selected value="1">Take a Display Jewel (Easy)</option>
+                  <option onclick="changeDifficulty('200','1')" class="text-center" value="2">Grab Handful of Jewels (Medium)</option>
+                  <option onclick="changeDifficulty('300','1')" class="text-center" value="3">Steal the Largest Jewel (Hard)</option>
+                  </select>
+              </div>
+            </div>
+            <div class="row" style ="padding: 10px 0px 10px 0px;">
+              <div class="col-4 text-center">
+                <p class="textChange">Grab and Run</p>
+                  <button type="button" onclick="playGame('3','1')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
+              </div>
+              <div class="col-4 text-center">
+                  <p class="textChange">Flirt with Employee</p>
+                  <button type="button" onclick="playGame('2','1')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
+              </div>
+              <div class="col-4 text-center">
+                  <p class="textChange">Wait Until it is Busy</p>
+                  <button type="button" onclick="playGame('1','1')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
+              </div>
+            </div>
+            </div>
+    </div>
+    </div>
+  </div>
+  <div id="scenarioTwo" class="row backgroundColor mx-auto align-items-start"  style ="padding-top: 5%; display: none">
+    <div class="col-12 mx-auto" style=" max-width: 1000px;">
+      <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
+
+
+          <div class="col-6  ">
+            <div class="row text-center ">
+                  <img src="https://image.freepik.com/free-vector/cartoon-retro-bank-building-courthouse-with-columns-illustration-isolated-white_166005-61.jpg" class="d-block w-60 mx-auto mt-4 alt="...">
+            </div>
+            <div class="row" style ="padding: 30px 0px;">
+              <div class="col-3 text-center">
+                <a class="iconColor">
+                    <i onclick="showPreviousScenario()" class="fas arrows fa-arrow-left fa-3x"></i>
+                </a>
+
+              </div>
+              <div class="col-6 text-center">
+                <h3 class="textChange" style="margin-top:5px"><b>Museum Heist</b></h3>
+                <h5 class="textChange" style="margin-top:5px"><b>(Difficult)</b></h5>
+              </div>
+              <div class="col-3 text-center">
+                <a class="iconColor">
+                    <i onclick="showNextScenario()" class="fas arrows fa-arrow-right fa-3x"></i>
+                </a>
+              </div>
+            </div>
+            </div>
+
+          <div class="col-6">
+            <div class="row " style="margin-top:25px;">
+              <h5 class="textChange">Location:</h5>
+              <p style="font-size: 1rem" class="textChange">193 Social Street, Metropolis City</p>
+              <h5 class="textChange">Description:</h5>
+              <p class="textChange">You saw on a brochure, Metropolis City Museum is hosting a evening Gala and prominent works of art will be on display. You need to make a sizeable donation to attend. The place will be packed with wealthy people but guards have been doubled just for this event. </p>
+            </div>
+            <div class="row " style ="padding-top: 10px;">
+              <div class="col-12 text-center">
+                <select class="form-select textChange" style="overflow: hidden; background-color: #535353; border: solid 1px #535353;" multiple aria-label="multiple select example">
+                  <option onclick="changeDifficulty('100','2')" class="text-center" selected value="1">Steal from the Giftshop (Easy)</option>
+                  <option onclick="changeDifficulty('200','2')" class="text-center" value="2">Pickpocket Guests (Medium)</option>
+                  <option onclick="changeDifficulty('300','2')" class="text-center" value="3">Steal the Declaration of Independece (Difficult)</option>
+                  </select>
+              </div>
+            </div>
+            <div class="row" style ="padding: 10px 0px 10px 0px;">
+              <div class="col-4 text-center">
+                <p class="textChange">Capture Security Guard</p>
+                  <button type="button" onclick="playGame('3','2')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
+              </div>
+              <div class="col-4 text-center">
+                  <p class="textChange">Act as a Rich Donor</p>
+                  <button type="button" onclick="playGame('2','2')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
+              </div>
+              <div class="col-4 text-center">
+                  <p class="textChange">Go Through the Sewers</p>
+                  <button type="button" onclick="playGame('1','2')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
               </div>
             </div>
             </div>
@@ -2849,7 +3202,7 @@ pre {
           <div class="col-6" style="border-left: 1px solid #535353">
             <div class="row " style="margin-top:25px;">
               <h4 class="textChange text-center">Balance</h4>
-              <h4 id="currentBalance" class="textChange text-center">45000 Jewels</h4>
+              <h4 id="currentBalance" class="textChange text-center">xxxx Jewels</h4>
             </div>
             <div class="row " style="margin-top:25px;">
 
@@ -2882,18 +3235,18 @@ pre {
             <div class="row" style ="padding: 10px 0px 10px 0px;">
               <div class="col-6 text-center">
                   <h6 id="nameAttribute" class="textChange">Name</h6>
-                  <img id="imageAttribute" src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="75%" height="90%">
+                  <img id="imageAttribute" src="https://ipfs.io/ipfs/QmbGbqtHY9LEPExxfxDiyf9mzvvAUxqym8dUZ7rg64BLJU?filename=blank.png" alt="jewels" width="75%" height="90%">
               </div>
               <div class="col-6">
                   <h6 class="textChange">Attributes</h6>
-                  <p id="healthAttribute" class="textChange mb-2">Health:  78</p>
-                  <p id="agilityAttribute" class="textChange mb-2">Agility:  263</p>
-                  <p id="strengthAttribute" class="textChange mb-2">Strength:  286</p>
-                  <p id="charmAttribute" class="textChange mb-2">Charm:  400</p>
-                  <p id="sneakAttribute" class="textChange mb-2">Sneak:  301</p>
-                  <p id="arrestedAttribute" class="textChange mb-2">In Prison: No</p>
-                  <p id="playingPVPAttribute" class="textChange mb-2">Playing PvP: No</p>
-                  <p id="stopPlayingPVPAttribute" class="textChange mb-2">Can Leave PvP: In 3 days</p>
+                  <p id="healthAttribute" class="textChange mb-2">Health:  </p>
+                  <p id="agilityAttribute" class="textChange mb-2">Agility:  </p>
+                  <p id="strengthAttribute" class="textChange mb-2">Strength:  </p>
+                  <p id="charmAttribute" class="textChange mb-2">Charm:  </p>
+                  <p id="sneakAttribute" class="textChange mb-2">Sneak:  </p>
+                  <p id="arrestedAttribute" class="textChange mb-2">Arrested: </p>
+                  <p id="playingPVPAttribute" class="textChange mb-2">Playing PvP: </p>
+                  <p id="stopPlayingPVPAttribute" class="textChange mb-2">Can Stop Playing PvP: </p>
               </div>
             </div>
             <div class="row " style="margin-bottom:20px;">
@@ -2944,15 +3297,15 @@ pre {
                     <div class="col-3  text-center">
                     </div>
                     <div class="col-3  text-center">
-                    <button type="button"  style="width:100px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Stop PvP</button>
+                    <button type="button"  style="width:100px" onclick="contractStopPlayPVP()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Stop PvP</button>
                     </div>
                     <div class="col-3 text-center">
-                    <button type="button"  style="width:100px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Play PvP</button>
+                    <button type="button"  style="width:100px" onclick="contractStartPlayPVP()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Play PvP</button>
                     </div>
                     <div class="col-3  text-center">
                     </div>
                 </div>
-                <p style="font-size: 1rem; margin-top:10px;" class="textChange">Can't Leave Yet</p>
+                <p id="canStopPlayingPVPBar" style="font-size: 1rem; margin-top:10px;" class="textChange">Can't Leave Yet</p>
               </div>
             </div>
             </div>
@@ -2965,19 +3318,12 @@ pre {
 
                 <div class="col-12">
                   <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Player Address" aria-label="Username" aria-describedby="basic-addon1">
+                    <input id="barPlayerInput" type="text" class="form-control" oninput="renderBarNFTCharacter()" placeholder="Player Address" aria-label="Username" aria-describedby="basic-addon1">
                   </div>
                 </div>
 
             </div>
-            <div class="row " style="margin-top:0px;">
-                <div class="col-4">
-                <button type="button"  style="width:100px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Check</button>
-                </div>
-                <div class="col-8  text-center">
-                </div>
 
-            </div>
             <div class="row " style ="padding-top: 10px;">
               <div class="col-12 text-center" style="border-top: 1px solid #535353; border-bottom: 1px solid #535353">
               <h4 class="textChange text-center" style="margin-top:8px">Player Stats</h4>
@@ -2985,18 +3331,18 @@ pre {
             </div>
             <div class="row" style ="padding: 10px 0px 10px 0px;">
               <div class="col-6 text-center">
-                  <h6 class="textChange">Name</h6>
-                  <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="75%" height="90%">
+                  <h6 id="nameAttributeBar" class="textChange">Name</h6>
+                  <img id="imageAttributeBar" src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="75%" height="90%">
               </div>
               <div class="col-6">
                   <h6 class="textChange">Attributes</h6>
-                  <p class="textChange mb-2">Health:  78</p>
-                  <p class="textChange mb-2">Agility:  263</p>
-                  <p class="textChange mb-2">Strength:  286</p>
-                  <p class="textChange mb-2">Charm:  400</p>
-                  <p class="textChange mb-2">Sneak:  301</p>
-                  <p class="textChange mb-2">Playing PvP: No</p>
-                  <p class="textChange mb-2">Stash: 607000</p>
+                  <p id="healthAttributeBar" class="textChange mb-2">Health:  78</p>
+                  <p id="agilityAttributeBar" class="textChange mb-2">Agility:  263</p>
+                  <p id="strengthAttributeBar" class="textChange mb-2">Strength:  286</p>
+                  <p id="charmAttributeBar" class="textChange mb-2">Charm:  400</p>
+                  <p id="sneakAttributeBar" class="textChange mb-2">Sneak:  301</p>
+                  <p id="playingPVPAttributeBar" class="textChange mb-2">Playing PvP: No</p>
+                  <p id="stashAttributeBar" class="textChange mb-2">Stash: 607000</p>
               </div>
             </div>
             <div class="row " style ="padding-top: 10px;">
@@ -3006,13 +3352,13 @@ pre {
             </div>
             <div class="row" style ="padding: 10px 0px 10px 0px;">
               <div class="col-4 text-center">
-                  <button type="button" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
+                  <button type="button" style="width:120px" onclick="playPVP('3')" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
               </div>
               <div class="col-4 text-center">
-                  <button type="button"  style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
+                  <button type="button"  style="width:120px" onclick="playPVP('2')"  class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
               </div>
               <div class="col-4 text-center">
-                  <button type="button"  style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
+                  <button type="button"  style="width:120px" onclick="playPVP('1')" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
               </div>
             </div>
             </div>
@@ -3059,7 +3405,7 @@ pre {
 
                 <div class="col-12">
                   <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Player Address" aria-label="Username" aria-describedby="basic-addon1">
+                    <input id="jailPlayerInput" type="text" class="form-control" placeholder="Player Address" oninput="renderJailPlayer()" onkeydown="renderJailPlayer()" aria-label="Username" aria-describedby="basic-addon1">
                   </div>
                 </div>
 
@@ -3067,15 +3413,15 @@ pre {
             <div class="row" style ="padding: 10px 0px 10px 0px;">
               <div class="col-4 text-center">
                   <p class="textChange">Drive Car Through Wall</p>
-                  <button type="button" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
+                  <button type="button" style="width:120px" onclick="playBreakout('3')" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
               </div>
               <div class="col-4 text-center">
                   <p class="textChange">Disguse As Security Guard</p>
-                  <button type="button"  style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
+                  <button type="button"  style="width:120px" onclick="playBreakout('2')"  class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
               </div>
               <div class="col-4 text-center">
                   <p class="textChange">Wait Until Guard Rotation</p>
-                  <button type="button"  style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
+                  <button type="button"  style="width:120px" onclick="playBreakout('1')"  class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
               </div>
             </div>
             <div class="row " style ="padding-top: 10px;">
@@ -3083,10 +3429,10 @@ pre {
               <h4 class="textChange text-center" style="margin-top:8px">Player</h4>
               </div>
             </div>
-            <div class="row" style ="padding: 10px 0px 10px 0px;">
+            <div id="jailContainer" class="row" style ="padding: 10px 0px 10px 0px;">
               <div class="col-12 text-center">
                   <h6 class="textChange">Name</h6>
-                  <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="35%" height="70%">
+                  <img src="https://ipfs.io/ipfs/QmbGbqtHY9LEPExxfxDiyf9mzvvAUxqym8dUZ7rg64BLJU?filename=blank.png" alt="jewels" width="35%" height="70%">
                   <h6 class="textChange" style ="padding: 10px 0px 0px 0px;">Release Date:</h6>
               </div>
             </div>
