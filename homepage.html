@@ -2446,7 +2446,7 @@ async function createUserProfile() {
   document.getElementById("loginForm").style.display = "none";
   document.getElementById("newAccount").style.display = "none";
   document.getElementById("mainPage").style.display = "block";
-  getUserPreferences() // user Preferences are then assigned to global variables
+  getUserPreferences("user profile creation") // user Preferences are then assigned to global variables
   userProfileImage = false;
   file = false; // file or gif no longer exists
   gif = false;
@@ -2524,7 +2524,8 @@ async function login() {
       document.getElementById("loginForm").style.display = "none";
       document.getElementById("newAccount").style.display = "none";
       document.getElementById("mainPage").style.display = "block";
-      getUserPreferences() // user Preferences are then assigned to global variables
+      getUserPreferences("via login") // user Preferences are then assigned to global variables
+      return;
     }
    }
   else{
@@ -2533,7 +2534,8 @@ async function login() {
     document.getElementById("loginForm").style.display = "none";
     document.getElementById("newAccount").style.display = "none";
     document.getElementById("mainPage").style.display = "block";
-    getUserPreferences() // user Preferences are then assigned to global variables
+    getUserPreferences("already logged in") // user Preferences are then assigned to global variables
+    return;
   }
   console.log("logged in user:", user);
 }
@@ -2571,7 +2573,8 @@ async function onFirstLoad() {
       document.getElementById("loginForm").style.display = "none";
       document.getElementById("newAccount").style.display = "none";
       document.getElementById("mainPage").style.display = "block";
-      getUserPreferences() // user Preferences are then assigned to global variables
+      getUserPreferences("via on first load logged in") // user Preferences are then assigned to global variables
+      return;
     }
 
    }
@@ -2590,7 +2593,8 @@ async function onFirstLoad() {
       document.getElementById("loginForm").style.display = "none";
       document.getElementById("newAccount").style.display = "none";
       document.getElementById("mainPage").style.display = "block";
-      getUserPreferences() // user Preferences are then assigned to global variables
+      getUserPreferences("via on first load second portion") // user Preferences are then assigned to global variables
+      return;
     }
 
   }
@@ -2646,7 +2650,7 @@ function followNewUser(){
   updateUserPreferences(newFollowing, "follow") // tell Moralis user is following new person
   contractFollowUser(newFollowing) // follow user on smart contract. They can deny transaction and still have user preference
 }
-function updateUserPreferences(_data, _action){
+async function updateUserPreferences(_data, _action){
   const userPreferences = Moralis.User.current();
   console.log("sending to moralis",_data)
   switch(_action){
@@ -2654,6 +2658,12 @@ function updateUserPreferences(_data, _action){
         userPreferences.remove("following",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
         break;
     case "follow":
+        user = await Moralis.authenticate();
+        address = user.get("accounts");
+        address = address[0];
+        if (address == _data){ // can't follow yourself
+          break;
+        }
         userPreferences.addUnique("following",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
         console.log("Moralis followed uploaded");
         break;
@@ -2676,13 +2686,18 @@ function updateUserPreferences(_data, _action){
   }
   userPreferences.save()
   .then((userPreferences) => {
-  getUserPreferences() //refreshUserPreferences
-   }, (error) => {
+    if (_action == "login"){
+      // login was calling followering render twice and we don't need to since it was rendered on first load
+    }
+    else{
+        getUserPreferences("update user preference") //refreshUserPreferences
+    }
 
-  alert('Failed to create new object, with error code: ' + error.message);
+   }, (error) => {
 });
 }
-async function getUserPreferences() { // only time this should be called is on a page refresh or on change of userPreferences
+async function getUserPreferences(id) { // only time this should be called is on a page refresh or on change of userPreferences
+  console.log("User Preferences is being called by :", id)
   userPreferences = await Moralis.User.current();
   following = await userPreferences.get("following");
   savedPosts = await userPreferences.get("savedPosts");
@@ -3606,6 +3621,12 @@ async function renderFollowing(followingArray) { //followingArray
     //  expected array should be like ["0x4532f229","0x5354f229","0x5354f229"]
   if (following) {
     for (let i = 0; i < following.length; i++) {
+      const currentUser = await Moralis.User.current();
+      tempAddress = currentUser.get("accounts");
+      tempAddress = tempAddress[0];
+      if (tempAddress == following[i]){
+        continue; // don't render user themselves
+      }
       let userProfile = await contractGetUserProfile(following[i]); // get userProfile to find the currentNickname
       let nickName = userProfile.userNickname;
       let address = following[i];
@@ -3693,6 +3714,12 @@ async function renderUserProfileTopRight() { //savedArray
     nickName = profile.userNickname;
     var nickNameShort = nickName.slice(0, 5);
     nickNameShort = nickNameShort.concat("...");
+
+    let savedHTML = document.getElementById("messagingNotificationsUserProfile");
+    while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
+      savedHTML.removeChild(savedHTML.firstChild);
+      }
+
     document.getElementById("messagingNotificationsUserProfile").innerHTML +=
     `
     <div class="row align-items-start">
@@ -3713,6 +3740,12 @@ async function renderUserProfileTopRight() { //savedArray
         </div>
     </div>
     `;
+
+    savedHTML = document.getElementById("userProfileOverview");
+    while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
+      savedHTML.removeChild(savedHTML.firstChild);
+      }
+
     document.getElementById("userProfileOverview").innerHTML +=
     `
     <div class="row align-items-start">
@@ -3777,7 +3810,7 @@ async function renderCommentArea(postAddress, postID) { //savedArray
 
       const userProfile = await contractGetUserProfile(address); // get userProfile
       let profileImageURl;
-      if (userProfile.profileImageUrl && (profile.profileImageUrl != " ")){
+      if (userProfile.profileImageUrl && (userProfile.profileImageUrl != " ")){
       profileImageURl  =
       `
       <img src="https://ipfs.moralis.io:2053/ipfs/${userProfile.profileImageUrl}" style="border-radius:50px; margin-top:2px; margin-left:0px" width="40" height="40">
@@ -4107,7 +4140,7 @@ async function renderUserAccountPosts(address,totalPosts) { //nickName,address,p
 
     const userProfile = await contractGetUserProfile(address); // get userProfile
     let profileImageURl;
-    if (userProfile.profileImageUrl && (profile.profileImageUrl != " ")){
+    if (userProfile.profileImageUrl && (userProfile.profileImageUrl != " ")){
     profileImageURl  =
     `
     <img src="https://ipfs.moralis.io:2053/ipfs/${userProfile.profileImageUrl}" style="border-radius:50px; margin-top:3px; margin-left:0px" width="40" height="40">
@@ -4268,7 +4301,7 @@ async function renderFeaturedPost(address,postID) { //nickName,address,postID
 
     const userProfile = await contractGetUserProfile(address); // get userProfile
     let profileImageURl;
-    if (userProfile.profileImageUrl && (profile.profileImageUrl != " ")){
+    if (userProfile.profileImageUrl && (userProfile.profileImageUrl != " ")){
     profileImageURl  =
     `
     <img src="https://ipfs.moralis.io:2053/ipfs/${userProfile.profileImageUrl}" style="border-radius:50px; margin-top:3px; margin-left:0px" width="40" height="40">
@@ -6425,14 +6458,8 @@ pre {
 <footer class="text-center text-white backgroundColorNavBar"> <!--#3C719D -->
   <div class="container p-3 align-center ">
       <p class="textChange" style="margin:0px">
-        Download the Code on Github!       <a class="btn btn-outline-light btn-floating m-1 iconColor" href="#!" role="button"
+        Checkout the Code on Github!       <a class="btn btn-outline-light btn-floating m-1 iconColor" href="https://github.com/TheGreatAlgo/deSocialNet" target="_blank" role="button"
                 ><i class="fab fa-github"></i
-              ></a>
-        Follow me Twitter!       <a class="btn btn-outline-light btn-floating m-1 iconColor" href="#!" role="button"
-                ><i class="fab fa-twitter"></i
-              ></a>
-        Connect with me on Linkedin!      <a class="btn btn-outline-light btn-floating m-1 iconColor" href="#!" role="button"
-                ><i class="fab fa-linkedin-in"></i
               ></a>
       </p>
   </div>
