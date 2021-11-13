@@ -33,9 +33,9 @@ contract BreakInGame is VRFConsumerBase, Ownable, KeeperCompatibleInterface{
     uint256 public checkInTimeInterval = 864000; //default to six months
     address public nextOwner;
 
-    INFTMinter IBreakInNFTMinter =  INFTMinter(0xb038Dc9265352070d16501fbCF3383852f950e17);
-    IERC721 breakInNFT = IERC721(0xb038Dc9265352070d16501fbCF3383852f950e17);   //address of breakInNFTs
-    IERC20 deSocialNetToken = IERC20(0x25fE2b4d03dF8144D12F09Be547732e57752C29C);   //adress of desocialNet token
+    INFTMinter IBreakInNFTMinter =  INFTMinter(0x045806a2F15FA26eE7e52c4dab62497e98fa5de4);
+    IERC721 breakInNFT = IERC721(0x045806a2F15FA26eE7e52c4dab62497e98fa5de4);   //address of breakInNFTs
+    IERC20 deSocialNetToken = IERC20(0xAe0f650F39B943F738a790519C3556bf6f8C92F1);   //adress of desocialNet token
 
 
     /**
@@ -129,7 +129,7 @@ contract BreakInGame is VRFConsumerBase, Ownable, KeeperCompatibleInterface{
     uint256 differentGameScenarios;
     mapping(uint256 => scenarios) public gameScenarios; // current gameScenarios for robbing
     mapping(bytes32 => PvP) currentPVPGamePlays; // for if you are trying to steal from a player
-    mapping(bytes32 => gamePlay) currentGamePlays; // this is for a standard robbing gameplay
+    mapping(bytes32 => gamePlay)  currentGamePlays; // this is for a standard robbing gameplay
     mapping(bytes32 => gameModes) currentGameMode; // this allows for a quick compare statement to determine which game to play to safe gas
     mapping(bytes32 => jailBreak) currentJailBreaks; // this is for players trying to break out a buddy
     mapping(address => depostedCharacter) public NFTCharacterDepositLedger; // Players deposit their NFT into this contract to Play
@@ -138,6 +138,11 @@ contract BreakInGame is VRFConsumerBase, Ownable, KeeperCompatibleInterface{
     function changeHospitalBill(uint256 newHospitalBill) public onlyOwner {
         hospitalBill = newHospitalBill;
         lastCheckIn = block.timestamp;
+    }
+    function leavePrison() public {
+        require(block.timestamp > NFTCharacterDepositLedger[msg.sender].freetoPlayAgain);
+        NFTCharacterDepositLedger[msg.sender].arrested = false;
+
     }
     function addScenario(string memory name, uint16 riskBaseDifficulty, uint256 payoutAmountBase) public onlyOwner{
         uint256 gameScenarioID =  differentGameScenarios;
@@ -181,12 +186,12 @@ contract BreakInGame is VRFConsumerBase, Ownable, KeeperCompatibleInterface{
         jewelDepositLedger[msg.sender] -= amountToWithdraw;
     }
     function startPlayPVP() public { // users Must Deposit a character to play
-        require(NFTCharacterDepositLedger[msg.sender].isDeposited != true,"Character Already Deposited");
+        require(NFTCharacterDepositLedger[msg.sender].isDeposited == true,"Character Not Deposited");
         NFTCharacterDepositLedger[msg.sender].playingPVP = true;
         NFTCharacterDepositLedger[msg.sender].canStopPlayingPVP = block.timestamp + 604800; // players must play a minimum 7 days to prevent players entering and exiting quickly;
     }
     function stopPlayPVP() public { // users Must Deposit a character to play
-        require(NFTCharacterDepositLedger[msg.sender].isDeposited != true,"Character Already Deposited");
+        require(NFTCharacterDepositLedger[msg.sender].isDeposited == true,"Character Not Deposited");
         require(NFTCharacterDepositLedger[msg.sender].canStopPlayingPVP > block.timestamp,"You must wait 7 days since you started playing");
         NFTCharacterDepositLedger[msg.sender].playingPVP = false;
     }
@@ -281,6 +286,7 @@ contract BreakInGame is VRFConsumerBase, Ownable, KeeperCompatibleInterface{
             if ((currentGamePlays[requestId].health+healthDecrease) > 100){ // players don't have to heal if they get injured before but if they get injured again and its greater than 100, they die
                 NFTCharacterDepositLedger[currentGamePlays[requestId].player].isDeposited = false; //
                 emit gameCode(requestId,currentGamePlays[requestId].player,0);
+                return;
             }
             NFTCharacterDepositLedger[currentGamePlays[requestId].player].health -= healthDecrease;
             emit gameCode(requestId,currentGamePlays[requestId].player,1);
@@ -298,7 +304,7 @@ contract BreakInGame is VRFConsumerBase, Ownable, KeeperCompatibleInterface{
             }
             else{
                 NFTCharacterDepositLedger[currentGamePlays[requestId].player].arrested = true;
-                 NFTCharacterDepositLedger[currentGamePlays[requestId].player].freetoPlayAgain = block.timestamp + 1728000; //player arrested for 2 days.
+                 NFTCharacterDepositLedger[currentGamePlays[requestId].player].freetoPlayAgain = block.timestamp + 172800; //player arrested for 2 days.
                 emit gameCode(requestId,currentGamePlays[requestId].player,2);
                 return; //  playerArrested
             }
@@ -362,6 +368,7 @@ contract BreakInGame is VRFConsumerBase, Ownable, KeeperCompatibleInterface{
             if ((currentGamePlays[requestId].health+healthDecrease) > 100){ // players don't have to heal if they get injured before but if they get injured again and its greater than 100, they die
                 NFTCharacterDepositLedger[msg.sender].isDeposited = false; //
                 emit gameCode(requestId,currentJailBreaks[requestId].player,0);
+                return;
             }
             NFTCharacterDepositLedger[currentGamePlays[requestId].player].health -= healthDecrease;
             emit gameCode(requestId,currentJailBreaks[requestId].player,1);
@@ -379,7 +386,7 @@ contract BreakInGame is VRFConsumerBase, Ownable, KeeperCompatibleInterface{
             }
             else{
                 NFTCharacterDepositLedger[msg.sender].arrested = true;
-                NFTCharacterDepositLedger[msg.sender].freetoPlayAgain = block.timestamp + 2592000; //player arrested for 3 days.
+                NFTCharacterDepositLedger[msg.sender].freetoPlayAgain = block.timestamp + 259200; //player arrested for 3 days.
                 emit gameCode(requestId,currentJailBreaks[requestId].player,2);
                 return; //  playerArrested
             }
@@ -392,9 +399,10 @@ contract BreakInGame is VRFConsumerBase, Ownable, KeeperCompatibleInterface{
                 if (((randomness % 2214) % 4) == 1 ){ // gain XP!
                     NFTCharacterDepositLedger[currentJailBreaks[requestId].player].sneak += 1;
                     }
-                emit gameCode(requestId,currentJailBreaks[requestId].targetPlayer,99999999999999); //nobdy will win 99999999999999 and this is just for events
+                emit gameCode(requestId,currentJailBreaks[requestId].targetPlayer,6);
                 return;
             }
+            emit gameCode(requestId,currentJailBreaks[requestId].targetPlayer,7);
         }
         if (currentJailBreaks[requestId].breakInStyle == 1){ // player is breaking in with charm
            uint256 charmInExperienceRequired = ((randomness % 453678) % 1000);
@@ -403,9 +411,10 @@ contract BreakInGame is VRFConsumerBase, Ownable, KeeperCompatibleInterface{
                 if (((randomness % 2214) % 4) == 1 ){ // gain XP!
                     NFTCharacterDepositLedger[currentJailBreaks[requestId].player].charm += 1;
                     }
-                emit gameCode(requestId,currentJailBreaks[requestId].targetPlayer,99999999999999); //nobdy will win 99999999999999 and this is just for events
+                emit gameCode(requestId,currentJailBreaks[requestId].targetPlayer,6);
             return;
             }
+            emit gameCode(requestId,currentJailBreaks[requestId].targetPlayer,7);
         }
         if (currentJailBreaks[requestId].breakInStyle == 2){ // player is breaking in with strength
           uint256 strengthInExperienceRequired = ((randomness % 786435) % 1000); // strength is used for daylight robbery
@@ -414,9 +423,10 @@ contract BreakInGame is VRFConsumerBase, Ownable, KeeperCompatibleInterface{
                 if (((randomness % 2214) % 4) == 1 ){ // gain XP!
                 NFTCharacterDepositLedger[currentJailBreaks[requestId].player].strength += 1;
                 }
-                emit gameCode(requestId,currentJailBreaks[requestId].targetPlayer,99999999999999); //nobdy will win 99999999999999 and this is just for events
+                emit gameCode(requestId,currentJailBreaks[requestId].targetPlayer,6);
             return;
             }
+           emit gameCode(requestId,currentJailBreaks[requestId].targetPlayer,7);
         }
 
     }
@@ -453,11 +463,13 @@ contract BreakInGame is VRFConsumerBase, Ownable, KeeperCompatibleInterface{
                 }
                 jewelDepositLedger[currentPVPGamePlays[requestId].targetPlayer] -= totalWon;
                 jewelDepositLedger[currentPVPGamePlays[requestId].player] += totalWon;
-                NFTCharacterDepositLedger[currentPVPGamePlays[requestId].player].lootingTimeout = block.timestamp + 864000; // players can only loot once a day
-                NFTCharacterDepositLedger[currentPVPGamePlays[requestId].targetPlayer].lootingTimeout = block.timestamp + 864000; // players can only get looted once a day
+                NFTCharacterDepositLedger[currentPVPGamePlays[requestId].player].lootingTimeout = block.timestamp + 86400; // players can only loot once a day
+                NFTCharacterDepositLedger[currentPVPGamePlays[requestId].targetPlayer].lootingTimeout = block.timestamp + 86400; // players can only get looted once a day
                 emit gameCode(requestId,currentPVPGamePlays[requestId].player,totalWon);
                 return;
             }
+            emit gameCode(requestId,currentPVPGamePlays[requestId].player,4);
+
         }
        if (currentPVPGamePlays[requestId].breakInStyle == 1){ // player is breaking in with charm
            uint256 charmInExperienceRequired = ((randomness % 453678) % 1000)+currentPVPGamePlays[requestId].targetPlayerCharm;
@@ -467,11 +479,12 @@ contract BreakInGame is VRFConsumerBase, Ownable, KeeperCompatibleInterface{
                 NFTCharacterDepositLedger[currentPVPGamePlays[requestId].player].charm += 1;
                 }
             jewelDepositLedger[currentPVPGamePlays[requestId].player] += totalWon;
-            NFTCharacterDepositLedger[currentPVPGamePlays[requestId].player].lootingTimeout = block.timestamp + 864000; // players can only loot once a day
-            NFTCharacterDepositLedger[currentPVPGamePlays[requestId].targetPlayer].lootingTimeout = block.timestamp + 864000; // players can only get looted once a day
+            NFTCharacterDepositLedger[currentPVPGamePlays[requestId].player].lootingTimeout = block.timestamp + 86400; // players can only loot once a day
+            NFTCharacterDepositLedger[currentPVPGamePlays[requestId].targetPlayer].lootingTimeout = block.timestamp + 86400; // players can only get looted once a day
             emit gameCode(requestId,currentPVPGamePlays[requestId].player,totalWon);
             return;
             }
+            emit gameCode(requestId,currentPVPGamePlays[requestId].player,4);
        }
       if (currentPVPGamePlays[requestId].breakInStyle == 2){ // player is breaking in with strength
           uint256 strengthInExperienceRequired = ((randomness % 786435) % 1000)+currentPVPGamePlays[requestId].targetPlayerStrength; // strength is used for daylight robbery
@@ -482,16 +495,17 @@ contract BreakInGame is VRFConsumerBase, Ownable, KeeperCompatibleInterface{
                 }
             jewelDepositLedger[currentPVPGamePlays[requestId].targetPlayer] -= totalWon;
             jewelDepositLedger[currentPVPGamePlays[requestId].player] += totalWon;
-            NFTCharacterDepositLedger[currentPVPGamePlays[requestId].player].lootingTimeout = block.timestamp + 864000; // players can only loot once a day
-            NFTCharacterDepositLedger[currentPVPGamePlays[requestId].targetPlayer].lootingTimeout = block.timestamp + 864000; // players can only get looted once a day
+            NFTCharacterDepositLedger[currentPVPGamePlays[requestId].player].lootingTimeout = block.timestamp + 86400; // players can only loot once a day
+            NFTCharacterDepositLedger[currentPVPGamePlays[requestId].targetPlayer].lootingTimeout = block.timestamp + 86400; // players can only get looted once a day
             emit gameCode(requestId,currentPVPGamePlays[requestId].player,totalWon);
             return;
             }
+            emit gameCode(requestId,currentPVPGamePlays[requestId].player,4);
       }
 
     }
 
-    function getRandomNumber() internal returns (bytes32 requestId) { // internal to prevent blank characters being mintend by someone calling this function publicly
+    function getRandomNumber() internal returns (bytes32 requestId) { // internal
         require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK - fill contract with faucet");
         return requestRandomness(keyHash, fee);
     }
