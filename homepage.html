@@ -59,7 +59,7 @@ var mode;
 var recipientAddress; // global recipientAddress for donations
 var recipientNickname; // global recipient nickname for donations
 var userProfileImage;
-var darkMode = true;
+var darkMode;
 const kovanWETHTokenAddress ="0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
 const kovanContract = "0xD327d2b9765C69D3dF9ad2d49C3d78FB8821c38B";
 const onlineStoreContract = "0x9920C927033edD403aDEe0080F855ceA4257aCEc";
@@ -2366,12 +2366,14 @@ async function uploadFileandPostToBlockChain() {
           contractAddPost(fileHash," ") //Save to BlockChain
           console.log(fileHash);
           document.getElementById("messageToPost").value = ""; // reset text Box
+          if (data || image || gif || share){
+            var textArea = document.getElementById("textArea");
+            textArea.removeChild(textArea.lastElementChild);
+          }
           file = false; // file or gif no longer exists
           gif = false;
           share = false;
           image = false;
-          var textArea = document.getElementById("textArea");
-          textArea.removeChild(textArea.lastElementChild);
           return true;
   }
   // *IMPORTANT* Check to see if file exists or not*
@@ -2520,21 +2522,22 @@ async function login() {
     }
     else{
       let result = await renderUserProfileTopRight();
-      result = await renderSocialFeedPage();
       document.getElementById("loginForm").style.display = "none";
       document.getElementById("newAccount").style.display = "none";
       document.getElementById("mainPage").style.display = "block";
       getUserPreferences("via login") // user Preferences are then assigned to global variables
+      result = await renderSocialFeedPage();
       return;
     }
    }
   else{
     let result = await renderUserProfileTopRight();
-    result = await renderSocialFeedPage();
+
     document.getElementById("loginForm").style.display = "none";
     document.getElementById("newAccount").style.display = "none";
     document.getElementById("mainPage").style.display = "block";
     getUserPreferences("already logged in") // user Preferences are then assigned to global variables
+    result = await renderSocialFeedPage();
     return;
   }
   console.log("logged in user:", user);
@@ -2558,24 +2561,7 @@ async function onFirstLoad() {
     document.getElementById("loginForm").style.display = "block";
     document.getElementById("mainPage").style.display = "none";
     document.getElementById("newAccount").style.display = "none";
-    user = await Moralis.authenticate();
-    address = user.get("accounts");
-    address = address[0];
-    userProfile = await contractGetUserProfile(address);
-    if (userProfile.joinDate == "0"){ // user hasn't create profile yet
-      document.getElementById("loginForm").style.display = "none";
-      document.getElementById("newAccount").style.display = "block";
-      document.getElementById("mainPage").style.display = "none";
-    }
-    else{
-      let result = await renderUserProfileTopRight();
-      result = await renderSocialFeedPage();
-      document.getElementById("loginForm").style.display = "none";
-      document.getElementById("newAccount").style.display = "none";
-      document.getElementById("mainPage").style.display = "block";
-      getUserPreferences("via on first load logged in") // user Preferences are then assigned to global variables
-      return;
-    }
+
 
    }
   else{
@@ -2589,11 +2575,11 @@ async function onFirstLoad() {
     }
     else{
       let result = await renderUserProfileTopRight();
-      result = await renderSocialFeedPage();
       document.getElementById("loginForm").style.display = "none";
       document.getElementById("newAccount").style.display = "none";
       document.getElementById("mainPage").style.display = "block";
       getUserPreferences("via on first load second portion") // user Preferences are then assigned to global variables
+      result = await renderSocialFeedPage();
       return;
     }
 
@@ -2658,7 +2644,7 @@ async function updateUserPreferences(_data, _action){
         userPreferences.remove("following",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
         break;
     case "follow":
-        user = await Moralis.authenticate();
+        user = await Moralis.User.current();
         address = user.get("accounts");
         address = address[0];
         if (address == _data){ // can't follow yourself
@@ -2706,10 +2692,10 @@ async function getUserPreferences(id) { // only time this should be called is on
   let result = await renderSaved(savedPosts); // replace with "savedPosts" on launch;
   result = await renderFollowing(following);
   if (mode=="light"){
-    //toggleLightMode();
+    toggleLightMode()
   }
   else{
-    //toggleDarkMode();
+    toggleDarkMode()
   }
 }
 async function getBellColor() { // only time this should be called is on a page refresh or on change of userPreferences
@@ -2728,137 +2714,145 @@ async function getBellColor() { // only time this should be called is on a page 
   }
   if (lastLogin == undefined){
     let bellHTML = `<span id="bellColor" class="iconColor" style="font-size: 1.75em; margin-top:2px; color:red;">
-                    <i class="fas fa-bell"></i>
+                    <i  type="button" data-bs-toggle="modal" data-bs-target="#inboxModal" onclick="renderUserAccountMessages('${address}')"  class="fas fa-bell"></i>
                       </span>`;
     return bellHTML
   }
   if (lastLogin < lastMessageTime ){
     let bellHTML = `<span id="bellColor" class="iconColor" style="font-size: 1.75em; margin-top:2px; color:red;">
-                    <i class="fas fa-bell"></i>
+                    <i  type="button" data-bs-toggle="modal" data-bs-target="#inboxModal" onclick="renderUserAccountMessages('${address}')" class="fas fa-bell"></i>
                       </span>`;
     return bellHTML
   }
   else{
     let bellHTML = `<span id="bellColor" class="iconColor" style="font-size: 1.75em; margin-top:2px;">
-                    <i class="fas fa-bell"></i>
+                    <i  type="button" data-bs-toggle="modal" data-bs-target="#inboxModal" onclick="renderUserAccountMessages('${address}')" class="fas fa-bell"></i>
                       </span>`
     return bellHTML;
   }
 }
 
-function toggleLightMode() {
-  if (darkMode == true){
-    const style = document.createElement('style');
-    document.getElementById("logoSideBar").src="https://ipfs.io/ipfs/Qmdfd7qFcfdUrFqwdzxuaFxXGy2GbC1rdCYsLn2ByW1wg8?filename=logoLightMode.png";
-    document.getElementById("loginLogo").src="https://ipfs.io/ipfs/Qmdfd7qFcfdUrFqwdzxuaFxXGy2GbC1rdCYsLn2ByW1wg8?filename=logoLightMode.png";
-    document.getElementById("supportUsLogo").src="https://ipfs.io/ipfs/Qmdfd7qFcfdUrFqwdzxuaFxXGy2GbC1rdCYsLn2ByW1wg8?filename=logoLightMode.png";
-    style.innerHTML = `
-      .neonSign{
-        font-family: 'Exo 2', sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 2vh;
-        font-size: 4rem;
-        font-weight: 200;
-        font-style: italic;
-        color: #E02A2A;
-        padding: 2rem 6rem 2rem;
-        border: 0.4rem solid #3F54C8;
-        border-radius: 2rem;
-        text-transform: uppercase;
-        text-shadow: -0px -0px 0rem #555657;
-        box-shadow: -0px -0px 1rem #555657;
-        animation: none 1.5s infinite alternate;
-      }
-      .neon {
-        outline: none !important;
-        box-shadow: 0 0 10px #514B4B;
-      }
-      .neonStrong {
-        outline: none !important;
-        box-shadow: 0 0 20px #514B4B;
-      }
-      .textChange {
-          color: black;
-      }
-      .boxesColor {
-        background-color:#FCFCFC;
-      }
-      .boxesShadow {
-        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-      }
-      .boxesLine {
-        border-top: 1px solid #535353
-      }
-      .boxesLineTop {
-        border-bottom: 1px solid #535353
-      }
-      .textAreaTheme {
-        border: solid 1px #FCFCFC;
-        background-color:#FCFCFC; color:white;
-      }
-      .backgroundColor{
-        background-color:#F1F4F5;
-      }
-      .backgroundColorSideBar{
-        background-color:#D7D7D7;
-        box-shadow: 0 0px 0px 0px rgba(0, 0, 0, 0);
-      }
-      .backgroundColorNavBar{
-        background-color:#fff;
-      }
-      .iconColor{
-        color:#3E3E3E;
-      }
-      .iconColor{
-        color:#3E3E3E;
-      }
-      .changeButtonColor{
-        background-color: #112F46;
-        border-color: #112F46;
-      }
-      .changeButtonTextColor{
-        color: #fff;
-      }
-      .changeButtonTextColor:hover{
-        color: #fff;
-      }
-      .changeButtonColor:hover{
-        background-color: #112F46;
-        border-color:  #112F46;
-      }
-      .btn:focus{
-        background-color: #112F46;
-        border-color: #112F46;
-        box-shadow: none!important;
-        outline: 0;
-      }
-      .textBox{
-        border: solid 1px #535353;
-        background-color: #fff;
-        color: black;
-        font-size: 18px;
-      }
-      .textBox:focus{
-        border: solid 1px #535353;
-        background-color: #fff;
-        color: black;
-        font-size: 18px;
-      }
-      .boxesBioColor{
-        background-color:#D7D7D7 ;
-      }
-      .boxesCommentColor{
-        background-color:#F0F0F0 ;
-      }
-  `;
-    document.head.appendChild(style);
-    darkMode = false;
+function toggleModes(){
+  if(darkMode == false){
+    updateUserPreferences("dark", "modeChange")
   }
-
   else{
+    updateUserPreferences("light", "modeChange")
+  }
+}
 
+function toggleLightMode() {
+
+  darkMode = false;
+  const style = document.createElement('style');
+  document.getElementById("logoSideBar").src="https://ipfs.io/ipfs/Qmdfd7qFcfdUrFqwdzxuaFxXGy2GbC1rdCYsLn2ByW1wg8?filename=logoLightMode.png";
+  document.getElementById("loginLogo").src="https://ipfs.io/ipfs/Qmdfd7qFcfdUrFqwdzxuaFxXGy2GbC1rdCYsLn2ByW1wg8?filename=logoLightMode.png";
+  document.getElementById("supportUsLogo").src="https://ipfs.io/ipfs/Qmdfd7qFcfdUrFqwdzxuaFxXGy2GbC1rdCYsLn2ByW1wg8?filename=logoLightMode.png";
+  style.innerHTML = `
+    .neonSign{
+      font-family: 'Exo 2', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 2vh;
+      font-size: 4rem;
+      font-weight: 200;
+      font-style: italic;
+      color: #E02A2A;
+      padding: 2rem 6rem 2rem;
+      border: 0.4rem solid #3F54C8;
+      border-radius: 2rem;
+      text-transform: uppercase;
+      text-shadow: -0px -0px 0rem #555657;
+      box-shadow: -0px -0px 1rem #555657;
+      animation: none 1.5s infinite alternate;
+    }
+    .neon {
+      outline: none !important;
+      box-shadow: 0 0 10px #514B4B;
+    }
+    .neonStrong {
+      outline: none !important;
+      box-shadow: 0 0 20px #514B4B;
+    }
+    .textChange {
+        color: black;
+    }
+    .boxesColor {
+      background-color:#FCFCFC;
+    }
+    .boxesShadow {
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+    .boxesLine {
+      border-top: 1px solid #535353
+    }
+    .boxesLineTop {
+      border-bottom: 1px solid #535353
+    }
+    .textAreaTheme {
+      border: solid 1px #FCFCFC;
+      background-color:#FCFCFC; color:white;
+    }
+    .backgroundColor{
+      background-color:#F1F4F5;
+    }
+    .backgroundColorSideBar{
+      background-color:#D7D7D7;
+      box-shadow: 0 0px 0px 0px rgba(0, 0, 0, 0);
+    }
+    .backgroundColorNavBar{
+      background-color:#fff;
+    }
+    .iconColor{
+      color:#3E3E3E;
+    }
+    .iconColor{
+      color:#3E3E3E;
+    }
+    .changeButtonColor{
+      background-color: #112F46;
+      border-color: #112F46;
+    }
+    .changeButtonTextColor{
+      color: #fff;
+    }
+    .changeButtonTextColor:hover{
+      color: #fff;
+    }
+    .changeButtonColor:hover{
+      background-color: #112F46;
+      border-color:  #112F46;
+    }
+    .btn:focus{
+      background-color: #112F46;
+      border-color: #112F46;
+      box-shadow: none!important;
+      outline: 0;
+    }
+    .textBox{
+      border: solid 1px #535353;
+      background-color: #fff;
+      color: black;
+      font-size: 18px;
+    }
+    .textBox:focus{
+      border: solid 1px #535353;
+      background-color: #fff;
+      color: black;
+      font-size: 18px;
+    }
+    .boxesBioColor{
+      background-color:#D7D7D7 ;
+    }
+    .boxesCommentColor{
+      background-color:#F0F0F0 ;
+    }
+`;
+  document.head.appendChild(style);
+}
+function toggleDarkMode() {
+    darkMode = true;
     const style = document.createElement('style');
     document.getElementById("logoSideBar").src="https://ipfs.io/ipfs/QmQnBt2MLdPYUqYxqNEptmgLmerpTpuAQxfc79nyZxUEc6?filename=logoDarkMode.png";
     document.getElementById("loginLogo").src="https://ipfs.io/ipfs/QmQnBt2MLdPYUqYxqNEptmgLmerpTpuAQxfc79nyZxUEc6?filename=logoDarkMode.png";
@@ -3182,8 +3176,6 @@ function toggleLightMode() {
             word-wrap: break-word;       /* Internet Explorer 5.5+ */
   `;
     document.head.appendChild(style);
-    darkMode = true;
-  }
 }
 function toggleNitroGas(){
   if (enableNitro == true){
@@ -3198,6 +3190,7 @@ function toggleNitroGas(){
 function insertEmoji(_emoji){
   document.getElementById("messageToPost").value += _emoji;
   document.getElementById("smileyBox").style.display = "none";
+  document.getElementById("messageToPost").focus();
 }
 function showEmojiBox(){
   let visible = document.getElementById("smileyBox").style.display;
@@ -3259,6 +3252,13 @@ async function handleUserShare(address, postID) {
   deleteFile();
   $('#savedPostModal').modal('hide'); //hide other modal
   $('#userAccountModal').modal('hide'); //hide other modal
+
+  if (document.getElementById("explorePostsPage").style.display == ""){
+      document.getElementById("socialFeedPage").style.display="";
+      document.getElementById("explorePostsPage").style.display = "none";
+  }
+
+
   window.scrollTo(0, 0);
   document.getElementById("messageToPost").focus();
   console.log("New Share");
@@ -3285,6 +3285,16 @@ async function handleUserShare(address, postID) {
   }
 
   const postInformation = await contractGetUserPost(address, postID); // get post information
+
+  let IPFSresponse = "";
+  if (postInformation.message.slice(0,5) == "IPFS:"){
+  ipfsHash = postInformation.message.replace('IPFS:', '');
+  console.log(ipfsHash);
+  IPFSresponse = await fetchIPFSDoc(ipfsHash)
+  postInformation.message = IPFSresponse.message;
+  postInformation.url = IPFSresponse.url;
+  }
+
   let message = postInformation.message;
   let timeStamp = getLocalTime(postInformation.timestamp);
   let url = postInformation.url;
@@ -3356,8 +3366,8 @@ function handleUserGif() {
   document.getElementById("messageToPost").value = message;
 }
 async function returnLinksGifsHTML(url) { //rendering for the users links and gifs
-  if (url == " " || url == ""){ //nothing attached to the message
-    return url
+  if (url == " " || url == "" || url == undefined){ //nothing attached to the message
+    return ""
   }
   let whatever = url;
   let urlSlice = whatever.slice(0,5);
@@ -3430,7 +3440,7 @@ async function returnLinksGifsHTML(url) { //rendering for the users links and gi
   if (imageSlice == "Img:"){
       let ipfsHash = whatever.slice(-46);
       url = "https://ipfs.moralis.io:2053/ipfs/"+ipfsHash;
-      let htmlCode =   `<div style="border-radius:20px"><img id="gif" src="${url}" style="display: block; margin: 20px auto; padding:0px 0px 0px 0px; "  width="30%"></div>`;
+      let htmlCode =   `<div style="border-radius:20px"><img id="gif" type="button" src="${url}" onclick="renderImageLarger('${url}')" data-bs-toggle="modal" data-bs-target="#imageModal" style="display: block; margin: 20px auto; padding:0px 0px 0px 0px; "  width="60%"></div>`;
       return htmlCode
   }
   if (url.length < 30){ // its giphy
@@ -3639,6 +3649,18 @@ async function renderFollowing(followingArray) { //followingArray
       }
   }
   }
+function renderImageLarger(url){
+  $('#savedPostModal').modal('hide'); //hide other modal
+  $('#inboxModal').modal('hide'); //hide other modal
+  $('#userAccountModal').modal('hide'); //hide other modal
+  var savedHTML = document.getElementById("imageModalContent");
+  while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
+    savedHTML.removeChild(savedHTML.firstChild);
+    }
+  document.getElementById("imageModalContent").innerHTML +=   `<div style="border-radius:20px"><img id="gif" src="${url}" style="display: block; margin: 20px auto; padding:0px 0px 0px 0px; "  width="100%"></div>`;
+
+
+}
 async function renderSaved(savedArray) { //savedArray
     var savedHTML = document.getElementById("savedList");
     while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
@@ -4466,6 +4488,7 @@ async function renderUserAccountMessages(address) { //nickName,address,postID
 
 async function renderSocialFeedPage() { //nickName,address,postID
     let allPostArray = []; // initalizeArray
+
     let savedHTML = document.getElementById("socialFeedPostsContainer");
     while (savedHTML.childNodes.length>2) { // This removes all of them and re-renders it except for the post something box
       savedHTML.removeChild(savedHTML.lastChild);
@@ -4574,7 +4597,7 @@ async function renderSocialFeedPage() { //nickName,address,postID
                 </div>
                 <div class="col-1 text-left">
                   <span class="iconColor" style="font-size: 1.5em;">
-                      <i onclick="updateUserPreferences('${address}', 'follow')" class="fas fa-user-friends"></i>
+                      <i onclick="updateUserPreferences('${address}', 'unfollow')" class="fas fa-user-friends"></i>
                   </span>
                 </div>
                 <div class="col-1 text-left">
@@ -5380,6 +5403,14 @@ pre {
   </div>
 
   <!-- Modal End -->
+  <!-- imageModal start -->
+  <div class="modal fade" id="imageModal" tabindex="-5" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="width:40%;max-width:1250px;min-width:600px; border-radius: 20px;">
+      <div id="imageModalContent" class="modal-content boxesColor">
+      </div>
+    </div>
+  </div>
+  <!-- Modal End -->
   <!-- gifModal start -->
   <div class="modal fade" id="gifModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -5729,39 +5760,7 @@ pre {
           </div>
           </div>
           <h5 class="modal-title textChange boxesLine boxesLineTop" id="userAccountLabel" style="margin: 00px 0px 10px; padding:10px 0px 10px">Your Inbox</h5>
-          <div class="card mb-3 boxesColor boxesShadow" style="border-radius: 20px;">
-          <div class="card-header boxesColor" style ="border-radius: 20px; border: 0px;">
-            <div class="row align-items-start">
-              <div class="col-1">
-                <span class="iconColor" style="font-size: 2em;">
-                    <i class="fas fa-user-secret"></i>
-                </span>
-              </div>
-              <div class="col-10">
-                <div class="row align-items-start">
-                  <h6 class="textChange" style="margin-bottom:0px;">John @ 0x4783GW783T74838</h6>
-                </div>
-                <div class="row align-items-start text-left">
-                  <p class="textChange" >18th Oct 5:23 PM</p>
-                </div>
-              </div>
-              <div class="col-1 text-left">
-                  <span class="iconColor" style="font-size: 1.5em;">
-                      <i onclick="replytoMessage('0xthtfhfhtf')" class="fas fa-reply iconColor"></i>
-                  </span>
-              </div>
-            </div>
-          </div>
-          <div class="card-body" style ="border-top: 1px solid #535353" >
-            <div class="row align-items-start">
-              <div id="messageContent" class="col-12">
-              <p class="textChange">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip </p>
-              </div>
-            </div>
-            <div class="row align-items-start" style ="padding-top: 10px; border-top: 1px solid #535353">
-            </div>
-          </div>
-        </div>
+
 
         </div>
       </div>
@@ -5838,7 +5837,7 @@ pre {
           <div class="row align-baseline" style = "padding-top: 10px">
             <div class="col-5" style = "padding-right: 0px">
               <div class="form-check form-switch text-center">
-                <input class="form-check-input" style = "transform: scale(1.2); float:right; margin:4px 2px 0px 0px; padding:10px 0px 0px;"  onClick="toggleLightMode()" type="checkbox" id="flexSwitchCheckChecked" checked/>
+                <input class="form-check-input" style = "transform: scale(1.2); float:right; margin:4px 2px 0px 0px; padding:10px 0px 0px;"  onClick="toggleModes()" type="checkbox" id="flexSwitchCheckChecked" checked/>
               </div>
             </div>
             <div class="col-5 text-left">
@@ -6458,7 +6457,7 @@ pre {
 <footer class="text-center text-white backgroundColorNavBar"> <!--#3C719D -->
   <div class="container p-3 align-center ">
       <p class="textChange" style="margin:0px">
-        Checkout the Code on Github!       <a class="btn btn-outline-light btn-floating m-1 iconColor" href="https://github.com/TheGreatAlgo/deSocialNet" target="_blank" role="button"
+      <b>  Checkout the Code on Github! </b>      <a class="btn btn-outline-light btn-floating m-1 iconColor" href="https://github.com/TheGreatAlgo/deSocialNet" target="_blank" role="button"
                 ><i class="fab fa-github"></i
               ></a>
       </p>
