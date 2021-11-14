@@ -167,10 +167,10 @@ contract NFTMint is ERC721, VRFConsumerBase, Ownable, KeeperCompatibleInterface{
      */
     function fulfillRandomness(bytes32 requestId, uint256 randomness) internal override {
         uint256 newID = characters.length;
-        uint256 agility = NFTCharacterStruct[requestId].agility + (randomness % 250); // max will be 500
-        uint256 strength = NFTCharacterStruct[requestId].strength + ((randomness % 123456) % 250); // max will be 1000
-        uint256 sneak = NFTCharacterStruct[requestId].sneak + ((randomness % 654321) % 250); // max will be 500
-        uint256 charm = NFTCharacterStruct[requestId].charm + ((randomness % 33576) % 250); // max will be 50
+        uint256 agility = NFTCharacterStruct[requestId].agility + (randomness % 100); // max will be 500
+        uint256 strength = NFTCharacterStruct[requestId].strength + ((randomness % 123456) % 100); // max will be 1000
+        uint256 sneak = NFTCharacterStruct[requestId].sneak + ((randomness % 654321) % 100); // max will be 500
+        uint256 charm = NFTCharacterStruct[requestId].charm + ((randomness % 33576) % 100); // max will be 50
         uint256 born = block.timestamp;
         characters.push(
             NFTCharacter(
