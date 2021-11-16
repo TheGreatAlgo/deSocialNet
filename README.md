@@ -1,6 +1,7 @@
 # deSocialNet
 Censorship Free and Immutable
 
+https://desocialnet.com
 
 In the spirit of decentralization I have made hosting this extremely easy. Just download the homepage.html and host it whatever way you prefer so that it is accessible via localhost:xxxx
 
