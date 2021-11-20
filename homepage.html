@@ -2089,7 +2089,7 @@ async function contractBuyMediumTokens() {
   console.log(transferAmount)
   const options = {
     contractAddress: onlineStoreContract,
-    functionName: "buySmallTokens",
+    functionName: "buyMediumTokens",
     abi: onlineStoreABI,
     msgValue: transferAmount
   };
@@ -2101,7 +2101,7 @@ async function contractBuyLargeTokens() {
   transferAmount = Moralis.Units.ETH("0.00015");
   const options = {
     contractAddress: onlineStoreContract,
-    functionName: "buySmallTokens",
+    functionName: "buyLargeTokens",
     abi: onlineStoreABI,
     msgValue: transferAmount
   };
@@ -2514,15 +2514,19 @@ async function login() {
     user = await Moralis.authenticate();
     address = user.get("accounts");
     address = address[0];
+    console.log(address);
     userProfile = await contractGetUserProfile(address);
+    console.log(userProfile.joinDate);
     if (userProfile.joinDate == "0"){
       document.getElementById("loginForm").style.display = "none";
+      document.getElementById("metaMaskForm").style.display = "none";
       document.getElementById("newAccount").style.display = "block";
       document.getElementById("mainPage").style.display = "none";
     }
     else{
       let result = await renderUserProfileTopRight();
       document.getElementById("loginForm").style.display = "none";
+      document.getElementById("metaMaskForm").style.display = "none";
       document.getElementById("newAccount").style.display = "none";
       document.getElementById("mainPage").style.display = "block";
       getUserPreferences("via login") // user Preferences are then assigned to global variables
@@ -2534,6 +2538,7 @@ async function login() {
     let result = await renderUserProfileTopRight();
 
     document.getElementById("loginForm").style.display = "none";
+    document.getElementById("metaMaskForm").style.display = "none";
     document.getElementById("newAccount").style.display = "none";
     document.getElementById("mainPage").style.display = "block";
     getUserPreferences("already logged in") // user Preferences are then assigned to global variables
@@ -2550,15 +2555,25 @@ async function logOut() {
     //in case they already got autologgedoff
   }
   document.getElementById("loginForm").style.display = "block";
+  document.getElementById("metaMaskForm").style.display = "none";
   document.getElementById("mainPage").style.display = "none";
   document.getElementById("newAccount").style.display = "none";
   console.log("logged out");
 }
 async function onFirstLoad() {
   const web3 = await Moralis.enableWeb3();
+  const chainId = await Moralis.getChainId();
+  if (chainId != 42){
+    document.getElementById("metaMaskForm").style.display = "block";
+    document.getElementById("loginForm").style.display = "none";
+    document.getElementById("mainPage").style.display = "none";
+    document.getElementById("newAccount").style.display = "none";
+    return;
+  }
   let user = await Moralis.User.current();
   if (!user) {
     document.getElementById("loginForm").style.display = "block";
+    document.getElementById("metaMaskForm").style.display = "none";
     document.getElementById("mainPage").style.display = "none";
     document.getElementById("newAccount").style.display = "none";
 
@@ -2567,15 +2582,19 @@ async function onFirstLoad() {
   else{
     address = user.get("accounts");
     address = address[0];
+    console.log(address);
     userProfile = await contractGetUserProfile(address);
+    console.log(userProfile.joinDate);
     if (userProfile.joinDate == "0"){ // user hasn't create profile yet
       document.getElementById("loginForm").style.display = "none";
+      document.getElementById("metaMaskForm").style.display = "none";
       document.getElementById("newAccount").style.display = "block";
       document.getElementById("mainPage").style.display = "none";
     }
     else{
       let result = await renderUserProfileTopRight();
       document.getElementById("loginForm").style.display = "none";
+      document.getElementById("metaMaskForm").style.display = "none";
       document.getElementById("newAccount").style.display = "none";
       document.getElementById("mainPage").style.display = "block";
       getUserPreferences("via on first load second portion") // user Preferences are then assigned to global variables
@@ -2712,7 +2731,7 @@ async function getBellColor() { // only time this should be called is on a page 
       lastMessageTime = timestamp;
     }
   }
-  if (lastLogin == undefined){
+  if ((lastLogin == undefined) && (allMessages.length >= 1)){
     let bellHTML = `<span id="bellColor" class="iconColor" style="font-size: 1.75em; margin-top:2px; color:red;">
                     <i  type="button" data-bs-toggle="modal" data-bs-target="#inboxModal" onclick="renderUserAccountMessages('${address}')"  class="fas fa-bell"></i>
                       </span>`;
@@ -3937,11 +3956,31 @@ async function renderModalCommentArea(postAddress, postID) {
     for (let i = 0; i < totalComments; i++) {
       let commentID = ""+i; // doesn't seem to like numbers so sent as string
       console.log(commentID);
+
+
+
       const commentInformation = await contractGetComment(postAddress, postID,commentID); // moralis will get each comment information
       let message = commentInformation.message;
       let timeStamp = getLocalTime(commentInformation.timestamp);
       let nickName = commentInformation.userNickname;
       let address = commentInformation.commenter;
+
+      const userProfile = await contractGetUserProfile(address); // get userProfile
+      let profileImageURl;
+      if (userProfile.profileImageUrl && (userProfile.profileImageUrl != " ")){
+      profileImageURl  =
+      `
+      <img src="https://ipfs.moralis.io:2053/ipfs/${userProfile.profileImageUrl}" style="border-radius:50px; margin-top:5px; padding-right:0px" width="35" height="35">
+      `
+      }
+      else{
+      profileImageURl =`
+      <a class="iconColor" style="font-size: 1.75em;">
+        <i class="fas fa-user-secret"></i>
+      </a>
+        `;
+      }
+
       var addressShort = address.slice(0, 10);
       addressShort = addressShort.concat("...");
       if (commentID=="0"){
@@ -3951,9 +3990,7 @@ async function renderModalCommentArea(postAddress, postID) {
           <div class="col-12 text-left">
             <div class="row align-items-start">
               <div class="col-1 text-center">
-                <a class="iconColor" style="font-size: 1.75em;">
-                  <i class="fas fa-user-secret"></i>
-                </a>
+                ${profileImageURl}
               </div>
               <div class="col-11 text-left boxesCommentColor boxesShadow" style=" padding-top:4px; border-radius: 20px;">
                 <div class="row align-items-start">
@@ -3974,9 +4011,7 @@ async function renderModalCommentArea(postAddress, postID) {
             `
             <div class="row align-items-start" style ="margin-top: 10px;">
               <div class="col-1 text-center">
-                <a class="iconColor" style="font-size: 1.75em;">
-                  <i class="fas fa-user-secret"></i>
-                </a>
+                ${profileImageURl}
               </div>
               <div class="col-11 text-left boxesCommentColor boxesShadow" style=" padding-top:4px; border-radius: 20px;">
                 <div class="row align-items-start">
@@ -3994,14 +4029,31 @@ async function renderModalCommentArea(postAddress, postID) {
         }
       }
       commentHTMl += "</div></div>";
+      const currentUser = await Moralis.User.current();
+      address = currentUser.get("accounts");
+      address = address[0];
+      const userProfile = await contractGetUserProfile(address); // get userProfile
+      let profileImageURl;
+      if (userProfile.profileImageUrl && (userProfile.profileImageUrl != " ")){
+      profileImageURl  =
+      `
+      <img src="https://ipfs.moralis.io:2053/ipfs/${userProfile.profileImageUrl}" style="border-radius:50px; margin-top:5px; margin-left:0px" width="40" height="40">
+      `
+      }
+      else{
+      profileImageURl =`
+      <a class="iconColor" style="font-size: 1.75em;">
+        <i class="fas fa-user-secret"></i>
+      </a>
+        `;
+      }
+
       document.getElementById(postIDHTML).innerHTML += commentHTMl;
       document.getElementById(postIDHTML).innerHTML +=
       `
       <div class="row align-items-start" id="${userCommentContainer}" style ="margin-top: 10px; padding-top:20px; border-top: 1px solid #535353">
         <div class="col-1 text-center">
-          <a class="iconColor" style="font-size: 1.75em;">
-            <i class="fas fa-user-secret"></i>
-          </a>
+                ${profileImageURl}
         </div>
         <div class="col-9 text-center" style=" padding-top:4px">
           <textarea id="${userCommentTextInput}" class="form-control textBox" placeholder="Comment Here" style="border-radius:20px; font-size:0.9em;" rows="1"></textarea>
@@ -5288,6 +5340,9 @@ pre {
             <div class="modal-content boxesColor">
               <div class="modal-header boxesLineTop text-center">
                 <h5 class="modal-title textChange text-center" id="userAccountLabel">New Account Creation</h5>
+                <div class="col-2" style = "padding-top: 7px">
+                  <button type="button" class="btn btn-secondary changeButtonColor changeButtonTextColor" style="float:right" onClick="logOut();">Logout</button>
+                </div>
               </div>
               <div class="modal-body">
                 <div class="row align-items-start" >
@@ -5369,7 +5424,27 @@ pre {
         </div>
       </div>
     </section>
-    <div id="mainPage" class="container-lg" style="background-color: #1D1D1F;" onload="onFirstLoad()">
+    <section id="metaMaskForm" class="vh-100 backgroundColor" style="display: none"> <!--  #3C719D-->
+      <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+            <div class="card shadow-2-strong neonAnimated" style="border-radius: 1rem;" style="background-color: #313334"> <!--  #F5F0F2-->
+              <div class="card-body p-5 text-center boxesColor" >
+                <div class="row align-items-start">
+                <img  src="https://ipfs.io/ipfs/QmQnBt2MLdPYUqYxqNEptmgLmerpTpuAQxfc79nyZxUEc6?filename=logoDarkMode.png" id="loginLogo" alt="Logo-01" border="0" style="display: block; margin:auto; padding:0px 0px 60px 0px; max-width: 60%" >
+                </div>
+
+
+                <div class="row align-items-start">
+                <h5 class="mb-5 textChange" style="margin-bottom: 10px!important">Please Switch to the Kovan Testnet</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div id="mainPage" class="container-lg" style="background-color: #1D1D1F; min-width: 1120px;"   onload="onFirstLoad()">
   <!-- confirmationModal start -->
   <div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -6158,15 +6233,15 @@ pre {
               </div>
             </div>
             <div class="card mb-3 boxesColor boxesShadow" style="max-width: 30rem; border-radius: 20px; ">
-            <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b>Flight Insurance</b></div>
+            <div class="card-header boxesColor text-center textChange" style ="border-radius: 20px; border: 0px;"><b>Oracles</b></div>
             <div class="card-body" style ="border-top: 1px solid #535353">
-              <img alt="" src="https://etherisc.com/assets/flight-delay-icon.97de55.svg" style="display: block; margin-right: auto;margin-left: auto" align="middle" width="80px !important" height="100px"  >
+              <img alt="" src="https://ipfs.io/ipfs/QmTM3nPQM3J3wHaTK7JGuQbRmhfuE4fJgufux2LR55h1Hj?filename=chainlink.png" style="display: block; margin-right: auto;margin-left: auto" align="middle" width="85px !important" height="100px"  >
               <div class="row align-items-start" style ="padding-top: 10px;">
                 <div class="col-12 text-center">
-                    <h6 class="textChange" style="margin:0px 0px 10px; font-size: 1.25em;">Etherisc</h6>
+                    <h6 class="textChange" style="margin:0px 0px 10px; font-size: 1.25em;">Chainlink</h6>
                     <button type="button" class="btn btn-secondary changeButtonColor changeButtonTextColor" style="border-radius: .375rem!important; justify-content: center!important; ">
                     <a href="https://fdd.etherisc.com/#/" target="_blank" class="changeButtonTextColor">
-                    Enter App</a></button>
+                    Visit Site</a></button>
                 </div>
               </div>
             </div>
