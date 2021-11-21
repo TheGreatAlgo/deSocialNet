@@ -46,6 +46,76 @@ function expandText(){
     });
   });
 }
+
+// [{ "image": "","text":"","description":""}],
+// [{ "image": "","text":"","description":""}],
+// [{ "image": "","text":"","description":""}],
+// [{ "image": "","text":"","description":""}],
+// [{ "image": "","text":"","description":""}],
+// [{ "image": "","text":"","description":""}],
+// [{ "image": "","text":"","description":""}],
+// [{ "image": "","text":"","description":""}],
+// [{ "image": "","text":"","description":""}],
+// [{ "image": "","text":"","description":""}],
+// [{ "image": "","text":"","description":""}],
+// [{ "image": "","text":"","description":""}],
+// [{ "image": "","text":"","description":""}],
+// [{ "image": "","text":"","description":""}],
+// [{ "image": "","text":"","description":""}],
+var gameData = [
+{ "image": "https://ipfs.io/ipfs/QmenEdeMvtSvWd3BMAXRdTVih21FtGsjYEQmwPHehrbD78?filename=coffin.png","text":"NFT Died","description":"You were trying to steal but you got caught and the guard accidently shot you. To keep playing, deposit a new NFT"}, // dies
+{ "image": "https://ipfs.io/ipfs/QmbsJKQxnspKyEBb6xV45AuAHe6JYmbUcFdBxFd1z3E1cF?filename=bandages.png","text":"NFT Injured","description":"You accidently sprained your ankle running away. Make sure to get it healed before your next heist at the hospital."}, // dies
+{ "image": "https://ipfs.io/ipfs/QmUmRkZMGSGGswCBd84k4zc1ERqGYLeswam8qkmryF1SVc?filename=handcuffs.png","text":"NFT Arrested","description":"You almost managed to get away with some Jewels until the guards spotted you and cornered you. Wait until your character is out of jail to play again or ask someone to break them out."}, // dies
+{ "image": "https://ipfs.io/ipfs/QmW6A3ZfgFUMJzJbinSPq1umhj1xKSWCz77xbbusf8JA6m?filename=empty.png","text":"NFT Failure","description":"A guard spotted you just before you managed to grab some jewels. Unfortunately you had to run away empty handed."},
+{ "image": "https://ipfs.io/ipfs/QmW6A3ZfgFUMJzJbinSPq1umhj1xKSWCz77xbbusf8JA6m?filename=empty.png","text":"NFT Failure","description":"A guard spotted you just before you managed to grab some jewels. Unfortunately you had to run away empty handed."},
+{ "image": "https://ipfs.io/ipfs/QmZhjzrn7QBiwzVT3PZ8XtgtaVBZs84fkLH8uoWGkvpEmC?filename=MediumJewels.png","text":"NFT Success","description":"You managed to score some loot!"}
+]
+var gameDataBreakout = [
+{ "image": "https://ipfs.io/ipfs/QmenEdeMvtSvWd3BMAXRdTVih21FtGsjYEQmwPHehrbD78?filename=coffin.png","text":"NFT Died","description":"You were trying to break the player free but you got caught and the guard accidently shot you. To keep playing, deposit a new NFT"}, // dies
+{ "image": "https://ipfs.io/ipfs/QmbsJKQxnspKyEBb6xV45AuAHe6JYmbUcFdBxFd1z3E1cF?filename=bandages.png","text":"NFT Injured","description":"You accidently sprained your ankle running away. Make sure to get it healed before your next heist at the hospital."}, // dies
+{ "image": "https://ipfs.io/ipfs/QmUmRkZMGSGGswCBd84k4zc1ERqGYLeswam8qkmryF1SVc?filename=handcuffs.png","text":"NFT Arrested","description":"You almost managed to breakout the player until the guards spotted you and cornered you. Wait until your character is out of jail to play again or ask someone to break them out."}, // dies
+{ "image": "","text":"NFT Failure","description":"A guard spotted you just before you managed to reach the player. Unfortunately you had to run away empty handed."},
+{ "image": "","text":"NFT Failure","description":"A guard spotted you just before you managed to reach the player. Unfortunately you had to run away empty handed."},
+{ "image": " ","text":"NFT Success","description":"You managed to free Player!"}
+]
+var gameDataPvP = [
+{ "image": "https://ipfs.io/ipfs/QmenEdeMvtSvWd3BMAXRdTVih21FtGsjYEQmwPHehrbD78?filename=coffin.png","text":"NFT Died","description":"You were trying to steal but you got caught and the private security accidently shot you. To keep playing, deposit a new NFT"}, // dies
+{ "image": "https://ipfs.io/ipfs/QmbsJKQxnspKyEBb6xV45AuAHe6JYmbUcFdBxFd1z3E1cF?filename=bandages.png","text":"NFT Injured","description":"You accidently sprained your ankle running away. Make sure to get it healed before your next heist at the hospital."}, // dies
+{ "image": "https://ipfs.io/ipfs/QmUmRkZMGSGGswCBd84k4zc1ERqGYLeswam8qkmryF1SVc?filename=handcuffs.png","text":"NFT Arrested","description":"You almost managed to get away with some Jewels until the private security spotted you and cornered you. Wait until your character is out of jail to play again or ask someone to break them out."}, // dies
+{ "image": "https://ipfs.io/ipfs/QmW6A3ZfgFUMJzJbinSPq1umhj1xKSWCz77xbbusf8JA6m?filename=empty.png","text":"NFT Failure","description":"Private security spotted you just before you managed to grab some jewels. Unfortunately you had to run away empty handed."},
+{ "image": "https://ipfs.io/ipfs/QmW6A3ZfgFUMJzJbinSPq1umhj1xKSWCz77xbbusf8JA6m?filename=empty.png","text":"NFT Failure","description":"Private Security spotted you just before you managed to grab some jewels. Unfortunately you had to run away empty handed."},
+{ "image": "https://ipfs.io/ipfs/QmZhjzrn7QBiwzVT3PZ8XtgtaVBZs84fkLH8uoWGkvpEmC?filename=MediumJewels.png","text":"NFT Success","description":"You managed to score some loot!"}
+]
+
+// would have need 135 unique scenarios to do this method which was too much for me.
+var gameDataScenarioZero = [
+// easy
+[{ "image": " ","text":"NFT Died","description":"You were trying to hack into the front door's security system when you accidently touched an electrocuted wire that killed you."}], // dies
+[{ "image": "https://ipfs.io/ipfs/QmbsJKQxnspKyEBb6xV45AuAHe6JYmbUcFdBxFd1z3E1cF?filename=bandages.png","text":"NFT Injured","description":"You started to repel from the windows but unfortunately you just came from a buffet and the extra weight snapped the rope 3 feet above the ground. The injury meant you couldn't continue"}], // dies
+[{ "image": "https://ipfs.io/ipfs/QmUmRkZMGSGGswCBd84k4zc1ERqGYLeswam8qkmryF1SVc?filename=handcuffs.png","text":"NFT Arrested","description":"You were able to hack into the front door's security system but the night guard spotted you when your cell phone, that you forgot to mute, went off. Unfortunately the front doors reset automatically and locked before you could get out"}], // dies
+[{ "image": " ","text":"NFT Escaped","description":"You were able to hack into the front door's security system but the night guard spotted you when your cell phone, that you forgot to mute, went off. You barely escaped."}], // dies
+[{ "image": " ","text":"NFT Failure","description":"You were able to make it inside the bank but all the tills were already emptied and put in the vault"}], // dies
+[{ "image": "https://ipfs.io/ipfs/QmZhjzrn7QBiwzVT3PZ8XtgtaVBZs84fkLH8uoWGkvpEmC?filename=MediumJewels.png","text":"Tills Robbed","description":"You were able to hack into the front door's security system and the night guard didn't spot you since you stayed in the shadows."}],
+//difficult
+[{ "image": " ","text":"NFT Died","description":"You were trying to hack into the front door's security system when you accidently touched an electrocuted wire that killed you."}], // dies
+[{ "image": "https://ipfs.io/ipfs/QmbsJKQxnspKyEBb6xV45AuAHe6JYmbUcFdBxFd1z3E1cF?filename=bandages.png","text":"NFT Injured","description":"You managed to bypass the truck alarms after the guards went home for the evening and tried driving through the gates. Turns out they used reinforced steel."}], // dies
+[{ "image": "https://ipfs.io/ipfs/QmUmRkZMGSGGswCBd84k4zc1ERqGYLeswam8qkmryF1SVc?filename=handcuffs.png","text":"NFT Arrested","description":"You were able to hack into the front door's security system but the night guard spotted you when your cell phone, that you forgot to mute, went off. Unfortunately the front doors reset automatically and locked before you could get out"}], // dies
+[{ "image": " ","text":"NFT Escaped","description":"You were able to hack into the front door's security system but the night guard spotted you when your cell phone, that you forgot to mute, went off. You barely escaped."}], // dies
+[{ "image": " ","text":"NFT Failure","description":"You were able to make it inside the bank but all the tills were already emptied and put in the vault"}], // dies
+[{ "image": "https://ipfs.io/ipfs/QmZhjzrn7QBiwzVT3PZ8XtgtaVBZs84fkLH8uoWGkvpEmC?filename=MediumJewels.png","text":"Delivery Truck Hijacted","description":"You managed to bypass the truck alarms after the guards went home for the evening and ended up driving through the gates."}],
+// hard
+[{ "image": " ","text":"NFT Died","description":"You were trying to hack into the front door's security system when you accidently touched an electrocuted wire that killed you."}], // dies
+[{ "image": "https://ipfs.io/ipfs/QmbsJKQxnspKyEBb6xV45AuAHe6JYmbUcFdBxFd1z3E1cF?filename=bandages.png","text":"NFT Injured","description":"You started to repel from the windows but unfortunately you just came from a buffet and the extra weight snapped the rope 3 feet above the ground. The injury meant you couldn't continue"}], // dies
+[{ "image": "https://ipfs.io/ipfs/QmUmRkZMGSGGswCBd84k4zc1ERqGYLeswam8qkmryF1SVc?filename=handcuffs.png","text":"NFT Arrested","description":"You were able to hack into the front door's security system but the night guard spotted you when your cell phone, that you forgot to mute, went off. Unfortunately the front doors reset automatically and locked before you could get out"}], // dies
+[{ "image": " ","text":"NFT Escaped","description":"You were able to hack into the front door's security system but the night guard spotted you when your cell phone, that you forgot to mute, went off. You barely escaped."}], // dies
+[{ "image": " ","text":"NFT Failure","description":"You were able to make it inside the bank but all the tills were already emptied and put in the vault"}], // dies
+[{ "image": "https://ipfs.io/ipfs/QmZhjzrn7QBiwzVT3PZ8XtgtaVBZs84fkLH8uoWGkvpEmC?filename=MediumJewels.png","text":"Broke Into Vault","description":"You were able to hack into the front door's security system and the night guard didn't spot you since you stayed in the shadows."}]
+
+
+
+]
+
+
 // Global Variables -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------Global Variables-------------------------------
 let enableNitro = false;
 var file;
@@ -62,599 +132,599 @@ var web3;
 var difficultyLevel = {zero:100,one:100,two:100};
 var currentScenario = 0;
 const kovanWETHTokenAddress ="0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
-const gameKovanContract = "0x0C89d06a6c726f1BAc813A7bd1A875c2114419b7";
+const gameKovanContract = "0x917173237d9F4D7fFDde9270320a405E282a9dCf";
 const deSocialNetTokenAddress = "0xAe0f650F39B943F738a790519C3556bf6f8C92F1";
-const minterContract = "0x045806a2F15FA26eE7e52c4dab62497e98fa5de4";
+const minterContract = "0xCAE12a0021d4d87590931bFb0606Dc103876cB0E";
 const gameABI =
 [
- {
-   "inputs": [],
-   "stateMutability": "nonpayable",
-   "type": "constructor"
- },
- {
-   "anonymous": false,
-   "inputs": [
-     {
-       "indexed": true,
-       "internalType": "address",
-       "name": "previousOwner",
-       "type": "address"
-     },
-     {
-       "indexed": true,
-       "internalType": "address",
-       "name": "newOwner",
-       "type": "address"
-     }
-   ],
-   "name": "OwnershipTransferred",
-   "type": "event"
- },
- {
-   "anonymous": false,
-   "inputs": [
-     {
-       "indexed": false,
-       "internalType": "bytes32",
-       "name": "requestID",
-       "type": "bytes32"
-     },
-     {
-       "indexed": false,
-       "internalType": "address",
-       "name": "player",
-       "type": "address"
-     },
-     {
-       "indexed": false,
-       "internalType": "uint256",
-       "name": "code",
-       "type": "uint256"
-     }
-   ],
-   "name": "gameCode",
-   "type": "event"
- },
- {
-   "inputs": [
-     {
-       "internalType": "address",
-       "name": "",
-       "type": "address"
-     }
-   ],
-   "name": "NFTCharacterDepositLedger",
-   "outputs": [
-     {
-       "internalType": "uint256",
-       "name": "NFTID",
-       "type": "uint256"
-     },
-     {
-       "internalType": "bool",
-       "name": "isDeposited",
-       "type": "bool"
-     },
-     {
-       "internalType": "bool",
-       "name": "arrested",
-       "type": "bool"
-     },
-     {
-       "internalType": "uint256",
-       "name": "freetoPlayAgain",
-       "type": "uint256"
-     },
-     {
-       "internalType": "bool",
-       "name": "playingPVP",
-       "type": "bool"
-     },
-     {
-       "internalType": "uint256",
-       "name": "canStopPlayingPVP",
-       "type": "uint256"
-     },
-     {
-       "internalType": "uint256",
-       "name": "lootingTimeout",
-       "type": "uint256"
-     },
-     {
-       "internalType": "uint256",
-       "name": "health",
-       "type": "uint256"
-     },
-     {
-       "internalType": "uint256",
-       "name": "agility",
-       "type": "uint256"
-     },
-     {
-       "internalType": "uint256",
-       "name": "strength",
-       "type": "uint256"
-     },
-     {
-       "internalType": "uint256",
-       "name": "sneak",
-       "type": "uint256"
-     },
-     {
-       "internalType": "uint256",
-       "name": "charm",
-       "type": "uint256"
-     }
-   ],
-   "stateMutability": "view",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "string",
-       "name": "name",
-       "type": "string"
-     },
-     {
-       "internalType": "uint16",
-       "name": "riskBaseDifficulty",
-       "type": "uint16"
-     },
-     {
-       "internalType": "uint256",
-       "name": "payoutAmountBase",
-       "type": "uint256"
-     }
-   ],
-   "name": "addScenario",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "uint256",
-       "name": "newCheckInTimeInterval",
-       "type": "uint256"
-     }
-   ],
-   "name": "changeCheckInTime",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "uint256",
-       "name": "newHospitalBill",
-       "type": "uint256"
-     }
-   ],
-   "name": "changeHospitalBill",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "address",
-       "name": "newInheritor",
-       "type": "address"
-     }
-   ],
-   "name": "changeInheritance",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [],
-   "name": "checkInTimeInterval",
-   "outputs": [
-     {
-       "internalType": "uint256",
-       "name": "",
-       "type": "uint256"
-     }
-   ],
-   "stateMutability": "view",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "bytes",
-       "name": "",
-       "type": "bytes"
-     }
-   ],
-   "name": "checkUpkeep",
-   "outputs": [
-     {
-       "internalType": "bool",
-       "name": "upkeepNeeded",
-       "type": "bool"
-     },
-     {
-       "internalType": "bytes",
-       "name": "",
-       "type": "bytes"
-     }
-   ],
-   "stateMutability": "view",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "uint256",
-       "name": "amountToDeposit",
-       "type": "uint256"
-     }
-   ],
-   "name": "depositJewels",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "uint256",
-       "name": "NFTID",
-       "type": "uint256"
-     }
-   ],
-   "name": "depositNFT",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "uint256",
-       "name": "",
-       "type": "uint256"
-     }
-   ],
-   "name": "gameScenarios",
-   "outputs": [
-     {
-       "internalType": "string",
-       "name": "name",
-       "type": "string"
-     },
-     {
-       "internalType": "uint256",
-       "name": "riskBaseDifficulty",
-       "type": "uint256"
-     },
-     {
-       "internalType": "uint256",
-       "name": "payoutAmountBase",
-       "type": "uint256"
-     }
-   ],
-   "stateMutability": "view",
-   "type": "function"
- },
- {
-   "inputs": [],
-   "name": "hospitalVisit",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "address",
-       "name": "",
-       "type": "address"
-     }
-   ],
-   "name": "jewelDepositLedger",
-   "outputs": [
-     {
-       "internalType": "uint256",
-       "name": "",
-       "type": "uint256"
-     }
-   ],
-   "stateMutability": "view",
-   "type": "function"
- },
- {
-   "inputs": [],
-   "name": "lastCheckIn",
-   "outputs": [
-     {
-       "internalType": "uint256",
-       "name": "",
-       "type": "uint256"
-     }
-   ],
-   "stateMutability": "view",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "uint256",
-       "name": "scenarioNumber",
-       "type": "uint256"
-     },
-     {
-       "internalType": "string",
-       "name": "name",
-       "type": "string"
-     },
-     {
-       "internalType": "uint16",
-       "name": "riskBaseDifficulty",
-       "type": "uint16"
-     },
-     {
-       "internalType": "uint16",
-       "name": "payoutAmountBase",
-       "type": "uint16"
-     }
-   ],
-   "name": "modifyScenario",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [],
-   "name": "nextOwner",
-   "outputs": [
-     {
-       "internalType": "address",
-       "name": "",
-       "type": "address"
-     }
-   ],
-   "stateMutability": "view",
-   "type": "function"
- },
- {
-   "inputs": [],
-   "name": "owner",
-   "outputs": [
-     {
-       "internalType": "address",
-       "name": "",
-       "type": "address"
-     }
-   ],
-   "stateMutability": "view",
-   "type": "function"
- },
- {
-   "inputs": [],
-   "name": "ownerCheckIn",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "bytes",
-       "name": "",
-       "type": "bytes"
-     }
-   ],
-   "name": "performUpkeep",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "uint256",
-       "name": "breakInStyle",
-       "type": "uint256"
-     },
-     {
-       "internalType": "address",
-       "name": "targetPlayer",
-       "type": "address"
-     }
-   ],
-   "name": "playBreakOut",
-   "outputs": [
-     {
-       "internalType": "bytes32",
-       "name": "",
-       "type": "bytes32"
-     }
-   ],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "uint256",
-       "name": "difficultyLevel",
-       "type": "uint256"
-     },
-     {
-       "internalType": "uint256",
-       "name": "breakInStyle",
-       "type": "uint256"
-     },
-     {
-       "internalType": "uint256",
-       "name": "scenario",
-       "type": "uint256"
-     }
-   ],
-   "name": "playGame",
-   "outputs": [
-     {
-       "internalType": "bytes32",
-       "name": "",
-       "type": "bytes32"
-     }
-   ],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "uint256",
-       "name": "breakInStyle",
-       "type": "uint256"
-     },
-     {
-       "internalType": "address",
-       "name": "targetPlayer",
-       "type": "address"
-     }
-   ],
-   "name": "playPVP",
-   "outputs": [
-     {
-       "internalType": "bytes32",
-       "name": "",
-       "type": "bytes32"
-     }
-   ],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [],
-   "name": "randomResult",
-   "outputs": [
-     {
-       "internalType": "uint256",
-       "name": "",
-       "type": "uint256"
-     }
-   ],
-   "stateMutability": "view",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "bytes32",
-       "name": "requestId",
-       "type": "bytes32"
-     },
-     {
-       "internalType": "uint256",
-       "name": "randomness",
-       "type": "uint256"
-     }
-   ],
-   "name": "rawFulfillRandomness",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [],
-   "name": "renounceOwnership",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [],
-   "name": "startPlayPVP",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [],
-   "name": "stopPlayPVP",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "address",
-       "name": "newOwner",
-       "type": "address"
-     }
-   ],
-   "name": "transferOwnership",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "uint256",
-       "name": "amount",
-       "type": "uint256"
-     }
-   ],
-   "name": "withdraw",
-   "outputs": [
-     {
-       "internalType": "bool",
-       "name": "",
-       "type": "bool"
-     }
-   ],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "contract IERC20",
-       "name": "token",
-       "type": "address"
-     }
-   ],
-   "name": "withdrawErc20",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [
-     {
-       "internalType": "uint256",
-       "name": "amountToWithdraw",
-       "type": "uint256"
-     }
-   ],
-   "name": "withdrawJewels",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "inputs": [],
-   "name": "withdrawNFT",
-   "outputs": [],
-   "stateMutability": "nonpayable",
-   "type": "function"
- },
- {
-   "stateMutability": "payable",
-   "type": "receive"
- }
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "bytes32",
+				"name": "requestID",
+				"type": "bytes32"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "player",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "code",
+				"type": "uint256"
+			}
+		],
+		"name": "gameCode",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "NFTCharacterDepositLedger",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "NFTID",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "isDeposited",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "arrested",
+				"type": "bool"
+			},
+			{
+				"internalType": "uint256",
+				"name": "freetoPlayAgain",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "playingPVP",
+				"type": "bool"
+			},
+			{
+				"internalType": "uint256",
+				"name": "canStopPlayingPVP",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "lootingTimeout",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "health",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "agility",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "strength",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "sneak",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "charm",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "uint16",
+				"name": "riskBaseDifficulty",
+				"type": "uint16"
+			},
+			{
+				"internalType": "uint256",
+				"name": "payoutAmountBase",
+				"type": "uint256"
+			}
+		],
+		"name": "addScenario",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "newCheckInTimeInterval",
+				"type": "uint256"
+			}
+		],
+		"name": "changeCheckInTime",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "newHospitalBill",
+				"type": "uint256"
+			}
+		],
+		"name": "changeHospitalBill",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newInheritor",
+				"type": "address"
+			}
+		],
+		"name": "changeInheritance",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "checkInTimeInterval",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "checkUpkeep",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "upkeepNeeded",
+				"type": "bool"
+			},
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amountToDeposit",
+				"type": "uint256"
+			}
+		],
+		"name": "depositJewels",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "NFTID",
+				"type": "uint256"
+			}
+		],
+		"name": "depositNFT",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "gameScenarios",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "riskBaseDifficulty",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "payoutAmountBase",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "hospitalVisit",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "jewelDepositLedger",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "lastCheckIn",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "scenarioNumber",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "uint16",
+				"name": "riskBaseDifficulty",
+				"type": "uint16"
+			},
+			{
+				"internalType": "uint16",
+				"name": "payoutAmountBase",
+				"type": "uint16"
+			}
+		],
+		"name": "modifyScenario",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "nextOwner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "ownerCheckIn",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "performUpkeep",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "breakInStyle",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "targetPlayer",
+				"type": "address"
+			}
+		],
+		"name": "playBreakOut",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "difficultyLevel",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "breakInStyle",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "scenario",
+				"type": "uint256"
+			}
+		],
+		"name": "playGame",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "breakInStyle",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "targetPlayer",
+				"type": "address"
+			}
+		],
+		"name": "playPVP",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "randomResult",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "requestId",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "uint256",
+				"name": "randomness",
+				"type": "uint256"
+			}
+		],
+		"name": "rawFulfillRandomness",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "startPlayPVP",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "stopPlayPVP",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdraw",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "token",
+				"type": "address"
+			}
+		],
+		"name": "withdrawErc20",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amountToWithdraw",
+				"type": "uint256"
+			}
+		],
+		"name": "withdrawJewels",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "withdrawNFT",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	}
 ]
 const deSocialNetABI =
 [
@@ -1952,6 +2022,7 @@ async function contractDepositNFT(_NFTID) {
     },
   };
   const receipt = await Moralis.executeFunction(options);
+  renderNFTCharacter();
   console.log(receipt)
 }
 async function withdrawNFT() {
@@ -1961,6 +2032,7 @@ async function withdrawNFT() {
     abi: gameABI,
   };
   const receipt = await Moralis.executeFunction(options);
+  renderNFTCharacter();
   console.log(receipt)
 }
 
@@ -1980,6 +2052,7 @@ async function contractStartPlayPVP() {
     abi: gameABI,
   };
   const receipt = await Moralis.executeFunction(options);
+  renderBarScreen();
   console.log(receipt)
 }
 async function contractStopPlayPVP() {
@@ -1989,6 +2062,7 @@ async function contractStopPlayPVP() {
     abi: gameABI,
   };
   const receipt = await Moralis.executeFunction(options);
+  renderBarScreen();
   console.log(receipt)
 }
 async function contractDepositJewels(_amountToDeposit) {
@@ -2001,6 +2075,7 @@ async function contractDepositJewels(_amountToDeposit) {
     },
   };
   const receipt = await Moralis.executeFunction(options);
+  document.getElementById("balanceInput").value = "";
   console.log(receipt)
 }
 async function contractWithdrawJewels(_amountToWithdraw) {
@@ -2093,6 +2168,7 @@ async function contractGetCharacterData(_characterID) {
   return receipt;
 }
 async function contractPlayGame(_difficultyLevel,_breakInStyle,_scenario) {
+  console.log(_difficultyLevel,_breakInStyle,_scenario);
   const options = {
     contractAddress: gameKovanContract,
     functionName: "playGame",
@@ -2104,7 +2180,9 @@ async function contractPlayGame(_difficultyLevel,_breakInStyle,_scenario) {
     },
   };
   const receipt = await Moralis.executeFunction(options);
+  updateGameEvent(receipt.blockNumber,_scenario,_breakInStyle,false,_difficultyLevel,0)
   console.log(receipt)
+  renderWaitingMenu(0);
 }
 async function contractPlayPVP(_breakInStyle,_targetPlayer) {
   const options = {
@@ -2117,12 +2195,15 @@ async function contractPlayPVP(_breakInStyle,_targetPlayer) {
     },
   };
   const receipt = await Moralis.executeFunction(options);
+  updateGameEvent(receipt.blockNumber,0,_breakInStyle,false,0,2)
+  renderWaitingMenu(2);
   console.log(receipt)
 }
 async function contractPlayBreakout(_breakInStyle,_targetPlayer) {
+  console.log(_breakInStyle,_targetPlayer);
   const options = {
     contractAddress: gameKovanContract,
-    functionName: "playBreakout",
+    functionName: "playBreakOut",
     abi: gameABI,
     params: {
       breakInStyle: _breakInStyle,
@@ -2131,10 +2212,12 @@ async function contractPlayBreakout(_breakInStyle,_targetPlayer) {
   };
   const receipt = await Moralis.executeFunction(options);
   console.log(receipt)
+  updateGameEvent(receipt.blockNumber,0,_breakInStyle,false,0,1)
+  renderWaitingMenu(1);
 }
 async function moralisGetGameEvents(_userAddress) {
-  const Messaging = Moralis.Object.extend("GameEvents");
-  const query = new Moralis.Query(Messaging);
+  const GameEvents = Moralis.Object.extend("GameEvents");
+  const query = new Moralis.Query(GameEvents);
 
   query.equalTo("player", _userAddress);
   const receipt = await query.find();
@@ -2150,20 +2233,12 @@ async function login() {
     user = await Moralis.authenticate();
     let address = user.get("accounts");
     address = address[0];
-    userProfile = await contractGetUserProfile(address);
-      let result = await renderUserProfileTopRight();
-      result = await renderSocialFeedPage();
-      document.getElementById("loginForm").style.display = "none";
-      document.getElementById("mainPage").style.display = "";
-      getUserPreferences() // user Preferences are then assigned to global variables
-
-   }
-  else{
-    let result = await renderUserProfileTopRight();
-    result = await renderSocialFeedPage();
     document.getElementById("loginForm").style.display = "none";
     document.getElementById("mainPage").style.display = "";
-    getUserPreferences() // user Preferences are then assigned to global variables
+   }
+  else{
+    document.getElementById("loginForm").style.display = "";
+    document.getElementById("mainPage").style.display = "none";
   }
   console.log("logged in user:", user);
 }
@@ -2198,6 +2273,7 @@ async function onFirstLoad() {
       address = address[0];
       document.getElementById("loginForm").style.display = "none";
       document.getElementById("mainPage").style.display = "";
+      checkForGameEvent()
     //getUserPreferences() // user Preferences are then assigned to global variables
   }
   console.log("logged in user:", user);
@@ -2235,6 +2311,7 @@ async function withdrawJewels(){
    let balance = document.getElementById("balanceInput").value;
    console.log(balance);
   let result = await contractWithdrawJewels(balance)
+  getJewelBalance();
 }
 async function getJewelBalance(){
     let user = await Moralis.User.current();
@@ -2312,12 +2389,13 @@ function showPreviousScenario(){
 async function playBreakout(breakInStyle){
     let address = document.getElementById("jailPlayerInput").value;
     console.log(address, breakInStyle);
-    let result = await contractPlayPVP(breakInStyle,address);
+    let result = await contractPlayBreakout(breakInStyle,address);
     console.log(result);
 }
-async function renderJailPlayer(){
-    let address = document.getElementById("jailPlayerInput").value;
-    let addressTrue = await web3.utils.isAddress(address);
+async function renderDefaultJailPlayer(){
+    let user = await Moralis.User.current();
+    let address = user.get("accounts");
+    address = address[0];
     addressTrue = true;
     if (addressTrue){
           let characterDetails = await contractGetNFTCharacter(address);
@@ -2330,7 +2408,7 @@ async function renderJailPlayer(){
             `
             <div class="col-12 text-center">
                 <h6 class="textChange">${characterDetails.name}</h6>
-                <img src="${characterDetails.imageURI}" alt="jewels" width="35%" height="70%">
+                <img style="background-size:150px 200px; background-image:url(${characterDetails.imageURI}) " src="https://ipfs.io/ipfs/QmWk7XxK4GyTSb1uN9NTqEkdkksRqdQq9G6t3eiA4nQSec?filename=jailcellbars.png" alt="jewels" width="35%" height="70%">
                 <h6 class="textChange" style ="padding: 10px 0px 0px 0px;">Release Date: ${getLocalTime(characterDetails.freetoPlayAgain)}</h6>
             </div>
             `
@@ -2352,6 +2430,165 @@ async function renderJailPlayer(){
 
     }
 
+}
+
+
+
+async function renderJailPlayer(){
+    let address = document.getElementById("jailPlayerInput").value;
+    let addressTrue = await web3.utils.isAddress(address);
+    addressTrue = true;
+    if (addressTrue){
+          let characterDetails = await contractGetNFTCharacter(address);
+          var jailContainer = document.getElementById("jailContainer");
+          while (jailContainer.hasChildNodes()) { // This removes all of them and re-renders it
+            jailContainer.removeChild(jailContainer.firstChild);
+            }
+          if (characterDetails.arrested){
+            document.getElementById("jailContainer").innerHTML +=
+            `
+            <div class="col-12 text-center">
+                <h6 class="textChange">${characterDetails.name}</h6>
+                <img style="background-size:170px 200px; background-image:url(${characterDetails.imageURI}) " src="https://ipfs.io/ipfs/QmWk7XxK4GyTSb1uN9NTqEkdkksRqdQq9G6t3eiA4nQSec?filename=jailcellbars.png" alt="jewels" width="35%" height="70%">
+                <h6 class="textChange" style ="padding: 10px 0px 0px 0px;">Release Date: ${getLocalTime(characterDetails.freetoPlayAgain)}</h6>
+            </div>
+            `
+          }
+          else{
+            document.getElementById("jailContainer").innerHTML +=
+            `
+            <div class="col-12 text-center">
+                <h6 class="textChange">${characterDetails.name}</h6>
+                <img src="${characterDetails.imageURI}" alt="jewels" width="35%" height="70%">
+                <h6 class="textChange" style ="padding: 10px 0px 0px 0px;">Not in Jail</h6>
+            </div>
+            `
+          }
+
+
+    }
+    else{
+      console.log("not address");
+
+    }
+
+}
+function updateUserPreferences(_data, _action){
+  const userPreferences = Moralis.User.current();
+  console.log("sending to moralis",_data)
+  switch(_action){
+    case "unfollow":
+        userPreferences.remove("following",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
+        break;
+    case "follow":
+        userPreferences.addUnique("following",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
+        console.log("Moralis followed uploaded");
+        break;
+    case "login":
+        userPreferences.set("lastLogin",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
+        console.log("Moralis last login updated");
+        break;
+    case "modeChange":
+        userPreferences.set("mode",_data); //Either "Light" or "dark"
+        break;
+    case "savePost":
+        userPreferences.addUnique("savedPosts",_data); //Array of Addresses with Post ID. Example [[0x578783,4],[0x57846,5]]
+        break;
+    case "unSavePost":
+        userPreferences.remove("savedPosts",_data); //Array of Addresses with Post ID. Example [[0x578783,4],[0x57846,5]]
+        $('#savedPostModal').modal('hide'); //hide other modal
+        break;
+    default:
+      //do nothing
+  }
+  userPreferences.save()
+  .then((userPreferences) => {
+  getUserPreferences() //refreshUserPreferences
+   }, (error) => {
+
+  alert('Failed to create new object, with error code: ' + error.message);
+});
+}
+function updateGameEvent(blockNumber,scenarioNumber,breakInStyle,alreadyViewed,difficultyLevel,mode){
+  const userPreferences = Moralis.User.current();
+  scenarioNumber = Number(scenarioNumber);
+  mode = Number(mode);
+  difficultyLevel = Number(difficultyLevel);
+  userPreferences.set("gameEventBlockNumber",blockNumber);
+  userPreferences.set("gameEventScenarioNumber",scenarioNumber);
+  userPreferences.set("gameEventBreakInStyle",breakInStyle);
+  userPreferences.set("gameEventAlreadyViewed",alreadyViewed);
+  userPreferences.set("gameEventDifficultyLevel",difficultyLevel);
+  userPreferences.set("gameEventMode",mode);
+  userPreferences.save()
+  .then((userPreferences) => {
+   //block
+   }, (error) => {
+});
+}
+async function gameEventViewed(){
+  const userPreferences = await Moralis.User.current();
+  userPreferences.set("gameEventAlreadyViewed",true);
+  userPreferences.save()
+  .then((userPreferences) => {
+   loadMainPage()
+   }, (error) => {
+});
+}
+
+function disableButtons(){
+    document.getElementById('useCharmScenarioOne').disabled ="disabled";
+}
+function enableButtons(){
+    document.getElementById('useCharmScenarioOne').disabled ="";
+}
+
+async function checkForGameEvent(){
+    userPreferences = await Moralis.User.current();
+    let gameEventBlockNumber = await userPreferences.get("gameEventBlockNumber");
+    let gameEventScenarioNumber = await userPreferences.get("gameEventScenarioNumber");
+    let gameEventAlreadyViewed = await userPreferences.get("gameEventAlreadyViewed");
+    let gameEventDifficultyLevel = await userPreferences.get("gameEventDifficultyLevel");
+    console.log(gameEventBlockNumber)
+    if (gameEventAlreadyViewed == true || gameEventAlreadyViewed == undefined){
+            document.getElementById("nftIsBack").style.display="none"; // nothing to show
+    }
+    if (gameEventAlreadyViewed == false ){ // there is an action taken that hasn't been veiw yet
+      //now we want the latest game event for this user
+      let address = userPreferences.get("accounts");
+      address = address[0];
+      const GameEvents = Moralis.Object.extend("breakInGameEvents");
+      const query = new Moralis.Query(GameEvents);
+
+      query.equalTo("player", address); // get all game events for players
+      const gameEvents = await query.find();
+      console.log(gameEvents)
+      let i=gameEvents.length-1;
+      const object = gameEvents[i];
+      let blockNumber = object.get('block_number');
+      console.log(blockNumber);
+      if (gameEventBlockNumber < blockNumber){
+        document.getElementById("nftIsBack").style.display=""; // nothing to show
+      }
+      else{
+        //do nothing since no new game event
+      }
+    }
+
+
+};
+async function checkLatestEvent() { // only time this should be called is on a page refresh or on change of userPreferences
+  userPreferences = await Moralis.User.current();
+  latestEvent = await userPreferences.get("gameEvent");
+  mode = await userPreferences.get("mode");
+  let result = await renderSaved(savedPosts); // replace with "savedPosts" on launch;
+  result = await renderFollowing(following);
+  if (mode=="light"){
+    //toggleLightMode();
+  }
+  else{
+    //toggleDarkMode();
+  }
 }
 async function renderNFTCharacter(){
     let user = await Moralis.User.current();
@@ -2401,6 +2638,147 @@ async function renderNFTCharacter(){
   }
 
 }
+
+
+async function renderResultMenu(){
+  let user = await Moralis.User.current();
+  let address = user.get("accounts");
+  address = address[0];
+  console.log(address);
+  // get game events
+  let gameEventBlockNumber = await user.get("gameEventBlockNumber");
+  let gameEventScenarioNumber = await user.get("gameEventScenarioNumber");
+  let gameEventAlreadyViewed = await user.get("gameEventAlreadyViewed");
+  let gameEventDifficultyLevel = await user.get("gameEventDifficultyLevel");
+  let gameEventBreakInStyle = await user.get("gameEventBreakInStyle");
+  let gameEventMode = await userPreferences.get("gameEventMode");
+  gameEventDifficultyLevel = (gameEventDifficultyLevel/100) - 1;
+  const GameEvents = Moralis.Object.extend("breakInGameEvents");
+  const query = new Moralis.Query(GameEvents);
+  console.log(query);
+  query.equalTo("player", address); // get all game events for players
+  const gameEvents = await query.find();
+  console.log(gameEvents)
+  let i=gameEvents.length-1;
+  const object = gameEvents[i];
+  let code = object.get('code');
+  if (gameEventMode == 0){
+    if (code > 10000){ //successs
+      document.getElementById('resultMenuImage').src = gameData[5].image;
+      document.getElementById("resultMenuText").innerHTML = gameData[5].text;
+      document.getElementById("resultMenuExplanation").innerHTML = gameData[5].description;
+    }
+    else{
+      console.log(gameData[code].image)
+      document.getElementById('resultMenuImage').src = gameData[code].image;
+      document.getElementById("resultMenuText").innerHTML = gameData[code].text;
+      document.getElementById("resultMenuExplanation").innerHTML = gameData[code].description;
+    }
+  }
+  if (gameEventMode == 1){
+    if (code > 10000){ //successs
+      document.getElementById('resultMenuImage').src = gameDataBreakout[5].image;
+      document.getElementById("resultMenuText").innerHTML = gameDataBreakout[5].text;
+      document.getElementById("resultMenuExplanation").innerHTML = gameDataBreakout[5].description;
+    }
+    else{
+      document.getElementById('resultMenuImage').src = gameDataBreakout[code].image;
+      document.getElementById("resultMenuText").innerHTML = gameDataBreakout[code].text;
+      document.getElementById("resultMenuExplanation").innerHTML = gameDataBreakout[code].description;
+    }
+  }
+  if (gameEventMode == 2){
+    if (code > 10000){ //successs
+      document.getElementById('resultMenuImage').src = gameDataPvP[5].image;
+      document.getElementById("resultMenuText").innerHTML = gameDataPvP[5].text;
+      document.getElementById("resultMenuExplanation").innerHTML = gameDataPvP[5].description;
+    }
+    else{
+      document.getElementById('resultMenuImage').src = gameDataBreakout[code].image;
+      document.getElementById("resultMenuText").innerHTML = gameDataBreakout[code].text;
+      document.getElementById("resultMenuExplanation").innerHTML = gameDataBreakout[code].description;
+    }
+  }
+
+  // document.getElementById('resultMenuImage').src = gameDataScenarioZero[number][0].image;
+  // document.getElementById("resultMenuText").innerHTML = gameDataScenarioZero[number][0].text;
+  // document.getElementById("resultMenuExplanation").innerHTML = gameDataScenarioZero[number][0].description;
+  // break;
+  // console.log(gameEventBreakInStyle);
+  // console.log(gameEventDifficultyLevel);
+  // let number = Number(code) + Number((gameEventBreakInStyle) * 6) + Number((gameEventDifficultyLevel) * 6) // code will be from 0 to 5 and then 6-11 for the next style
+  // console.log(code);
+  // console.log(number)
+  //
+  // let success = gameEventBreakInStyle * 6
+  // switch(gameEventScenarioNumber){
+  //   case 0:
+  //     if (code > 10000){ //successs
+  //       //document.getElementById('resultMenuImage').src = gameDataScenarioZero[success][0].success.image;
+  //       //document.getElementById("resultMenuText").innerHTML = gameDataScenarioZero[successr][0].success.text;
+  //       //document.getElementById("resultMenuExplanation").innerHTML = gameDataScenarioZero[success][0].success.explanation;
+  //     }
+  //     document.getElementById('resultMenuImage').src = gameDataScenarioZero[number][0].image;
+  //     document.getElementById("resultMenuText").innerHTML = gameDataScenarioZero[number][0].text;
+  //     document.getElementById("resultMenuExplanation").innerHTML = gameDataScenarioZero[number][0].description;
+  //     break;
+  //   case 1:
+  //   if (code > 10000){ //successs
+  //     document.getElementById('resultMenuImage').src = gameDataScenarioOne[success][0].success.image;
+  //     document.getElementById("resultMenuText").innerHTML = gameDataScenarioOne[successr][0].success.text;
+  //     document.getElementById("resultMenuExplanation").innerHTML = gameDataScenarioOne[success][0].success.explanation;
+  //   }
+  //   document.getElementById('resultMenuImage').src = gameDataScenarioOne[number][0].image;
+  //   document.getElementById("resultMenuText").innerHTML = gameDataScenarioOne[number][0].text;
+  //   document.getElementById("resultMenuExplanation").innerHTML = gameDataScenarioOne[number][0].description;
+  //     break;
+  //   case 2:
+  //   if (code > 10000){ //successs
+  //     document.getElementById('resultMenuImage').src = gameDataScenarioThree[success][0].success.image;
+  //     document.getElementById("resultMenuText").innerHTML = gameDataScenarioThree[successr][0].success.text;
+  //     document.getElementById("resultMenuExplanation").innerHTML = gameDataScenarioThree[success][0].success.explanation;
+  //   }
+  //   document.getElementById('resultMenuImage').src = gameDataScenarioThree[number][0].image;
+  //   document.getElementById("resultMenuText").innerHTML = gameDataScenarioThree[number][0].text;
+  //   document.getElementById("resultMenuExplanation").innerHTML = gameDataScenarioThree[number][0].description;
+  //
+  //     break;
+  // }
+}
+async function renderWaitingMenu(scenario){
+  console.log(scenario)
+  let user = await Moralis.User.current();
+  let address = user.get("accounts");
+  address = address[0];
+  let result = await contractGetNFTCharacter(address);
+  document.getElementById("bankMenu").style.display="none";
+  document.getElementById("tavernMenu").style.display="none";
+  document.getElementById("robberyMenu").style.display="none";
+  document.getElementById("hospitalMenu").style.display="none";
+  document.getElementById("jailMenu").style.display="none";
+  document.getElementById("mainPage").style.display="none";
+  document.getElementById("resultMenu").style.display="none";
+  document.getElementById("waitingMenu").style.display="";
+  switch(scenario){
+    case 0:
+      document.getElementById('waitingMenuImage').src = "https://ipfs.io/ipfs/QmNtzcebRGSH8vaSL84DLdwQEmiYCPFHfCh438zRQfo5db?filename=clock.png";
+      document.getElementById("waitingMenuText").innerHTML = "NFT Stealing";
+      document.getElementById("waitingMenuExplanation").innerHTML = "It may take a bit for your character to steal something. Check back later.";
+      break;
+    case 1:
+      document.getElementById('waitingMenuImage').src = "https://ipfs.io/ipfs/QmNtzcebRGSH8vaSL84DLdwQEmiYCPFHfCh438zRQfo5db?filename=clock.png";
+      document.getElementById("waitingMenuText").innerHTML = "Jail Breakout";
+      document.getElementById("waitingMenuExplanation").innerHTML = "It may take a bit for your character to break someone free from prison. Check back later.";
+      break;
+    case 2:
+      document.getElementById('waitingMenuImage').src = "https://ipfs.io/ipfs/QmNtzcebRGSH8vaSL84DLdwQEmiYCPFHfCh438zRQfo5db?filename=clock.png";
+      document.getElementById("waitingMenuText").innerHTML = "Robbing Hideout";
+      document.getElementById("waitingMenuExplanation").innerHTML = "It may take a bit for your character to steal something. Check back later.";
+      break;
+  }
+
+  // get game events for this player and compare against user preferences
+}
 async function renderBarNFTCharacter(){
   let address = document.getElementById("barPlayerInput").value;
   let result = await contractGetNFTCharacter(address);
@@ -2431,17 +2809,18 @@ async function renderBarScreen(){
    let address = user.get("accounts");
    address = address[0];
    let result = await contractGetNFTCharacter(address);
-   if (result.canStopPlayingPVP >= Math.floor(Date.now() / 1000) ){
+   if (result.canStopPlayingPVP <= Math.floor(Date.now() / 1000) ){
      document.getElementById("canStopPlayingPVPBar").innerHTML = "Can Stop Playing PVP: Yes";
    }
    else{
-     document.getElementById("canStopPlayingPVPBar").innerHTML = "Wait until: " + getLocalTime(result.canStopPlayingPVP) ;
+     document.getElementById("canStopPlayingPVPBar").innerHTML = "Can stop playing on " + getLocalTime(result.canStopPlayingPVP) ;
    }
 
 }
 
 async function depositNFT(NFTID){
     console.log(NFTID);
+  $('#nftWalletModal').modal('hide'); //hide other modal
   let result = await contractDepositNFT(NFTID);
   console.log(result);
 }
@@ -2539,7 +2918,6 @@ async function getUserPreferences() { // only time this should be called is on a
 
 
 
-
 function getLocalTime(unixTimeStamp){
   unixTimeStamp = unixTimeStamp*1000;
   var date = new Date(unixTimeStamp).toLocaleDateString("en-US");
@@ -2551,63 +2929,96 @@ function getLocalDate(unixTimeStamp){
   var date = new Date(unixTimeStamp).toLocaleDateString("en-US");
   return (date)
 }
-
-function loadMainPage(){
+function loadResultMenu(){
   window.scrollTo(0, 0);
+  renderResultMenu();
   document.getElementById("bankMenu").style.display="none";
   document.getElementById("tavernMenu").style.display="none";
   document.getElementById("robberyMenu").style.display="none";
   document.getElementById("hospitalMenu").style.display="none";
   document.getElementById("jailMenu").style.display="none";
+  document.getElementById("resultMenu").style.display="";
+  document.getElementById("waitingMenu").style.display="none";
+  document.getElementById("mainPage").style.display="none";
+  document.getElementById("nftIsBack").style.display="none";
+}
+
+function loadMainPage(){
+  window.scrollTo(0, 0);
+  checkForGameEvent();
+  document.getElementById("bankMenu").style.display="none";
+  document.getElementById("tavernMenu").style.display="none";
+  document.getElementById("robberyMenu").style.display="none";
+  document.getElementById("hospitalMenu").style.display="none";
+  document.getElementById("jailMenu").style.display="none";
+  document.getElementById("resultMenu").style.display="none";
   document.getElementById("mainPage").style.display="";
+  document.getElementById("waitingMenu").style.display="none";
 }
 function loadBankMenu(){
   window.scrollTo(0, 0);
   getJewelBalance();
   renderNFTCharacter();
+  checkForGameEvent();
   document.getElementById("bankMenu").style.display="";
   document.getElementById("tavernMenu").style.display="none";
   document.getElementById("robberyMenu").style.display="none";
   document.getElementById("hospitalMenu").style.display="none";
   document.getElementById("jailMenu").style.display="none";
   document.getElementById("mainPage").style.display="none";
+  document.getElementById("resultMenu").style.display="none";
+  document.getElementById("waitingMenu").style.display="none";
 }
+
 function loadTavernMenu(){
   window.scrollTo(0, 0);
   renderBarScreen();
+  checkForGameEvent();
   document.getElementById("bankMenu").style.display="none";
   document.getElementById("tavernMenu").style.display="";
   document.getElementById("robberyMenu").style.display="none";
   document.getElementById("hospitalMenu").style.display="none";
   document.getElementById("jailMenu").style.display="none";
   document.getElementById("mainPage").style.display="none";
+  document.getElementById("resultMenu").style.display="none";
+  document.getElementById("waitingMenu").style.display="none";
 }
 function loadRobberyMenu(){
   window.scrollTo(0, 0);
+  checkForGameEvent();
   document.getElementById("bankMenu").style.display="none";
   document.getElementById("tavernMenu").style.display="none";
   document.getElementById("robberyMenu").style.display="";
   document.getElementById("hospitalMenu").style.display="none";
   document.getElementById("jailMenu").style.display="none";
   document.getElementById("mainPage").style.display="none";
+  document.getElementById("resultMenu").style.display="none";
+  document.getElementById("waitingMenu").style.display="none";
 }
 function loadJailMenu(){
   window.scrollTo(0, 0);
+  renderDefaultJailPlayer();
+  checkForGameEvent();
   document.getElementById("bankMenu").style.display="none";
   document.getElementById("tavernMenu").style.display="none";
   document.getElementById("robberyMenu").style.display="none";
   document.getElementById("hospitalMenu").style.display="none";
   document.getElementById("jailMenu").style.display="";
   document.getElementById("mainPage").style.display="none";
+  document.getElementById("resultMenu").style.display="none";
+  document.getElementById("waitingMenu").style.display="none";
 }
 function loadHospitalMenu(){
   window.scrollTo(0, 0);
+  checkForGameEvent();
   document.getElementById("bankMenu").style.display="none";
   document.getElementById("tavernMenu").style.display="none";
   document.getElementById("robberyMenu").style.display="none";
   document.getElementById("hospitalMenu").style.display="";
   document.getElementById("jailMenu").style.display="none";
   document.getElementById("mainPage").style.display="none";
+  document.getElementById("resultMenu").style.display="none";
+  document.getElementById("waitingMenu").style.display="none";
 }
 
 </script>
@@ -2624,11 +3035,7 @@ function loadHospitalMenu(){
 }
 
 
-.form-control:focus {
-  outline: none !important;
-  border:1px solid red;
-  box-shadow: 0 0 10px #719ECE;
-}
+
 .neonAnimated {
   outline: none !important;
   box-shadow: 0 0 10px #719ECE;
@@ -2663,6 +3070,12 @@ function loadHospitalMenu(){
 .btn:hover {
   outline: none !important;
   box-shadow: 0 0 10px rgb(129,143,225);
+}
+.btn:focus{
+  background-color: #535353;
+  border-color: #535353;
+  box-shadow: none!important;
+  outline: 0;
 }
 .boxesColor {
   background-color:#313334;
@@ -2864,13 +3277,49 @@ pre {
         </div>
       </div>
     </div>
-    <div id="mainPage" class="container-xlg vertical-center" style="background-color: #1D1D1F; margin:0px 100px 0px; display:none">
-      <div class="row align-items-start  backgroundColor"  style ="padding-top: 0px;">
+    <div class="row backgroundColor align-items-start"  style ="padding: 50px 0px 0px 0px;">
+      <div class="col-1"  style ="padding: 0px 0px 0px 100px;">
+      <a class="iconColor">
+          <i onclick="loadMainPage()" class="fas backHover fa-arrow-left fa-4x float-right"></i>
+      </a>
+      </div>
+      <div class="col-3 text-right">
+
+      </div>
+      <div class="col-4">
+        <div id="nftIsBack" class="card mb-3  boxesColor neon mx-auto" style="max-width:20rem; border-radius: 20px; margin:0px 10px 0px; display:none">
+        <div class="card-body">
+          <div class="row align-items-start" style ="padding-top: 10px;">
+            <div class="col-12 text-center">
+              <h4 class="textChange"><b>Your NFT is Back!</b></h4>
+
+            </div>
+          </div>
+          <div class="row align-items-start" style ="padding-top: 10px;">
+            <div class="col-12 text-center">
+                <button type="button" onclick="loadResultMenu()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">See Results</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+      <div class="col-3 text-right">
+
+      </div>
+      <div class="col-1 " style ="padding: 0px 100px 0px 0px;">
+      <a class="iconColor ">
+          <i onclick="logOut()" style="float:right" class="fas backHover fa-sign-out-alt fa-4x"></i>
+      </a>
+      </div>
+    </div>
+    <div id="mainPage" class="container-xlg " style="background-color: #1D1D1F; margin:0px 100px 0px; display:none">
+
+      <div class="row align-items-start  backgroundColor"  style ="padding-top: 200px;">
         <div class="col-2">
           <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
           <div class="card-body">
             <div class="row align-items-start">
-                <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="30%" height="30%">
+                <img src="https://ipfs.io/ipfs/QmX7ePVQvZV1b86FzK6epo8Kzpzi1ohYAmYATAuz7kStnZ?filename=citybank.png" alt="jewels" width="30%" height="30%">
             </div>
             <div class="row align-items-start" style ="padding-top: 10px;">
               <div class="col-12 text-center">
@@ -2890,7 +3339,7 @@ pre {
           <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
           <div class="card-body">
             <div class="row align-items-start">
-                <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="30%" height="30%">
+                <img src="https://ipfs.io/ipfs/QmSjdDAo1MC1nap97XwF1tJtYx9dpR9HV3viVVwoXhiCEM?filename=bar.png" alt="jewels" width="30%" height="30%">
             </div>
             <div class="row align-items-start" style ="padding-top: 10px;">
               <div class="col-12 text-center">
@@ -2913,11 +3362,11 @@ pre {
                 <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
                 <div class="card-body">
                   <div class="row align-items-start">
-                      <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="00%" height="0%">
+                      <img src="https://ipfs.io/ipfs/QmRrBzAKuubKh8Yxntv1Uena5XiH5ZrJ5hT2C4qJ3BvX3c?filename=window.png" alt="jewels" width="00%" height="0%">
                   </div>
                   <div class="row align-items-start" style ="padding-top: 10px;">
                     <div class="col-12 text-center">
-                      <h4 class="textChange"><b>Main Event</b></h4>
+                      <h4 class="textChange"><b>Break In</b></h4>
                     </div>
                   </div>
                   <div class="row align-items-start" style ="padding-top: 10px;">
@@ -2936,11 +3385,11 @@ pre {
           <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
           <div class="card-body">
             <div class="row align-items-start">
-                <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="30%" height="30%">
+                <img src="https://ipfs.io/ipfs/QmakoSMWhdGYpaBoqmkneMSRTJTk8Q3QvYkYxrkikQQtmJ?filename=prison.png" alt="jewels" width="30%" height="30%">
             </div>
             <div class="row align-items-start" style ="padding-top: 10px;">
               <div class="col-12 text-center">
-                <h4 class="textChange"><b>Jail</b></h4>
+                <h4 class="textChange"><b>Prison</b></h4>
               </div>
             </div>
             <div class="row align-items-start" style ="padding-top: 10px;">
@@ -2955,7 +3404,7 @@ pre {
           <div class="card mb-3  boxesColor neon" style="max-width:30rem; border-radius: 20px; margin:0px 10px 0px">
           <div class="card-body">
             <div class="row align-items-start">
-                <img src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="30%" height="30%">
+                <img src="https://ipfs.io/ipfs/QmXhv4xaH6pSXmZGQ7ZDQW7JGavFyxKhdUbaRaJf1jpdcG?filename=hospital.png" alt="jewels" width="30%" height="30%">
             </div>
             <div class="row align-items-start" style ="padding-top: 10px;">
               <div class="col-12 text-center">
@@ -2973,22 +3422,15 @@ pre {
       </div>
 </div>
 
-<div id="robberyMenu" class="container-xlg" style="background-color: #1D1D1F; display:none" >
-  <div class="row backgroundColor align-items-start"  style ="padding: 50px 0px 0px 50px;">
-    <div class="col-12">
-    <a class="iconColor">
-        <i onclick="loadMainPage()" class="fas backHover fa-arrow-left fa-4x"></i>
-    </a>
-    </div>
-  </div>
-  <div id="scenarioZero" class="row backgroundColor mx-auto align-items-start"  style ="padding-top: 5%">
+<div id="robberyMenu" class="container-xlg " style="background-color: #1D1D1F; display:none" >
+  <div id="scenarioZero" class="row backgroundColor mx-auto align-items-start"  style ="padding-top: 100px;">
     <div class="col-12 mx-auto" style=" max-width: 1000px;">
       <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
 
 
           <div class="col-6  ">
             <div class="row text-center ">
-                  <img src="https://image.freepik.com/free-vector/cartoon-retro-bank-building-courthouse-with-columns-illustration-isolated-white_166005-61.jpg" class="d-block w-60 mx-auto mt-4 alt="...">
+                  <img src="https://ipfs.io/ipfs/QmX7ePVQvZV1b86FzK6epo8Kzpzi1ohYAmYATAuz7kStnZ?filename=citybank.png" class="d-block w-60 mx-auto mt-4 alt="...">
             </div>
             <div class="row" style ="padding: 30px 0px;">
               <div class="col-3 text-center">
@@ -3028,29 +3470,29 @@ pre {
             <div class="row" style ="padding: 10px 0px 10px 0px;">
               <div class="col-4 text-center">
                 <p class="textChange">Daylight Robbery</p>
-                  <button type="button" onclick="playGame('3','0')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
+                  <button type="button" onclick="playGame('2','0')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
               </div>
               <div class="col-4 text-center">
                   <p class="textChange">Act as a Janitor</p>
-                  <button type="button" onclick="playGame('2','0')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
+                  <button type="button" id="useCharmScenarioOne" onclick="playGame('1','0')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
               </div>
               <div class="col-4 text-center">
                   <p class="textChange">Wait Until Night</p>
-                  <button type="button" onclick="playGame('1','0')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
+                  <button type="button" onclick="playGame('0','0')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
               </div>
             </div>
             </div>
     </div>
     </div>
   </div>
-  <div id="scenarioOne" class="row backgroundColor mx-auto align-items-start"  style ="padding-top: 5%; display: none">
+  <div id="scenarioOne" class="row backgroundColor mx-auto align-items-start"  style ="padding-top: 100px; display: none">
     <div class="col-12 mx-auto" style=" max-width: 1000px;">
       <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
 
 
           <div class="col-6  ">
             <div class="row text-center ">
-                  <img src="https://image.freepik.com/free-vector/cartoon-retro-bank-building-courthouse-with-columns-illustration-isolated-white_166005-61.jpg" class="d-block w-60 mx-auto mt-4 alt="...">
+                  <img src="https://ipfs.io/ipfs/QmamvHLAnsrHw7qj7RdEZztrmufVw2jBtPaKV6UAmh8kXL?filename=jewelry%20store.png" class="d-block w-60 mx-auto mt-4 alt="...">
             </div>
             <div class="row" style ="padding: 30px 0px;">
               <div class="col-3 text-center">
@@ -3090,29 +3532,29 @@ pre {
             <div class="row" style ="padding: 10px 0px 10px 0px;">
               <div class="col-4 text-center">
                 <p class="textChange">Grab and Run</p>
-                  <button type="button" onclick="playGame('3','1')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
+                  <button type="button" onclick="playGame('2','1')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
               </div>
               <div class="col-4 text-center">
                   <p class="textChange">Flirt with Employee</p>
-                  <button type="button" onclick="playGame('2','1')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
+                  <button type="button" onclick="playGame('1','1')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
               </div>
               <div class="col-4 text-center">
                   <p class="textChange">Wait Until it is Busy</p>
-                  <button type="button" onclick="playGame('1','1')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
+                  <button type="button" onclick="playGame('0','1')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
               </div>
             </div>
             </div>
     </div>
     </div>
   </div>
-  <div id="scenarioTwo" class="row backgroundColor mx-auto align-items-start"  style ="padding-top: 5%; display: none">
+  <div id="scenarioTwo" class="row backgroundColor mx-auto align-items-start"  style ="padding-top: 100px; display: none">
     <div class="col-12 mx-auto" style=" max-width: 1000px;">
       <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
 
 
           <div class="col-6  ">
             <div class="row text-center ">
-                  <img src="https://image.freepik.com/free-vector/cartoon-retro-bank-building-courthouse-with-columns-illustration-isolated-white_166005-61.jpg" class="d-block w-60 mx-auto mt-4 alt="...">
+                  <img src="https://ipfs.io/ipfs/QmRFDMJT4jjQxQJp3vraT4HMoo4ceNm7NGVUPiXvDyftd5?filename=museum.png" class="d-block w-60 mx-auto mt-4 alt="...">
             </div>
             <div class="row" style ="padding: 30px 0px;">
               <div class="col-3 text-center">
@@ -3145,22 +3587,22 @@ pre {
                 <select class="form-select textChange" style="overflow: hidden; background-color: #535353; border: solid 1px #535353;" multiple aria-label="multiple select example">
                   <option onclick="changeDifficulty('100','2')" class="text-center" selected value="1">Steal from the Giftshop (Easy)</option>
                   <option onclick="changeDifficulty('200','2')" class="text-center" value="2">Pickpocket Guests (Medium)</option>
-                  <option onclick="changeDifficulty('300','2')" class="text-center" value="3">Steal the Declaration of Independece (Difficult)</option>
+                  <option onclick="changeDifficulty('300','2')" class="text-center" value="3">Steal the Declaration of Independence (Difficult)</option>
                   </select>
               </div>
             </div>
             <div class="row" style ="padding: 10px 0px 10px 0px;">
               <div class="col-4 text-center">
                 <p class="textChange">Capture Security Guard</p>
-                  <button type="button" onclick="playGame('3','2')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
+                  <button type="button" onclick="playGame('2','2')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
               </div>
               <div class="col-4 text-center">
                   <p class="textChange">Act as a Rich Donor</p>
-                  <button type="button" onclick="playGame('2','2')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
+                  <button type="button" onclick="playGame('1','2')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
               </div>
               <div class="col-4 text-center">
                   <p class="textChange">Go Through the Sewers</p>
-                  <button type="button" onclick="playGame('1','2')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
+                  <button type="button" onclick="playGame('0','2')" style="width:120px" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
               </div>
             </div>
             </div>
@@ -3169,14 +3611,7 @@ pre {
   </div>
 </div>
 
-<div id="bankMenu" class="container-xlg" style="background-color: #1D1D1F; display:none" >
-  <div class="row backgroundColor align-items-start"  style ="padding: 50px 0px 0px 50px;">
-    <div class="col-12">
-    <a class="iconColor">
-        <i onclick="loadMainPage()" class="fas backHover fa-arrow-left fa-4x"></i>
-    </a>
-    </div>
-  </div>
+<div id="bankMenu" class="container-xlg" style="background-color: #1D1D1F; display:none; padding-top:100px"  >
   <div class="row backgroundColor mx-auto align-items-start"  >
     <div class="col-12 mx-auto" style=" max-width: 1000px;">
       <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
@@ -3184,7 +3619,7 @@ pre {
 
           <div class="col-6 ">
             <div class="row text-center ">
-                  <img src="https://image.freepik.com/free-vector/cartoon-retro-bank-building-courthouse-with-columns-illustration-isolated-white_166005-61.jpg" class="d-block w-60 mx-auto mt-4 alt="...">
+                  <img src="https://ipfs.io/ipfs/QmX7ePVQvZV1b86FzK6epo8Kzpzi1ohYAmYATAuz7kStnZ?filename=citybank.png" class="d-block w-60 mx-auto mt-4 alt="...">
             </div>
             <div class="row" style ="padding: 15px 0px 0px 0px;">
               <div class="col-12 text-center">
@@ -3202,7 +3637,7 @@ pre {
           <div class="col-6" style="border-left: 1px solid #535353">
             <div class="row " style="margin-top:25px;">
               <h4 class="textChange text-center">Balance</h4>
-              <h4 id="currentBalance" class="textChange text-center">xxxx Jewels</h4>
+              <h4 id="currentBalance" class="textChange text-center">0 Jewels</h4>
             </div>
             <div class="row " style="margin-top:25px;">
 
@@ -3266,14 +3701,7 @@ pre {
   </div>
 </div>
 
-<div id="tavernMenu" class="container-xlg" style="background-color: #1D1D1F; display:none;">
-  <div class="row backgroundColor align-items-start"  style ="padding: 50px 0px 0px 50px;">
-    <div class="col-12">
-    <a class="iconColor">
-        <i onclick="loadMainPage()" class="fas backHover fa-arrow-left fa-4x"></i>
-    </a>
-    </div>
-  </div>
+<div id="tavernMenu" class="container-xlg" style="background-color: #1D1D1F; display:none;  padding-top:100px">
   <div class="row backgroundColor mx-auto align-items-start" >
     <div class="col-12 mx-auto" style=" max-width: 1000px;">
       <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
@@ -3281,7 +3709,7 @@ pre {
 
           <div class="col-6 " style="border-right: 1px solid #535353">
             <div class="row text-center ">
-                  <img src="https://image.freepik.com/free-vector/cartoon-retro-bank-building-courthouse-with-columns-illustration-isolated-white_166005-61.jpg" class="d-block w-60 mx-auto mt-4 alt="...">
+                  <img src="https://ipfs.io/ipfs/QmSjdDAo1MC1nap97XwF1tJtYx9dpR9HV3viVVwoXhiCEM?filename=bar.png" class="d-block w-60 mx-auto mt-4 alt="...">
             </div>
             <div class="row" style ="padding: 15px 0px 0px 0px;">
               <div class="col-12 text-center">
@@ -3332,17 +3760,17 @@ pre {
             <div class="row" style ="padding: 10px 0px 10px 0px;">
               <div class="col-6 text-center">
                   <h6 id="nameAttributeBar" class="textChange">Name</h6>
-                  <img id="imageAttributeBar" src="https://ipfs.io/ipfs/QmNRwffsNJNRq6e4YX63sf6tpSt9vwMc4P1ztZ2UvhZV8u?filename=Florida.png" alt="jewels" width="75%" height="90%">
+                  <img id="imageAttributeBar" src="https://ipfs.io/ipfs/QmbGbqtHY9LEPExxfxDiyf9mzvvAUxqym8dUZ7rg64BLJU?filename=blank.png" alt="jewels" width="75%" height="90%">
               </div>
               <div class="col-6">
                   <h6 class="textChange">Attributes</h6>
-                  <p id="healthAttributeBar" class="textChange mb-2">Health:  78</p>
-                  <p id="agilityAttributeBar" class="textChange mb-2">Agility:  263</p>
-                  <p id="strengthAttributeBar" class="textChange mb-2">Strength:  286</p>
-                  <p id="charmAttributeBar" class="textChange mb-2">Charm:  400</p>
-                  <p id="sneakAttributeBar" class="textChange mb-2">Sneak:  301</p>
-                  <p id="playingPVPAttributeBar" class="textChange mb-2">Playing PvP: No</p>
-                  <p id="stashAttributeBar" class="textChange mb-2">Stash: 607000</p>
+                  <p id="healthAttributeBar" class="textChange mb-2">Health:  </p>
+                  <p id="agilityAttributeBar" class="textChange mb-2">Agility: </p>
+                  <p id="strengthAttributeBar" class="textChange mb-2">Strength: </p>
+                  <p id="charmAttributeBar" class="textChange mb-2">Charm:  </p>
+                  <p id="sneakAttributeBar" class="textChange mb-2">Sneak:  </p>
+                  <p id="playingPVPAttributeBar" class="textChange mb-2">Playing PvP: </p>
+                  <p id="stashAttributeBar" class="textChange mb-2">Stash: </p>
               </div>
             </div>
             <div class="row " style ="padding-top: 10px;">
@@ -3352,13 +3780,13 @@ pre {
             </div>
             <div class="row" style ="padding: 10px 0px 10px 0px;">
               <div class="col-4 text-center">
-                  <button type="button" style="width:120px" onclick="playPVP('3')" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
+                  <button type="button" style="width:120px" onclick="playPVP('2')" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
               </div>
               <div class="col-4 text-center">
-                  <button type="button"  style="width:120px" onclick="playPVP('2')"  class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
+                  <button type="button"  style="width:120px" onclick="playPVP('1')"  class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
               </div>
               <div class="col-4 text-center">
-                  <button type="button"  style="width:120px" onclick="playPVP('1')" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
+                  <button type="button"  style="width:120px" onclick="playPVP('0')" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
               </div>
             </div>
             </div>
@@ -3367,14 +3795,7 @@ pre {
   </div>
 </div>
 
-<div id="jailMenu" class="container-xlg" style="background-color: #1D1D1F; display:none" >
-  <div class="row backgroundColor align-items-start"  style ="padding: 50px 0px 0px 50px;">
-    <div class="col-12">
-    <a class="iconColor">
-        <i  onclick="loadMainPage()" class="fas backHover fa-arrow-left fa-4x"></i>
-    </a>
-    </div>
-  </div>
+<div id="jailMenu" class="container-xlg" style="background-color: #1D1D1F; display:none;  padding-top:100px" >
   <div class="row backgroundColor mx-auto align-items-start" >
     <div class="col-12 mx-auto" style=" max-width: 1000px;">
       <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
@@ -3382,7 +3803,7 @@ pre {
 
           <div class="col-6 " style="border-right: 1px solid #535353">
             <div class="row text-center ">
-                  <img src="https://image.freepik.com/free-vector/cartoon-retro-bank-building-courthouse-with-columns-illustration-isolated-white_166005-61.jpg" class="d-block w-60 mx-auto mt-4 alt="...">
+                  <img src="https://ipfs.io/ipfs/QmakoSMWhdGYpaBoqmkneMSRTJTk8Q3QvYkYxrkikQQtmJ?filename=prison.png" class="d-block w-60 mx-auto mt-4 alt="...">
             </div>
             <div class="row" style ="padding: 15px 0px 0px 0px;">
               <div class="col-12 text-center">
@@ -3413,15 +3834,15 @@ pre {
             <div class="row" style ="padding: 10px 0px 10px 0px;">
               <div class="col-4 text-center">
                   <p class="textChange">Drive Car Through Wall</p>
-                  <button type="button" style="width:120px" onclick="playBreakout('3')" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
+                  <button type="button" style="width:120px" onclick="playBreakout('2')" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Strength</button>
               </div>
               <div class="col-4 text-center">
                   <p class="textChange">Disguse As Security Guard</p>
-                  <button type="button"  style="width:120px" onclick="playBreakout('2')"  class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
+                  <button type="button"  style="width:120px" onclick="playBreakout('1')"  class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Use Charm</button>
               </div>
               <div class="col-4 text-center">
                   <p class="textChange">Wait Until Guard Rotation</p>
-                  <button type="button"  style="width:120px" onclick="playBreakout('1')"  class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
+                  <button type="button"  style="width:120px" onclick="playBreakout('0')"  class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Sneak In</button>
               </div>
             </div>
             <div class="row " style ="padding-top: 10px;">
@@ -3432,7 +3853,7 @@ pre {
             <div id="jailContainer" class="row" style ="padding: 10px 0px 10px 0px;">
               <div class="col-12 text-center">
                   <h6 class="textChange">Name</h6>
-                  <img src="https://ipfs.io/ipfs/QmbGbqtHY9LEPExxfxDiyf9mzvvAUxqym8dUZ7rg64BLJU?filename=blank.png" alt="jewels" width="35%" height="70%">
+                  <img style="background-size:150px 200px;" src="https://ipfs.io/ipfs/QmWk7XxK4GyTSb1uN9NTqEkdkksRqdQq9G6t3eiA4nQSec?filename=jailcellbars.png" alt="jewels" width="35%" height="70%">
                   <h6 class="textChange" style ="padding: 10px 0px 0px 0px;">Release Date:</h6>
               </div>
             </div>
@@ -3442,14 +3863,7 @@ pre {
   </div>
 </div>
 
-<div id="hospitalMenu" class="container-xlg" style="background-color: #1D1D1F; display:none" >
-  <div class="row backgroundColor align-items-start"  style ="padding: 50px 0px 0px 50px;">
-    <div class="col-12">
-    <a class="iconColor">
-        <i onclick="loadMainPage()" class="fas backHover fa-arrow-left fa-4x"></i>
-    </a>
-    </div>
-  </div>
+<div id="hospitalMenu" class="container-xlg" style="background-color: #1D1D1F; display:none;  padding-top:100px" >
   <div class="row backgroundColor mx-auto align-items-start" >
     <div class="col-12 mx-auto" style=" max-width: 1000px;">
       <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
@@ -3457,7 +3871,7 @@ pre {
 
           <div class="col-6 " style="border-right: 1px solid #535353">
             <div class="row text-center ">
-                  <img src="https://image.freepik.com/free-vector/cartoon-retro-bank-building-courthouse-with-columns-illustration-isolated-white_166005-61.jpg" class="d-block w-60 mx-auto mt-4 alt="...">
+                  <img src="https://ipfs.io/ipfs/QmXhv4xaH6pSXmZGQ7ZDQW7JGavFyxKhdUbaRaJf1jpdcG?filename=hospital.png" class="d-block w-60 mx-auto mt-4 alt="...">
             </div>
             <div class="row" style ="padding: 15px 0px 0px 0px;">
               <div class="col-12 text-center">
@@ -3490,6 +3904,70 @@ pre {
     </div>
   </div>
 </div>
+
+<div id="waitingMenu" class="container-xlg" style="background-color: #1D1D1F; display:none;  padding-top:100px" >
+  <div class="row backgroundColor mx-auto align-items-start" >
+    <div class="col-12 mx-auto" style=" max-width: 400px; max-height:500px !important">
+      <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
+
+
+          <div class="col-12 ">
+            <div class="row text-center " >
+                  <img id="waitingMenuImage" src="" class="d-block mx-auto mt-4">
+            </div>
+            <div class="row" style ="padding: 0px 0px 0px 0px;">
+              <div class="col-12 text-center">
+                <h3 id="waitingMenuText" class="textChange" style="margin-top:5px"><b></b></h3>
+              </div>
+            </div>
+            <div class="row" style ="padding: 0px 0px;">
+              <div class="col-12 text-center">
+                <p id="waitingMenuExplanation" style="font-size: 1rem" class="textChange"></p>
+              </div>
+            </div>
+            <div class="row" style ="padding: 10px 0px 10px 0px;">
+              <div class="col-12 text-center">
+                  <button type="button" style="width:120px" onclick="loadMainPage()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Continue</button>
+              </div>
+            </div>
+            </div>
+
+    </div>
+    </div>
+  </div>
+</div>
+<div id="resultMenu" class="container-xlg" style="background-color: #1D1D1F; display:none;  padding-top:100px" >
+  <div class="row backgroundColor mx-auto align-items-start" >
+    <div class="col-12 mx-auto" style=" max-width: 400px; max-height:500px !important">
+      <div class="row boxesColor neon align-items-start" style=" border-radius: 20px; margin:0px 10px 0px">
+
+
+          <div class="col-12 ">
+            <div class="row text-center " >
+                  <img id="resultMenuImage" src="" class="d-block mx-auto mt-4">
+            </div>
+            <div class="row" style ="padding: 0px 0px 0px 0px;">
+              <div class="col-12 text-center">
+                <h3 id="resultMenuText" class="textChange" style="margin-top:5px"><b></b></h3>
+              </div>
+            </div>
+            <div class="row" style ="padding: 0px 0px;">
+              <div class="col-12 text-center">
+                <p id="resultMenuExplanation" style="font-size: 1rem" class="textChange"></p>
+              </div>
+            </div>
+            <div class="row" style ="padding: 10px 0px 10px 0px;">
+              <div class="col-12 text-center">
+                  <button type="button" style="width:120px" onclick="gameEventViewed()" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Continue</button>
+              </div>
+            </div>
+            </div>
+
+    </div>
+    </div>
+  </div>
+</div>
+
 
   </body>
 </html>

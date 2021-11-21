@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
 
+
 contract NFTMint is ERC721, VRFConsumerBase, Ownable, KeeperCompatibleInterface{
 
     bytes32 internal keyHash;
@@ -133,7 +134,7 @@ contract NFTMint is ERC721, VRFConsumerBase, Ownable, KeeperCompatibleInterface{
     function mintAnyCharacter(string memory name, uint256 characterID) public payable returns (bytes32) { // allows owner of contract to create new characters as the game progresses
         require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK - fill contract with faucet");
         require(characterID < totalMintableCharacters, "No Character With That ID");
-        require(msg.value == mintFee, "Send 0.002 Ether to mint New Character"); //someone gotta pay for the vrf fee and to prevent spamming of new characters
+        require(msg.value >= mintFee, "Send 0.002 Ether to mint New Character"); //someone gotta pay for the vrf fee and to prevent spamming of new characters
         bytes32 requestID = requestRandomness(keyHash, fee);
         requestToSender[requestID] = msg.sender;
         NFTCharacterStruct[requestID].name = name;
@@ -153,6 +154,7 @@ contract NFTMint is ERC721, VRFConsumerBase, Ownable, KeeperCompatibleInterface{
         characters[NFTID].charm = charm;
         return true;
     }
+
     /**
      * Requests randomness
      */
@@ -167,10 +169,10 @@ contract NFTMint is ERC721, VRFConsumerBase, Ownable, KeeperCompatibleInterface{
      */
     function fulfillRandomness(bytes32 requestId, uint256 randomness) internal override {
         uint256 newID = characters.length;
-        uint256 agility = NFTCharacterStruct[requestId].agility + (randomness % 100); // max will be 500
-        uint256 strength = NFTCharacterStruct[requestId].strength + ((randomness % 123456) % 100); // max will be 1000
-        uint256 sneak = NFTCharacterStruct[requestId].sneak + ((randomness % 654321) % 100); // max will be 500
-        uint256 charm = NFTCharacterStruct[requestId].charm + ((randomness % 33576) % 100); // max will be 50
+        uint256 agility = NFTCharacterStruct[requestId].agility + (randomness % 100);
+        uint256 strength = NFTCharacterStruct[requestId].strength + ((randomness % 123456) % 100);
+        uint256 sneak = NFTCharacterStruct[requestId].sneak + ((randomness % 654321) % 100);
+        uint256 charm = NFTCharacterStruct[requestId].charm + ((randomness % 33576) % 100);
         uint256 born = block.timestamp;
         characters.push(
             NFTCharacter(
@@ -191,7 +193,7 @@ contract NFTMint is ERC721, VRFConsumerBase, Ownable, KeeperCompatibleInterface{
         mintFee = newMintFee;
         lastCheckIn = block.timestamp;
     }
-    function changeGameAddress(address newGameAddress) public onlyOwner onlyGame { //this function can only be called once since onlyGame was initiated to owner
+    function changeGameAddress(address newGameAddress) public onlyOwner { //this function would be removed for mainnet.
         gameAddress = newGameAddress;
     }
 

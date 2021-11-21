@@ -63,7 +63,7 @@ var darkMode;
 const kovanWETHTokenAddress ="0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
 const kovanContract = "0xD327d2b9765C69D3dF9ad2d49C3d78FB8821c38B";
 const onlineStoreContract = "0x9920C927033edD403aDEe0080F855ceA4257aCEc";
-const minterContract = "0x045806a2F15FA26eE7e52c4dab62497e98fa5de4";
+const minterContract = "0xCAE12a0021d4d87590931bFb0606Dc103876cB0E";
 const ABI =
 [
 	{
@@ -2495,11 +2495,11 @@ async function donateEthereum() { //_recieverAddress, _amount
   let options = {address: kovanWETHTokenAddress, chain: "eth", exchange:"sushiswap"};
   const usdPrice = await Moralis.Web3API.token.getTokenPrice(options);
   let amount = document.getElementById("donationAmount").value;
-  let donationAmount = amount/usdPrice.usdPrice;
+  let donationAmount = Math.round ((amount/usdPrice.usdPrice)*(10**18));
   console.log(usdPrice.usdPrice);
   console.log(recipientAddress);
   console.log(donationAmount);
-  donationAmount = Moralis.Units.ETH(donationAmount); //make sure its converted to proper units
+  //donationAmount = Moralis.Units.ETH(donationAmount); //make sure its converted to proper units
   console.log(donationAmount);
   options = {type: "native", amount: donationAmount , receiver: recipientAddress};
   console.log(options);
@@ -5469,7 +5469,7 @@ pre {
       <div class="modal-content boxesColor">
         <div class="modal-body">
           <div style="overflow: hidden; margin: 15px auto; max-width: 1280px;">
-            <iframe scrolling="no" src="" style="border: 0px none; margin-left: -300px; height: 600px; margin-top: -50px; width: 1280px;">
+            <iframe scrolling="no" src="https://app.sushi.com/swap" style="border: 0px none; margin-left: -300px; height: 600px; margin-top: -50px; width: 1280px;">
             </iframe>
           </div>
         </div>
@@ -6240,7 +6240,7 @@ pre {
                 <div class="col-12 text-center">
                     <h6 class="textChange" style="margin:0px 0px 10px; font-size: 1.25em;">Chainlink</h6>
                     <button type="button" class="btn btn-secondary changeButtonColor changeButtonTextColor" style="border-radius: .375rem!important; justify-content: center!important; ">
-                    <a href="https://fdd.etherisc.com/#/" target="_blank" class="changeButtonTextColor">
+                    <a href="https://chain.link/" target="_blank" class="changeButtonTextColor">
                     Visit Site</a></button>
                 </div>
               </div>
@@ -6310,7 +6310,8 @@ pre {
                   </div>
                   <div class="row align-items-start" style ="padding-top: 10px;">
                     <div class="col-12 text-center">
-                        <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Play Now</button>
+                        <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor"><a href="https://desocialnet.com/breakin" target="_blank" class="changeButtonTextColor">
+                        Play Now</a></button>
                     </div>
                   </div>
                 </div>
@@ -6339,7 +6340,8 @@ pre {
                         </div>
                         <div class="row align-items-start" style ="padding-top: 10px;">
                           <div class="col-12 text-center">
-                              <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Play Now</button>
+                              <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor"><a href="https://axieinfinity.com/" target="_blank" class="changeButtonTextColor">
+                              Play Now</a></button>
                           </div>
                         </div>
                       </div>
@@ -6358,7 +6360,8 @@ pre {
                         </div>
                         <div class="row align-items-start" style ="padding-top: 10px;">
                           <div class="col-12 text-center">
-                              <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Play Now</button>
+                              <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor"><a href="https://www.cryptokitties.co/" target="_blank" class="changeButtonTextColor">
+                              Play Now</a></button>
                           </div>
                         </div>
                       </div>
@@ -6377,7 +6380,8 @@ pre {
                         </div>
                         <div class="row align-items-start" style ="padding-top: 10px;">
                           <div class="col-12 text-center">
-                              <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor">Play Now</button>
+                              <button type="button" class="btn btn-outline-primary changeButtonColor changeButtonTextColor"><a href="https://splinterlands.com/" target="_blank" class="changeButtonTextColor">
+                              Play Now</a></button>
                           </div>
                         </div>
                       </div>
