@@ -13,7 +13,7 @@ All of the assets are hosted via IPFS or built into the html.
 # How to
 Check out the video here to see how it is used:
 
-https://www.youtube.com/watch?v=X3Fo7CsMf_c
+https://youtu.be/tzZgbTJ5y64
 
 # Metamask
 
