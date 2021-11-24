@@ -47,21 +47,7 @@ function expandText(){
   });
 }
 
-// [{ "image": "","text":"","description":""}],
-// [{ "image": "","text":"","description":""}],
-// [{ "image": "","text":"","description":""}],
-// [{ "image": "","text":"","description":""}],
-// [{ "image": "","text":"","description":""}],
-// [{ "image": "","text":"","description":""}],
-// [{ "image": "","text":"","description":""}],
-// [{ "image": "","text":"","description":""}],
-// [{ "image": "","text":"","description":""}],
-// [{ "image": "","text":"","description":""}],
-// [{ "image": "","text":"","description":""}],
-// [{ "image": "","text":"","description":""}],
-// [{ "image": "","text":"","description":""}],
-// [{ "image": "","text":"","description":""}],
-// [{ "image": "","text":"","description":""}],
+
 var gameData = [
 { "image": "https://ipfs.io/ipfs/QmenEdeMvtSvWd3BMAXRdTVih21FtGsjYEQmwPHehrbD78?filename=coffin.png","text":"NFT Died","description":"You were trying to steal but you got caught and the guard accidently shot you. To keep playing, deposit a new NFT"}, // dies
 { "image": "https://ipfs.io/ipfs/QmbsJKQxnspKyEBb6xV45AuAHe6JYmbUcFdBxFd1z3E1cF?filename=bandages.png","text":"NFT Injured","description":"You accidently sprained your ankle running away. Make sure to get it healed before your next heist at the hospital."}, // dies
@@ -132,7 +118,7 @@ var web3;
 var difficultyLevel = {zero:100,one:100,two:100};
 var currentScenario = 0;
 const kovanWETHTokenAddress ="0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
-const gameKovanContract = "0x917173237d9F4D7fFDde9270320a405E282a9dCf";
+const gameKovanContract = "0xbFC882083bDcEA1EDd846B9E0fdf38B5241BC19B";
 const deSocialNetTokenAddress = "0xAe0f650F39B943F738a790519C3556bf6f8C92F1";
 const minterContract = "0xCAE12a0021d4d87590931bFb0606Dc103876cB0E";
 const gameABI =
@@ -2557,7 +2543,7 @@ async function checkForGameEvent(){
       //now we want the latest game event for this user
       let address = userPreferences.get("accounts");
       address = address[0];
-      const GameEvents = Moralis.Object.extend("breakInGameEvents");
+      const GameEvents = Moralis.Object.extend("breakInEvents");
       const query = new Moralis.Query(GameEvents);
 
       query.equalTo("player", address); // get all game events for players
@@ -2653,7 +2639,7 @@ async function renderResultMenu(){
   let gameEventBreakInStyle = await user.get("gameEventBreakInStyle");
   let gameEventMode = await userPreferences.get("gameEventMode");
   gameEventDifficultyLevel = (gameEventDifficultyLevel/100) - 1;
-  const GameEvents = Moralis.Object.extend("breakInGameEvents");
+  const GameEvents = Moralis.Object.extend("breakInEvents");
   const query = new Moralis.Query(GameEvents);
   console.log(query);
   query.equalTo("player", address); // get all game events for players
@@ -2699,51 +2685,6 @@ async function renderResultMenu(){
       document.getElementById("resultMenuExplanation").innerHTML = gameDataBreakout[code].description;
     }
   }
-
-  // document.getElementById('resultMenuImage').src = gameDataScenarioZero[number][0].image;
-  // document.getElementById("resultMenuText").innerHTML = gameDataScenarioZero[number][0].text;
-  // document.getElementById("resultMenuExplanation").innerHTML = gameDataScenarioZero[number][0].description;
-  // break;
-  // console.log(gameEventBreakInStyle);
-  // console.log(gameEventDifficultyLevel);
-  // let number = Number(code) + Number((gameEventBreakInStyle) * 6) + Number((gameEventDifficultyLevel) * 6) // code will be from 0 to 5 and then 6-11 for the next style
-  // console.log(code);
-  // console.log(number)
-  //
-  // let success = gameEventBreakInStyle * 6
-  // switch(gameEventScenarioNumber){
-  //   case 0:
-  //     if (code > 10000){ //successs
-  //       //document.getElementById('resultMenuImage').src = gameDataScenarioZero[success][0].success.image;
-  //       //document.getElementById("resultMenuText").innerHTML = gameDataScenarioZero[successr][0].success.text;
-  //       //document.getElementById("resultMenuExplanation").innerHTML = gameDataScenarioZero[success][0].success.explanation;
-  //     }
-  //     document.getElementById('resultMenuImage').src = gameDataScenarioZero[number][0].image;
-  //     document.getElementById("resultMenuText").innerHTML = gameDataScenarioZero[number][0].text;
-  //     document.getElementById("resultMenuExplanation").innerHTML = gameDataScenarioZero[number][0].description;
-  //     break;
-  //   case 1:
-  //   if (code > 10000){ //successs
-  //     document.getElementById('resultMenuImage').src = gameDataScenarioOne[success][0].success.image;
-  //     document.getElementById("resultMenuText").innerHTML = gameDataScenarioOne[successr][0].success.text;
-  //     document.getElementById("resultMenuExplanation").innerHTML = gameDataScenarioOne[success][0].success.explanation;
-  //   }
-  //   document.getElementById('resultMenuImage').src = gameDataScenarioOne[number][0].image;
-  //   document.getElementById("resultMenuText").innerHTML = gameDataScenarioOne[number][0].text;
-  //   document.getElementById("resultMenuExplanation").innerHTML = gameDataScenarioOne[number][0].description;
-  //     break;
-  //   case 2:
-  //   if (code > 10000){ //successs
-  //     document.getElementById('resultMenuImage').src = gameDataScenarioThree[success][0].success.image;
-  //     document.getElementById("resultMenuText").innerHTML = gameDataScenarioThree[successr][0].success.text;
-  //     document.getElementById("resultMenuExplanation").innerHTML = gameDataScenarioThree[success][0].success.explanation;
-  //   }
-  //   document.getElementById('resultMenuImage').src = gameDataScenarioThree[number][0].image;
-  //   document.getElementById("resultMenuText").innerHTML = gameDataScenarioThree[number][0].text;
-  //   document.getElementById("resultMenuExplanation").innerHTML = gameDataScenarioThree[number][0].description;
-  //
-  //     break;
-  // }
 }
 async function renderWaitingMenu(scenario){
   console.log(scenario)
@@ -2869,25 +2810,25 @@ function updateUserPreferences(_data, _action){
   console.log("sending to moralis",_data)
   switch(_action){
     case "unfollow":
-        userPreferences.remove("following",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
+        userPreferences.remove("following",_data);
         break;
     case "follow":
-        userPreferences.addUnique("following",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
+        userPreferences.addUnique("following",_data);
         console.log("Moralis followed uploaded");
         break;
     case "login":
-        userPreferences.set("lastLogin",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
+        userPreferences.set("lastLogin",_data);
         console.log("Moralis last login updated");
         break;
     case "modeChange":
-        userPreferences.set("mode",_data); //Either "Light" or "dark"
+        userPreferences.set("mode",_data);
         break;
     case "savePost":
-        userPreferences.addUnique("savedPosts",_data); //Array of Addresses with Post ID. Example [[0x578783,4],[0x57846,5]]
+        userPreferences.addUnique("savedPosts",_data);
         break;
     case "unSavePost":
-        userPreferences.remove("savedPosts",_data); //Array of Addresses with Post ID. Example [[0x578783,4],[0x57846,5]]
-        $('#savedPostModal').modal('hide'); //hide other modal
+        userPreferences.remove("savedPosts",_data);
+        $('#savedPostModal').modal('hide');
         break;
     default:
       //do nothing

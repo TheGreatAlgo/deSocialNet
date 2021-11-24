@@ -27,8 +27,8 @@ __________         ___.      __   .__             __________        .__ .__     
 <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 <script src="https://npmcdn.com/moralis@latest/dist/moralis.js"></script>
 <script>
+// Automatically expand textbars
 expandText()
-
 function expandText(){
   $(function() {
     $('textarea').on('input keyup paste', function() {
@@ -2317,9 +2317,6 @@ async function moralisGetNFTs(){
 async function moralisGetPosts() {
   const posts = Moralis.Object.extend("Posts");
   const query = new Moralis.Query(posts);
-  //let unixTime = Math.floor(Date.now() / 1000); /
-  //unixTime = unixTime - 86400 // in the last day
-  //query.greaterThan("time", unixTime);
   query.limit(25);
   const receipt = await query.find();
   console.log(receipt)
@@ -2328,7 +2325,7 @@ async function moralisGetPosts() {
 async function uploadFileandPostToBlockChain() {
   const data = file; // pull from global variable
   const message = document.getElementById("messageToPost").value;
-  if (message.length > 46 & enableNitro == true){
+  if (message.length > 46 & enableNitro == true){ // Nitrogas functionality
           let IPFSURL;
           if (data) {
             const moralisFile = new Moralis.File(data.name, data)
@@ -2450,7 +2447,7 @@ async function createUserProfile() {
   document.getElementById("mainPage").style.display = "block";
   getUserPreferences("user profile creation") // user Preferences are then assigned to global variables
   userProfileImage = false;
-  file = false; // file or gif no longer exists
+  file = false;
   gif = false;
   share = false;
   image = false;
@@ -2490,8 +2487,7 @@ async function mintAnyCharacter(_name,_characterID){
   console.log(result);
 }
 
-async function donateEthereum() { //_recieverAddress, _amount
-
+async function donateEthereum() {
   let options = {address: kovanWETHTokenAddress, chain: "eth", exchange:"sushiswap"};
   const usdPrice = await Moralis.Web3API.token.getTokenPrice(options);
   let amount = document.getElementById("donationAmount").value;
@@ -2669,21 +2665,21 @@ async function updateUserPreferences(_data, _action){
         if (address == _data){ // can't follow yourself
           break;
         }
-        userPreferences.addUnique("following",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
+        userPreferences.addUnique("following",_data);
         console.log("Moralis followed uploaded");
         break;
     case "login":
-        userPreferences.set("lastLogin",_data); //Array of Addresses. Example [0x489489839, 0x59839279,0x58943]
+        userPreferences.set("lastLogin",_data);
         console.log("Moralis last login updated");
         break;
     case "modeChange":
-        userPreferences.set("mode",_data); //Either "Light" or "dark"
+        userPreferences.set("mode",_data);
         break;
     case "savePost":
-        userPreferences.addUnique("savedPosts",_data); //Array of Addresses with Post ID. Example [[0x578783,4],[0x57846,5]]
+        userPreferences.addUnique("savedPosts",_data);
         break;
     case "unSavePost":
-        userPreferences.remove("savedPosts",_data); //Array of Addresses with Post ID. Example [[0x578783,4],[0x57846,5]]
+        userPreferences.remove("savedPosts",_data);
         $('#savedPostModal').modal('hide'); //hide other modal
         break;
     default:
@@ -3225,7 +3221,7 @@ function showEmojiBox(){
 // HANDLING FILES/LINKS -----------------------------------------------------------------------------------------------------------------------------------------------------------HANDLING FILES/LINKS-------------------------------
 function handleUserFile(_input) {
   deleteFile(); // delete any file previously there since only one is uploaded at a time
-  file = _input.files[0]; //input.files[0];
+  file = _input.files[0];
   document.getElementById("messageToPost").focus();
   console.log("new file");
   gif = false;
@@ -3521,12 +3517,6 @@ function handleNewUserProfileImageSettings(_input) {
     `; // Profile Overview in the Modal
 
 }
-  // function getUserPreferences(){
-  //   const userPreferences = Moralis.User.current();
-  //   console.log(userPreferences.fetch())
-  // }
-//var myModal = document.getElementById('myModal')
-//var myInput = document.getElementById('myInput')
 
 function getLocalTime(unixTimeStamp){
   unixTimeStamp = unixTimeStamp*1000;
@@ -3553,9 +3543,9 @@ function loadExplorePage(){
   document.getElementById("shopPage").style.display="none";
   document.getElementById("walletPage").style.display="none";
   document.getElementById("playPage").style.display="none";
+  document.getElementById("explorePostsPage").style.display=""; //wierd glitch where if i put inline it shows lower
+  document.getElementById("settingsPage").style.display="none";
   renderExplorePage();
-  document.getElementById("explorePostsPage").style.display="";
-    document.getElementById("settingsPage").style.display="none"; //wierd glitch where if i put inline it shows lower
 }
 function loadSocialFeedPage(){
   window.scrollTo(0, 0);
@@ -3563,9 +3553,9 @@ function loadSocialFeedPage(){
   document.getElementById("shopPage").style.display="none";
   document.getElementById("walletPage").style.display="none";
   document.getElementById("playPage").style.display="none";
-  renderSocialFeedPage();
   document.getElementById("socialFeedPage").style.display="";
-    document.getElementById("settingsPage").style.display="none";
+  document.getElementById("settingsPage").style.display="none";
+  renderSocialFeedPage();
 }
 function loadShopPage(){
   window.scrollTo(0, 0);
@@ -3647,7 +3637,6 @@ async function renderFollowing(followingArray) { //followingArray
   while (followerHTML.hasChildNodes()) { // This removes all of them and re-renders it
     followerHTML.removeChild(followerHTML.firstChild);
     }
-    //  expected array should be like ["0x4532f229","0x5354f229","0x5354f229"]
   if (following) {
     for (let i = 0; i < following.length; i++) {
       const currentUser = await Moralis.User.current();
@@ -3685,7 +3674,6 @@ async function renderSaved(savedArray) { //savedArray
     while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
       savedHTML.removeChild(savedHTML.firstChild);
       }
-   //const savedArray = [["0x4532f2293098AF088623a641546c98687DeB884","1"],["0x5354f2293098AF088623a641546c98687DeB884","2"],["0x4532f2293098AF088623a641546c98687DeB884","47"]]
     if (savedPosts) {
       console.log(savedPosts.length);
       for (let i = 0; i < savedPosts.length; i++) {
@@ -3702,7 +3690,7 @@ async function renderSaved(savedArray) { //savedArray
         postInformation.url = IPFSresponse.url;
         }
         let message = postInformation.message;
-        message = message.slice(0,15); // first ten letters
+        message = message.slice(0,15);
         message = message.concat("...");
         const address = savedPostsSplit[0];
         const postID = savedPostsSplit[1];
@@ -3864,8 +3852,6 @@ async function renderCommentArea(postAddress, postID) { //savedArray
       </a>
         `;
       }
-
-
       var addressShort = address.slice(0, 10);
       addressShort = addressShort.concat("...");
       if (commentID=="0"){
@@ -3931,7 +3917,7 @@ async function renderCommentArea(postAddress, postID) { //savedArray
         </div>
       </div>
       `;
-          expandText()
+    expandText()
 }
 async function renderModalCommentArea(postAddress, postID) {
     let postIDHTML = postAddress.concat(postID); //this creates the unqiueID in which we reference the html.
@@ -4004,7 +3990,7 @@ async function renderModalCommentArea(postAddress, postID) {
                   </div>
               </div>
           </div>
-        `; //Solve this later to load up a modal
+        `;
           }
         else{
           commentHTMl +=
@@ -4025,7 +4011,7 @@ async function renderModalCommentArea(postAddress, postID) {
                   </div>
               </div>
           </div>
-            `; //Solve this later to load up a modal
+            `;
         }
       }
       commentHTMl += "</div></div>";
@@ -4112,7 +4098,7 @@ async function renderSavedModal(address,postID) { //nickName,address,postID
     let totalComments = postInformation.totalComments;
     let nickName = postInformation.userNickname;
     let gifLinkHTML = await returnLinksGifsHTML(url)
-    let starArray = address+","+postID; //moralis doesn't seem to work with uploading arrays no so using a simple comment instead
+    let starArray = address+","+postID;
     while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
       savedHTML.removeChild(savedHTML.firstChild);
       }
@@ -4202,7 +4188,7 @@ async function renderSavedModal(address,postID) { //nickName,address,postID
             </div>
           </div>
         </div>
-        `; //Solve this later to load up a modal
+        `;
 
   }
 
@@ -4273,9 +4259,8 @@ async function renderUserAccountPosts(address,totalPosts) { //nickName,address,p
       if (alreadyExists){
         document.getElementById(postIDHTML).remove();
       }
-      let starArray = address+","+postID; //moralis doesn't seem to work with uploading arrays no so using a simple comment instead
+      let starArray = address+","+postID;
       console.log(starArray);
-      // populate the render Saved Model
       document.getElementById("userAccountPosts").innerHTML +=
           `
           <div class="col-12">
@@ -4369,6 +4354,8 @@ async function renderUserAccountPosts(address,totalPosts) { //nickName,address,p
           `;
     }
   }
+
+// Please Hire Me ;)
 async function renderFeaturedPost(address,postID) { //nickName,address,postID
     var addressShort = address.slice(0, 10);
     addressShort = addressShort.concat("...");
@@ -4538,9 +4525,8 @@ async function renderUserAccountMessages(address) { //nickName,address,postID
     }
   }
 
-async function renderSocialFeedPage() { //nickName,address,postID
-    let allPostArray = []; // initalizeArray
-
+async function renderSocialFeedPage() {
+    let allPostArray = [];
     let savedHTML = document.getElementById("socialFeedPostsContainer");
     while (savedHTML.childNodes.length>2) { // This removes all of them and re-renders it except for the post something box
       savedHTML.removeChild(savedHTML.lastChild);
@@ -4628,9 +4614,8 @@ async function renderSocialFeedPage() { //nickName,address,postID
       if (alreadyExists){
         document.getElementById(savedPostHTML).remove();
       }
-      let starArray = address+","+postID; //moralis doesn't seem to work with uploading arrays no so using a simple comment instead
+      let starArray = address+","+postID;
       console.log(starArray);
-      // populate the render Saved Model
       document.getElementById("socialFeedPostsContainer").innerHTML +=
           `
             <div class="card mb-3 boxesColor" style="border-radius: 20px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"  >
@@ -4725,10 +4710,10 @@ async function renderSocialFeedPage() { //nickName,address,postID
     }
   expandText()
   }
-async function renderUserAccount(address) { //nickName,address,postID
+async function renderUserAccount(address) {
     $('#savedPostModal').modal('hide'); //hide other modal
     $('#inboxModal').modal('hide'); //hide other modal
-    let savedHTML = document.getElementById("userAccountModalContent"); //prepare to wipe prior profile
+    let savedHTML = document.getElementById("userAccountModalContent");
     const userProfile = await contractGetUserProfile(address);
     var addressShort = address.slice(0, 10);
     addressShort = addressShort.concat("...");
@@ -4762,7 +4747,6 @@ async function renderUserAccount(address) { //nickName,address,postID
       while (savedHTML.hasChildNodes()) { // This removes all of them and re-renders it
         savedHTML.removeChild(savedHTML.firstChild);
         }
-      // populate the render Saved Model
       document.getElementById("userAccountModalContent").innerHTML +=
           `
           <div class="modal-content boxesColor">
@@ -4831,7 +4815,7 @@ async function renderUserAccount(address) { //nickName,address,postID
 
             </div>
           </div>
-          `; //Solve this later to load up a modal
+          `;
           await renderFeaturedPost(address,featuredPostID)
           renderUserAccountPosts(address,totalPosts)
     }
@@ -4840,16 +4824,16 @@ async function renderUserAccount(address) { //nickName,address,postID
 
 async function renderExplorePage() { //nickName,address,postID
     console.log("rendering explore page");
-    let allPostArray = []; // initalizeArray
+    let allPostArray = [];
     let postArray = [];
-    let moralisPosts = await moralisGetPosts() // gets the last 25 posts
+    let moralisPosts = await moralisGetPosts()
     console.log("moralis posts length ", moralisPosts.length)
     for (let j=0; j<moralisPosts.length; j++){
       console.log(moralisPosts[j]);
       const object = moralisPosts[j];
       let postID = object.get('postID');
       let senderAddress = object.get('senderAddress');
-      const postInformation = await contractGetUserPost(senderAddress, postID); // get post information
+      const postInformation = await contractGetUserPost(senderAddress, postID);
       let IPFSresponse = "";
       if (postInformation.message.slice(0,5) == "IPFS:"){
       ipfsHash = postInformation.message.replace('IPFS:', '');
@@ -4911,9 +4895,8 @@ async function renderExplorePage() { //nickName,address,postID
       if (alreadyExists){
         document.getElementById(savedPostHTML).remove();
       }
-      let starArray = address+","+postID; //moralis doesn't seem to work with uploading arrays no so using a simple comment instead
+      let starArray = address+","+postID;
       console.log(starArray);
-      // populate the render Saved Model
       document.getElementById("explorePostsContainer").innerHTML +=
           `
             <div class="card mb-3 boxesColor" style="border-radius: 20px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)"  >
