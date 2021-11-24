@@ -118,7 +118,7 @@ contract NFTMint is ERC721, VRFConsumerBase, Ownable, KeeperCompatibleInterface{
         totalMintableCharacters += 1;
     }
 
-    function getNFTAttributes(uint256 NFTID) external view returns(uint256 agility, uint256 strength, uint256 charm, uint256 sneak, uint256 health){ //don't need the name
+    function getNFTAttributes(uint256 NFTID) external view returns(uint256 agility, uint256 strength, uint256 charm, uint256 sneak, uint256 health){
         return(characters[NFTID].agility, characters[NFTID].strength,characters[NFTID].charm,characters[NFTID].sneak,characters[NFTID].health);
     }
 
@@ -131,7 +131,7 @@ contract NFTMint is ERC721, VRFConsumerBase, Ownable, KeeperCompatibleInterface{
         return true;
     }
 
-    function mintAnyCharacter(string memory name, uint256 characterID) public payable returns (bytes32) { // allows owner of contract to create new characters as the game progresses
+    function mintAnyCharacter(string memory name, uint256 characterID) public payable returns (bytes32) {
         require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK - fill contract with faucet");
         require(characterID < totalMintableCharacters, "No Character With That ID");
         require(msg.value >= mintFee, "Send 0.002 Ether to mint New Character"); //someone gotta pay for the vrf fee and to prevent spamming of new characters
@@ -146,7 +146,8 @@ contract NFTMint is ERC721, VRFConsumerBase, Ownable, KeeperCompatibleInterface{
         NFTCharacterStruct[requestID].characterID = characterID;
         return requestID;
     }
-    function changeNFTAttributes(uint256 NFTID, uint256 health, uint256 agility, uint256 strength, uint256 sneak, uint256 charm) external onlyGame returns (bool) { // allows owner of contract to create new characters as the game progresses
+    // Hire me please
+    function changeNFTAttributes(uint256 NFTID, uint256 health, uint256 agility, uint256 strength, uint256 sneak, uint256 charm) external onlyGame returns (bool) { //allows the game to modify character attributes.
         characters[NFTID].health = health;
         characters[NFTID].agility = agility;
         characters[NFTID].strength = strength;
@@ -159,7 +160,7 @@ contract NFTMint is ERC721, VRFConsumerBase, Ownable, KeeperCompatibleInterface{
      * Requests randomness
      */
 
-    function getRandomNumber() internal returns (bytes32 requestId) { // internal to prevent blank characters being mintend by someone calling this function publicly
+    function getRandomNumber() internal returns (bytes32 requestId) { // internal
         require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK - fill contract with faucet");
         return requestRandomness(keyHash, fee);
     }
@@ -193,7 +194,7 @@ contract NFTMint is ERC721, VRFConsumerBase, Ownable, KeeperCompatibleInterface{
         mintFee = newMintFee;
         lastCheckIn = block.timestamp;
     }
-    function changeGameAddress(address newGameAddress) public onlyOwner { //this function would be removed for mainnet.
+    function changeGameAddress(address newGameAddress) public onlyOwner{ //this function would be only called once at the begnning to allow only the game to modify character attributes. On mainnet it would include onlyGame
         gameAddress = newGameAddress;
     }
 
@@ -208,7 +209,7 @@ contract NFTMint is ERC721, VRFConsumerBase, Ownable, KeeperCompatibleInterface{
         checkInTimeInterval = newCheckInTimeInterval; // let owner change check in case he know he will be away for a while.
         lastCheckIn = block.timestamp;
     }
-
+    
     function passDownInheritance() internal {
         transferOwnership( nextOwner);
     }
